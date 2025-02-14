@@ -259,12 +259,37 @@ class PROJECT_OT_open_shot(Operator):
         layout.prop(self, "shot_to_open")
         layout.prop(self, "selected_role")
 
+class PROJECT_OT_UpdateProjectType(Operator):
+    """Update project type safely"""
+    bl_idname = "project.update_project_type"
+    bl_label = "Update Project Type"
+    bl_options = {'INTERNAL'}
+    
+    def execute(self, context):
+        try:
+            if not context.scene.current_project:
+                return {'CANCELLED'}
+                
+            project_info = get_project_info(context.scene.current_project)
+            
+            if isinstance(project_info, dict):
+                context.scene.project_settings.project_type = project_info.get('project_type', 'TEAM')
+            elif isinstance(project_info, tuple):
+                context.scene.project_settings.project_type = 'TEAM'  # Default para TEAM se for tupla
+                
+            return {'FINISHED'}
+        except Exception as e:
+            print(f"Error updating project type: {str(e)}")
+            return {'CANCELLED'}
+
 def register():
     bpy.utils.register_class(SaveContextOperator)
     bpy.utils.register_class(SetContextOperator)
     bpy.utils.register_class(PROJECT_OT_open_shot)
+    bpy.utils.register_class(PROJECT_OT_UpdateProjectType)
 
 def unregister():
     bpy.utils.unregister_class(SaveContextOperator)
     bpy.utils.unregister_class(SetContextOperator)
-    bpy.utils.unregister_class(PROJECT_OT_open_shot) 
+    bpy.utils.unregister_class(PROJECT_OT_open_shot)
+    bpy.utils.unregister_class(PROJECT_OT_UpdateProjectType) 

@@ -83,13 +83,15 @@ class PROJECT_PT_Panel_N(Panel):
                     print(f"Project info type: {type(project_info)}")
                     print(f"Project info value: {project_info}")
                     
-                    # Atualiza o tipo do projeto diretamente
-                    if isinstance(project_info, dict):
-                        context.scene.project_settings.project_type = project_info.get('project_type', 'TEAM')
-                    elif isinstance(project_info, tuple):
-                        context.scene.project_settings.project_type = 'TEAM'  # Default para TEAM se for tupla
+                    # Apenas lê o tipo do projeto, não tenta modificá-lo
+                    if hasattr(context.scene, "project_settings"):
+                        settings = context.scene.project_settings
+                        is_team_project = settings.project_type == 'TEAM'
+                    else:
+                        is_team_project = True  # Default para TEAM se as configurações não existirem
                 except Exception as e:
                     print(f"Error processing project info: {str(e)}")
+                    is_team_project = True  # Default para TEAM em caso de erro
             
             settings = context.scene.project_settings
             is_team_project = settings.project_type == 'TEAM'
