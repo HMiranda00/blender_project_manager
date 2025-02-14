@@ -29,7 +29,16 @@ class PROJECTMANAGER_UL_roles(UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
             row = layout.row(align=True)
+            
+            # Nome e ícone do cargo
             row.label(text=item.name, icon=item.icon if item.icon != 'NONE' else 'OUTLINER_COLLECTION')
+            
+            # Ícone de status (apenas para itens da lista de shots/cargos)
+            if hasattr(item, "is_linked"):
+                if item.is_linked:
+                    row.label(text="", icon='CHECKMARK')
+                else:
+                    row.label(text="", icon='DOT')
             
             # Botões de ação
             sub = row.row(align=True)
@@ -63,7 +72,15 @@ def draw_shot_management(layout, context):
     # Se tiver um shot selecionado
     if context.scene.current_shot:
         info = shot_box.box()
-        info.label(text=i18n.translate("Current Shot:"))
+        
+        # Shot info com botões
+        row = info.row(align=True)
+        row.label(text=i18n.translate("Current Shot:"))
+        row.operator("project.open_shot_folder", icon='FILE_FOLDER', text="")
+        if context.scene.project_settings.project_type == 'TEAM':
+            row.operator("project.open_assembly", icon='COMMUNITY', text="")
+        
+        # Nome do shot
         info.label(text=context.scene.current_shot)
         
         # Lista de cargos do shot atual
@@ -134,51 +151,116 @@ class ProjectManagerPanel(Panel):
                 if not prefs:
                     return
                 
-                project_name, workspace_path, project_prefix = get_project_info(
-                    context.scene.current_project,
-                    prefs.use_fixed_root
-                )
+                # Get project info only once
+                project_info = None
+                if hasattr(context.scene, "current_project_name") and context.scene.current_project_name:
+                    project_name = context.scene.current_project_name
+                else:
+                    project_name, workspace_path, project_prefix = get_project_info(
+                        context.scene.current_project,
+                        prefs.use_fixed_root
+                    )
+                    context.scene.current_project_name = project_name
                 
-                info_box = box.box()
-                info_box.label(text=i18n.translate("Current Project:"))
-                info_box.label(text=project_name)
+                # Current Project
+                row = box.row()
+                row.label(text=project_name)
                 
-                # Project settings
+                # Current Shot (if any)
+                if context.scene.current_shot:
+                    row = box.row()
+                    row.label(text=context.scene.current_shot)
+                    row.operator("project.open_shot_folder", icon='FILE_FOLDER', text="")
+                
+                # Project Settings (collapsible)
                 settings = context.scene.project_settings
                 settings_box = layout.box()
-                settings_box.label(text=i18n.translate("Project Settings"), icon='SETTINGS')
-                
-                # Project type
                 row = settings_box.row()
-                row.label(text=i18n.translate("Type:"))
-                row.label(text=i18n.translate("Team") if settings.project_type == 'TEAM' else i18n.translate("Solo"))
+                row.prop(settings, "show_settings", icon='TRIA_DOWN' if settings.show_settings else 'TRIA_RIGHT', text="", emboss=False)
+                row.label(text=i18n.translate("Project Settings"), icon='SETTINGS')
                 
-                # Asset linking
-                row = settings_box.row()
-                row.label(text=i18n.translate("Asset Linking:"))
-                row.label(text=i18n.translate("Link") if settings.asset_linking == 'LINK' else i18n.translate("Append"))
-                
-                # Version control
-                row = settings_box.row()
-                row.label(text=i18n.translate("Version Control:"))
-                row.label(text=i18n.translate("Enabled") if settings.use_versioning else i18n.translate("Disabled"))
-                
-                # Update settings button
-                settings_box.operator("project.update_settings", icon='FILE_REFRESH')
+                if settings.show_settings:
+                    # Project type
+                    row = settings_box.row()
+                    row.label(text=i18n.translate("Type:"))
+                    row.label(text=i18n.translate("Team") if settings.project_type == 'TEAM' else i18n.translate("Solo"))
+                    
+                    # Asset linking
+                    row = settings_box.row()
+                    row.label(text=i18n.translate("Asset Linking:"))
+                    row.label(text=i18n.translate("Link") if settings.asset_linking == 'LINK' else i18n.translate("Append"))
+                    
+                    # Version control
+                    row = settings_box.row()
+                    row.label(text=i18n.translate("Version Control:"))
+                    row.label(text=i18n.translate("Enabled") if settings.use_versioning else i18n.translate("Disabled"))
+                    
+                    # Update settings button
+                    settings_box.operator("project.update_settings", icon='FILE_REFRESH')
                 
                 # Asset Browser
                 asset_box = layout.box()
-                asset_box.label(text=i18n.translate("Asset Browser"), icon='ASSET_MANAGER')
-                
                 row = asset_box.row(align=True)
-                row.operator("project.toggle_asset_browser", icon='WINDOW')
+                row.operator("project.toggle_asset_browser", icon='ASSET_MANAGER', text=i18n.translate("Asset Browser"))
                 row.operator("project.reload_link", icon='FILE_REFRESH', text="")
                 
                 # Shot/Scene management based on project type
                 if settings.project_type == 'TEAM':
-                    draw_shot_management(layout, context)
+                    # Shot list
+                    shot_box = layout.box()
+                    shot_box.label(text=i18n.translate("Shot Management"), icon='SEQUENCE')
+                    
+                    # Create shot button
+                    row = shot_box.row()
+                    row.operator("project.create_shot", icon='ADD', text=i18n.translate("Create Shot"))
+                    
+                    # Shot list
+                    if hasattr(context.scene, "shot_list"):
+                        row = shot_box.row()
+                        row.template_list(
+                            "PROJECTMANAGER_UL_shots", "shot_list",
+                            context.scene, "shot_list",
+                            context.scene, "active_shot_index",
+                            rows=3
+                        )
+                        
+                        # Open shot button
+                        if context.scene.active_shot_index >= 0 and context.scene.active_shot_index < len(context.scene.shot_list):
+                            row = shot_box.row()
+                            row.operator("project.open_shot", icon='FILE_FOLDER', text=i18n.translate("Open Shot"))
+                    
+                    # Assembly
+                    if context.scene.current_shot:
+                        assembly_box = layout.box()
+                        assembly_box.label(text=i18n.translate("Assembly"), icon='COMMUNITY')
+                        
+                        # Open assembly button (red)
+                        row = assembly_box.row()
+                        row.alert = True  # Makes the button red in a safer way
+                        row.operator("project.open_assembly", icon='COMMUNITY', text=i18n.translate("Open Assembly"))
+                        row.alert = False
                 else:
-                    draw_scene_management(layout, context)
+                    # Scene list
+                    scene_box = layout.box()
+                    scene_box.label(text=i18n.translate("Scene Management"), icon='SCENE_DATA')
+                    
+                    row = scene_box.row()
+                    row.operator("project.create_shot", icon='ADD', text=i18n.translate("Create Scene"))
+                    
+                    # Scene list
+                    if hasattr(context.scene, "shot_list"):
+                        row = scene_box.row()
+                        row.template_list(
+                            "PROJECTMANAGER_UL_shots", "shot_list",
+                            context.scene, "shot_list",
+                            context.scene, "active_shot_index",
+                            rows=3
+                        )
+                        
+                        # Open scene button
+                        if context.scene.active_shot_index >= 0 and context.scene.active_shot_index < len(context.scene.shot_list):
+                            row = scene_box.row()
+                            row.operator("project.open_shot", icon='FILE_FOLDER', text=i18n.translate("Open Scene"))
                 
                 # Version control
                 if context.scene.current_shot and settings.use_versioning:
@@ -215,11 +297,6 @@ def update_active_shot(self, context):
             # Atualizar listas
             bpy.ops.project.update_shot_list()
             
-            # Debug
-            print(f"\nUpdate Active Shot:")
-            print(f"Shot selecionado: {shot_item.name}")
-            print(f"Current shot: {context.scene.current_shot}")
-            
             # Salvar contexto
             from ..core.project_context import save_project_context
             save_project_context()
@@ -230,32 +307,13 @@ def update_active_shot(self, context):
     return None
 
 def register():
-    from ..properties.shot_list import ShotListItem
+    """Registra os painéis e suas classes"""
     bpy.utils.register_class(PROJECTMANAGER_UL_shots)
     bpy.utils.register_class(PROJECTMANAGER_UL_roles)
     bpy.utils.register_class(ProjectManagerPanel)
-    
-    # Registrar propriedades para as listas
-    if not hasattr(bpy.types.Scene, "shot_list"):
-        bpy.types.Scene.shot_list = bpy.props.CollectionProperty(type=ShotListItem)
-    if not hasattr(bpy.types.Scene, "active_shot_index"):
-        bpy.types.Scene.active_shot_index = bpy.props.IntProperty(update=update_active_shot)
-    if not hasattr(bpy.types.Scene, "role_list"):
-        bpy.types.Scene.role_list = bpy.props.CollectionProperty(type=ShotListItem)
-    if not hasattr(bpy.types.Scene, "active_role_index"):
-        bpy.types.Scene.active_role_index = bpy.props.IntProperty()
 
 def unregister():
-    # Remover propriedades
-    if hasattr(bpy.types.Scene, "active_role_index"):
-        del bpy.types.Scene.active_role_index
-    if hasattr(bpy.types.Scene, "role_list"):
-        del bpy.types.Scene.role_list
-    if hasattr(bpy.types.Scene, "active_shot_index"):
-        del bpy.types.Scene.active_shot_index
-    if hasattr(bpy.types.Scene, "shot_list"):
-        del bpy.types.Scene.shot_list
-    
+    """Desregistra os painéis e suas classes"""
     bpy.utils.unregister_class(ProjectManagerPanel)
     bpy.utils.unregister_class(PROJECTMANAGER_UL_roles)
     bpy.utils.unregister_class(PROJECTMANAGER_UL_shots)

@@ -32,16 +32,70 @@ class ShotListItem(PropertyGroup):
         default=False
     )
 
+def register_shot_list():
+    """Registra as propriedades da lista de shots"""
+    try:
+        # Registrar classe
+        bpy.utils.register_class(ShotListItem)
+        
+        # Registrar propriedades
+        if not hasattr(bpy.types.Scene, "shot_list"):
+            bpy.types.Scene.shot_list = bpy.props.CollectionProperty(
+                type=ShotListItem,
+                options={'SKIP_SAVE'}
+            )
+            
+        if not hasattr(bpy.types.Scene, "active_shot_index"):
+            bpy.types.Scene.active_shot_index = bpy.props.IntProperty(
+                options={'SKIP_SAVE'}
+            )
+            
+        if not hasattr(bpy.types.Scene, "role_list"):
+            bpy.types.Scene.role_list = bpy.props.CollectionProperty(
+                type=ShotListItem,
+                options={'SKIP_SAVE'}
+            )
+            
+        if not hasattr(bpy.types.Scene, "active_role_index"):
+            bpy.types.Scene.active_role_index = bpy.props.IntProperty(
+                options={'SKIP_SAVE'}
+            )
+            
+        print("Propriedades da lista de shots registradas com sucesso")
+        return True
+        
+    except Exception as e:
+        print(f"Erro ao registrar propriedades da lista de shots: {str(e)}")
+        raise
+
+def unregister_shot_list():
+    """Desregistra as propriedades da lista de shots"""
+    try:
+        # Remover propriedades
+        if hasattr(bpy.types.Scene, "active_role_index"):
+            del bpy.types.Scene.active_role_index
+            
+        if hasattr(bpy.types.Scene, "role_list"):
+            del bpy.types.Scene.role_list
+            
+        if hasattr(bpy.types.Scene, "active_shot_index"):
+            del bpy.types.Scene.active_shot_index
+            
+        if hasattr(bpy.types.Scene, "shot_list"):
+            del bpy.types.Scene.shot_list
+            
+        # Desregistrar classe
+        bpy.utils.unregister_class(ShotListItem)
+        
+        print("Propriedades da lista de shots desregistradas com sucesso")
+        return True
+        
+    except Exception as e:
+        print(f"Erro ao desregistrar propriedades da lista de shots: {str(e)}")
+        raise
+
 def register():
-    bpy.utils.register_class(ShotListItem)
-    if not hasattr(bpy.types.Scene, "shot_list"):
-        bpy.types.Scene.shot_list = bpy.props.CollectionProperty(type=ShotListItem)
-    if not hasattr(bpy.types.Scene, "active_shot_index"):
-        bpy.types.Scene.active_shot_index = bpy.props.IntProperty()
+    register_shot_list()
 
 def unregister():
-    if hasattr(bpy.types.Scene, "active_shot_index"):
-        del bpy.types.Scene.active_shot_index
-    if hasattr(bpy.types.Scene, "shot_list"):
-        del bpy.types.Scene.shot_list
-    bpy.utils.unregister_class(ShotListItem) 
+    unregister_shot_list() 
