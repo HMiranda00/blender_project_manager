@@ -46,17 +46,6 @@ def load_default_roles(prefs):
     # Clear existing roles
     prefs.role_mappings.clear()
     
-    # Assembly role (required for team mode)
-    assembly = prefs.role_mappings.add()
-    assembly.role_name = "ASSEMBLY"
-    assembly.description = i18n_translate("Final project assembly")
-    assembly.icon = 'COMMUNITY'
-    assembly.collection_color = 'COLOR_01'
-    assembly.link_type = 'LINK'
-    assembly.publish_path_preset = 'SHOTS'
-    assembly.owns_world = True
-    assembly.show_status = True
-    
     # Animation role
     anim = prefs.role_mappings.add()
     anim.role_name = "ANIMATION"

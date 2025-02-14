@@ -12,7 +12,7 @@ from .core.project_context import (
 )
 
 bl_info = {
-    "name": "Project Manager",
+    "name": "Blender Project Manager",
     "author": "Henrique Carvalho",
     "version": (1, 0),
     "blender": (3, 6, 0),
@@ -35,55 +35,86 @@ def register():
     """Register the addon"""
     print("=== Starting Project Manager Registration ===")
     
+    # Primeiro, verificar se o addon já está registrado
+    if "blender_project_manager" in bpy.context.preferences.addons:
+        print("Addon já está registrado, tentando desregistrar primeiro...")
+        try:
+            bpy.ops.preferences.addon_disable(module="blender_project_manager")
+        except Exception as e:
+            print(f"Erro ao desabilitar addon existente: {str(e)}")
+    
     print("Registering translations...")
     try:
-        # Limpa o cache de traduções antes de registrar
-        if "gerenciador_projetos.i18n" in bpy.app.translations.locales:
-            bpy.app.translations.unregister("gerenciador_projetos.i18n")
         i18n.register()
     except Exception as e:
         print(f"Error registering translations: {str(e)}")
     
     print("Registering properties...")
-    properties.register()
+    try:
+        properties.register()
+    except Exception as e:
+        print(f"Error registering properties: {str(e)}")
+        raise
     
     print("Registering preferences...")
-    preferences.register()
+    try:
+        preferences.register()
+    except Exception as e:
+        print(f"Error registering preferences: {str(e)}")
+        raise
     
     print("Registering operators...")
-    operators.register()
+    try:
+        operators.register()
+    except Exception as e:
+        print(f"Error registering operators: {str(e)}")
+        raise
     
     print("Registering panels...")
-    panels.register()
+    try:
+        panels.register()
+    except Exception as e:
+        print(f"Error registering panels: {str(e)}")
+        raise
     
     print("Registering scene properties...")
-    bpy.types.Scene.current_project = bpy.props.StringProperty(
-        name="Current Project",
-        description="Current project path",
-        default=""
-    )
-    
-    bpy.types.Scene.current_shot = bpy.props.StringProperty(
-        name="Current Shot",
-        description="Current shot name",
-        default=""
-    )
-    
-    bpy.types.Scene.current_role = bpy.props.StringProperty(
-        name="Current Role",
-        description="Current role name",
-        default=""
-    )
+    try:
+        if not hasattr(bpy.types.Scene, "current_project"):
+            bpy.types.Scene.current_project = bpy.props.StringProperty(
+                name="Current Project",
+                description="Current project path",
+                default=""
+            )
+        
+        if not hasattr(bpy.types.Scene, "current_shot"):
+            bpy.types.Scene.current_shot = bpy.props.StringProperty(
+                name="Current Shot",
+                description="Current shot name",
+                default=""
+            )
+        
+        if not hasattr(bpy.types.Scene, "current_role"):
+            bpy.types.Scene.current_role = bpy.props.StringProperty(
+                name="Current Role",
+                description="Current role name",
+                default=""
+            )
+    except Exception as e:
+        print(f"Error registering scene properties: {str(e)}")
+        raise
     
     print("Registering WindowManager properties...")
-    bpy.types.WindowManager.project_settings = bpy.props.PointerProperty(type=properties.ProjectSettings)
+    try:
+        if not hasattr(bpy.types.WindowManager, "project_settings"):
+            bpy.types.WindowManager.project_settings = bpy.props.PointerProperty(type=properties.ProjectSettings)
+    except Exception as e:
+        print(f"Error registering WindowManager properties: {str(e)}")
+        raise
     
     # Inicializa o contexto
     print("Initializing project context...")
     try:
         project_context = get_project_context()
-        # Não tenta carregar o contexto durante o registro
-        # O handler load_context_handler fará isso quando apropriado
     except Exception as e:
         print(f"Error initializing context: {str(e)}")
     
@@ -104,17 +135,24 @@ def unregister():
         bpy.app.handlers.save_pre.remove(save_context_handler)
     
     # Unregister modules in reverse order
-    panels.unregister()
-    operators.unregister()
-    preferences.unregister()
-    properties.unregister()
-    i18n.unregister()
-    
-    # Remove scene properties
-    del bpy.types.Scene.current_project
-    del bpy.types.Scene.current_shot
-    del bpy.types.Scene.current_role
-    del bpy.types.WindowManager.project_settings
+    try:
+        panels.unregister()
+        operators.unregister()
+        preferences.unregister()
+        properties.unregister()
+        i18n.unregister()
+        
+        # Remove scene properties
+        if hasattr(bpy.types.Scene, "current_project"):
+            del bpy.types.Scene.current_project
+        if hasattr(bpy.types.Scene, "current_shot"):
+            del bpy.types.Scene.current_shot
+        if hasattr(bpy.types.Scene, "current_role"):
+            del bpy.types.Scene.current_role
+        if hasattr(bpy.types.WindowManager, "project_settings"):
+            del bpy.types.WindowManager.project_settings
+    except Exception as e:
+        print(f"Error unregistering addon: {str(e)}")
 
 if __name__ == "__main__":
     register()

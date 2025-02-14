@@ -31,11 +31,11 @@ class PROJECT_PT_Panel_N(Panel):
         layout = self.layout
         
         try:
-            if 'gerenciador_projetos' not in context.preferences.addons:
+            if 'blender_project_manager' not in context.preferences.addons:
                 layout.label(text=i18n_translate("Addon is not active"), icon='ERROR')
                 return
                 
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             
             if not hasattr(context.scene, "project_settings"):
                 layout.label(text=i18n_translate("Settings not initialized"), icon='ERROR')

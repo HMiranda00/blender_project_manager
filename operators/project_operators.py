@@ -144,8 +144,18 @@ class PROJECT_OT_open_shot(Operator):
         """Lista todos os cargos configurados"""
         try:
             prefs = context.preferences.addons['gerenciador_projetos'].preferences
-            return [(rm.role_name, rm.role_name, rm.description, rm.icon, i) 
-                    for i, rm in enumerate(prefs.role_mappings)]
+            roles = []
+            
+            # Primeiro adiciona o ASSEMBLY se estiver em modo TEAM
+            if context.scene.project_settings.project_type == 'TEAM':
+                roles.append(('ASSEMBLY', 'Assembly', 'Montagem final do projeto', 'COMMUNITY', 0))
+            
+            # Depois adiciona os outros cargos
+            for i, rm in enumerate(prefs.role_mappings, start=1):
+                if rm.role_name != 'ASSEMBLY':  # Ignora o ASSEMBLY nos cargos regulares
+                    roles.append((rm.role_name, rm.role_name, rm.description, rm.icon, i))
+            
+            return roles
         except Exception as e:
             print(f"Erro ao listar cargos: {str(e)}")
             return [('NONE', "Erro ao listar cargos", "", 'ERROR', 0)]
@@ -181,7 +191,26 @@ class PROJECT_OT_open_shot(Operator):
             project_path = context.scene.current_project
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
 
-            # Encontrar configurações do cargo
+            # Tratamento especial para o ASSEMBLY
+            if self.selected_role == 'ASSEMBLY':
+                # Caminho do arquivo de assembly
+                assembly_path = os.path.join(workspace_path, "SHOTS", "ASSEMBLY")
+                blend_file = f"{project_prefix}_{self.shot_to_open}_ASSEMBLY.blend"
+                assembly_filepath = os.path.join(assembly_path, blend_file)
+                
+                # Atualizar contexto
+                context.scene.current_shot = self.shot_to_open
+                context.scene.current_role = 'ASSEMBLY'
+                
+                if os.path.exists(assembly_filepath):
+                    bpy.ops.wm.open_mainfile(filepath=assembly_filepath)
+                    self.report({'INFO'}, f"Arquivo de assembly do shot {self.shot_to_open} aberto")
+                else:
+                    self.report({'WARNING'}, f"Arquivo de assembly não encontrado: {assembly_filepath}")
+                    
+                return {'FINISHED'}
+
+            # Para outros cargos, continua com o comportamento normal
             role_settings = None
             for role_mapping in prefs.role_mappings:
                 if role_mapping.role_name == self.selected_role:
