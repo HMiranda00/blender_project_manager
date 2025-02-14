@@ -1,4 +1,4 @@
-import os
+﻿import os
 import bpy
 import re
 from .cache import DirectoryCache
@@ -13,7 +13,7 @@ from .versioning import get_next_version_number
 ASSEMBLY_ROLE = "ASSEMBLY"
 
 def is_assembly_role(role_name):
-    """Verifica se o cargo é do tipo assembly"""
+    """Verifica se o cargo Ã© do tipo assembly"""
     return role_name and role_name.upper() == ASSEMBLY_ROLE
 
 def get_assembly_role():
@@ -68,7 +68,7 @@ def detect_file_context(filepath, project_prefix):
     """Detecta o contexto (shot e cargo) a partir do nome do arquivo"""
     filename = os.path.basename(filepath)
     
-    # Padrão esperado: PREFIX_SHOT_ROLE.blend
+    # PadrÃ£o esperado: PREFIX_SHOT_ROLE.blend
     pattern = rf"{project_prefix}_(.+?)_(.+?)\.blend"
     match = re.match(pattern, filename)
     
@@ -93,7 +93,7 @@ def show_progress_status(context, message, progress=0):
                 context.workspace.status_text_set(f"{message} ({progress:.0f}%)")
             else:
                 context.workspace.status_text_set(message)
-        # Fallback: usar o primeiro workspace disponível
+        # Fallback: usar o primeiro workspace disponÃ­vel
         else:
             for workspace in bpy.data.workspaces:
                 if progress > 0:

@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 import os
 from bpy.types import Operator
 from ..utils import get_project_info
@@ -11,7 +11,7 @@ class PROJECTMANAGER_OT_open_scene(Operator):
     
     def get_scenes(self, context):
         try:
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = (get_addon_prefs())
             project_path = context.scene.current_project
             _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
             
@@ -47,10 +47,10 @@ class PROJECTMANAGER_OT_open_scene(Operator):
     def execute(self, context):
         try:
             if not self.scene:
-                self.report({'ERROR'}, "Selecione uma cena válida")
+                self.report({'ERROR'}, "Selecione uma cena vÃ¡lida")
                 return {'CANCELLED'}
             
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = (get_addon_prefs())
             project_path = context.scene.current_project
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             
@@ -67,11 +67,11 @@ class PROJECTMANAGER_OT_open_scene(Operator):
                 should_redirect, wip_path = redirect_to_latest_wip(context, publish_filepath)
                 
                 if should_redirect and wip_path:
-                    # Abrir último WIP
+                    # Abrir Ãºltimo WIP
                     bpy.ops.wm.open_mainfile(filepath=wip_path)
-                    self.report({'INFO'}, f"Último WIP da cena {self.scene} aberto")
+                    self.report({'INFO'}, f"Ãšltimo WIP da cena {self.scene} aberto")
                 else:
-                    # Se não há WIP, criar primeiro WIP
+                    # Se nÃ£o hÃ¡ WIP, criar primeiro WIP
                     wip_path = create_first_wip(context, publish_filepath)
                     if wip_path:
                         bpy.ops.wm.open_mainfile(filepath=wip_path)
@@ -80,7 +80,7 @@ class PROJECTMANAGER_OT_open_scene(Operator):
                         self.report({'ERROR'}, "Erro ao criar primeiro WIP")
                         return {'CANCELLED'}
             else:
-                self.report({'ERROR'}, f"Arquivo da cena não encontrado: {publish_filepath}")
+                self.report({'ERROR'}, f"Arquivo da cena nÃ£o encontrado: {publish_filepath}")
                 return {'CANCELLED'}
             
             # Atualizar contexto

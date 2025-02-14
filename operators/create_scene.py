@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 import os
 from bpy.types import Operator
 from bpy.props import StringProperty
@@ -25,10 +25,10 @@ class PROJECTMANAGER_OT_create_scene(Operator):
     def execute(self, context):
         try:
             if not self.scene_name:
-                self.report({'ERROR'}, "Nome da cena não pode ser vazio")
+                self.report({'ERROR'}, "Nome da cena nÃ£o pode ser vazio")
                 return {'CANCELLED'}
             
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = (get_addon_prefs())
             project_path = context.scene.current_project
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             

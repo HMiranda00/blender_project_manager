@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 from . import context
 
 # Export context functions

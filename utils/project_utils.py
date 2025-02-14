@@ -1,7 +1,32 @@
-import os
+﻿import os
 import re
 import bpy
 from .cache import DirectoryCache
+
+def get_addon_prefs():
+    """Returns the addon preferences in a centralized way"""
+    try:
+        return bpy.context.preferences.addons['blender_project_manager'].preferences
+    except (KeyError, AttributeError) as e:
+        print(f"Error getting addon preferences: {str(e)}")
+        print("Make sure the addon is enabled in Blender preferences")
+        return None
+    except Exception as e:
+        print(f"Unexpected error getting addon preferences: {str(e)}")
+        return None
+
+def save_current_file():
+    """Salva o arquivo atual se necessário"""
+    try:
+        if bpy.data.is_dirty:
+            if bpy.data.filepath:
+                bpy.ops.wm.save_mainfile()
+            else:
+                return False
+        return True
+    except Exception as e:
+        print(f"Erro ao salvar arquivo: {str(e)}")
+        return False
 
 def get_project_info(path, is_fixed_root=False):
     """Extract project info from a path"""
@@ -25,7 +50,7 @@ def get_project_info(path, is_fixed_root=False):
             prefix_match = re.match(r'^(\d+)\s*-\s*', project_folder)
             if prefix_match:
                 project_prefix = prefix_match.group(1)
-                workspace_path = os.path.join(path, "03 - 3D")
+                workspace_path = os.path.join(path, "3D")
         else:
             # Formato livre
             prefix_match = re.match(r'^([A-Z]+\d+)', project_folder)
@@ -75,7 +100,7 @@ def create_project_structure(workspace_path, project_prefix=None, project_type='
 
 def get_publish_path(preset, role_settings, context, project_path, project_name, shot_name, asset_name):
     """Get the publish path based on settings"""
-    prefs = context.preferences.addons['gerenciador_projetos'].preferences
+    prefs = get_addon_prefs()
     _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
     
     placeholders = {
@@ -98,3 +123,31 @@ def get_publish_path(preset, role_settings, context, project_path, project_name,
         path_template = "{root}/SHOTS/{shot}/{role}/PUBLISH"
         
     return path_template.format(**placeholders) 
+
+def get_project_shots(project_path):
+    """Get list of shots in the project"""
+    shots = []
+    workspace_path = os.path.join(project_path, "3D")
+    shots_path = os.path.join(workspace_path, "SHOTS")
+    
+    if os.path.exists(shots_path):
+        for shot in os.listdir(shots_path):
+            if os.path.isdir(os.path.join(shots_path, shot)):
+                shots.append(shot)
+    
+    return sorted(shots)
+
+def get_project_roles(project_path):
+    """Get list of roles from addon preferences"""
+    roles = []
+    prefs = get_addon_prefs()
+    
+    if prefs and prefs.role_mappings:
+        for rm in prefs.role_mappings:
+            if rm.role_name != "ASSEMBLY":  # Não incluir o cargo ASSEMBLY
+                roles.append({
+                    'name': rm.role_name,
+                    'icon': rm.icon if rm.icon != 'NONE' else 'OUTLINER_COLLECTION'
+                })
+    
+    return roles 

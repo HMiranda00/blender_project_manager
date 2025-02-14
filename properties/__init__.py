@@ -1,28 +1,33 @@
+﻿"""
+Properties module initialization
+"""
 import bpy
 from bpy.types import PropertyGroup
 from bpy.props import EnumProperty, BoolProperty, PointerProperty, StringProperty
+from .. import i18n
+from . import shot_list
 
 class ProjectSettings(PropertyGroup):
     project_type: EnumProperty(
-        name="Tipo de Projeto",
+        name=i18n.translate("Project Type"),
         items=[
-            ('TEAM', "Equipe", "Projeto com múltiplos cargos e assembly", 'COMMUNITY', 0),
-            ('SOLO', "Solo", "Projeto individual simplificado", 'PERSON', 1)
+            ('TEAM', i18n.translate("Team"), i18n.translate("Project with multiple roles and assembly"), 'COMMUNITY', 0),
+            ('SOLO', i18n.translate("Solo"), i18n.translate("Simplified individual project"), 'PERSON', 1)
         ],
         default='TEAM'
     )
     
     asset_linking: EnumProperty(
-        name="Referência de Assets",
+        name=i18n.translate("Asset Reference"),
         items=[
-            ('LINK', "Link", "Assets serão linkados", 'LINKED', 0),
-            ('APPEND', "Append", "Assets serão anexados", 'APPEND_BLEND', 1)
+            ('LINK', i18n.translate("Link"), i18n.translate("Assets will be linked"), 'LINKED', 0),
+            ('APPEND', i18n.translate("Append"), i18n.translate("Assets will be appended"), 'APPEND_BLEND', 1)
         ],
         default='LINK'
     )
     
     use_versioning: BoolProperty(
-        name="Usar Versionamento",
+        name=i18n.translate("Use Versioning"),
         default=True
     )
 
@@ -32,35 +37,41 @@ def register():
         if not hasattr(bpy.types.Scene, "project_settings"):
             bpy.types.Scene.project_settings = PointerProperty(type=ProjectSettings)
             
-        # Adicionar propriedade para timestamp do último publish
+        # Add property for last publish timestamp
         if not hasattr(bpy.types.Scene, "last_publish_time"):
             bpy.types.Scene.last_publish_time = StringProperty(
-                name="Último Publish",
-                description="Data e hora do último publish",
+                name=i18n.translate("Last Publish"),
+                description=i18n.translate("Date and time of last publish"),
                 default=""
             )
             
-        # Adicionar propriedade para status da versão
+        # Add property for version status
         if not hasattr(bpy.types.Scene, "version_status"):
             bpy.types.Scene.version_status = StringProperty(
-                name="Status da Versão",
-                description="Status da versão atual do arquivo",
+                name=i18n.translate("Version Status"),
+                description=i18n.translate("Status of current file version"),
                 default=""
             )
             
-        # Adicionar propriedade para status do assembly
+        # Add property for assembly status
         if not hasattr(bpy.types.Scene, "assembly_status"):
             bpy.types.Scene.assembly_status = StringProperty(
-                name="Status do Assembly",
-                description="Status do assembly atual",
+                name=i18n.translate("Assembly Status"),
+                description=i18n.translate("Status of current assembly"),
                 default=""
             )
             
+        # Register shot list properties
+        shot_list.register()
+            
     except Exception as e:
-        print(f"Erro ao registrar propriedades: {str(e)}")
+        print(f"Error registering properties: {str(e)}")
 
 def unregister():
     try:
+        # Unregister shot list properties
+        shot_list.unregister()
+        
         if hasattr(bpy.types.Scene, "assembly_status"):
             del bpy.types.Scene.assembly_status
             
@@ -75,7 +86,7 @@ def unregister():
             
         bpy.utils.unregister_class(ProjectSettings)
     except Exception as e:
-        print(f"Erro ao desregistrar propriedades: {str(e)}")
+        print(f"Error unregistering properties: {str(e)}")
 
-# Exportar a classe para que outros módulos possam importá-la
-__all__ = ['ProjectSettings'] 
+# Export class for other modules to import
+__all__ = ['ProjectSettings', 'shot_list'] 

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Operators module initialization
 """
 import bpy
@@ -30,74 +30,44 @@ _modules = [
 _imported_modules: Dict[str, Optional[object]] = {}
 
 def import_module(module_name: str) -> Optional[object]:
-    """Import a module by name"""
+    """Import a module and return it"""
+    if module_name in _imported_modules:
+        return _imported_modules[module_name]
+    
     try:
-        # Check cache first
-        if module_name in _imported_modules:
-            return _imported_modules[module_name]
-            
-        # Remove module from cache if exists
-        full_name = f"{__package__}.{module_name}"
-        if full_name in sys.modules:
-            del sys.modules[full_name]
-            
-        # Import module
-        module = importlib.import_module(f".{module_name}", __package__)
-        _imported_modules[module_name] = module
-        return module
-        
+        full_module_name = f"{__package__}.{module_name}"
+        if full_module_name in sys.modules:
+            importlib.reload(sys.modules[full_module_name])
+        else:
+            importlib.import_module(full_module_name)
+        _imported_modules[module_name] = sys.modules[full_module_name]
+        return _imported_modules[module_name]
     except Exception as e:
         print(f"Error importing {module_name}: {str(e)}")
         _imported_modules[module_name] = None
         return None
 
 def register():
-    """Register operators"""
-    try:
-        # Clear module cache
-        _imported_modules.clear()
-        
-        # Import and register modules
-        for module_name in _modules:
-            module = import_module(module_name)
-            if module and hasattr(module, 'register'):
+    """Register all operators"""
+    for module_name in _modules:
+        module = import_module(module_name)
+        if module and hasattr(module, "register"):
+            try:
                 module.register()
-                
-        bpy.utils.register_class(PROJECTMANAGER_OT_update_project_type)
-        
-    except Exception as e:
-        print(f"Error registering operators: {str(e)}")
-        raise
+            except Exception as e:
+                print(f"Error registering {module_name}: {str(e)}")
 
 def unregister():
-    """Unregister operators"""
-    try:
-        # Unregister modules in reverse order
-        for module_name in reversed(_modules):
-            # Use cached module if available
-            module = _imported_modules.get(module_name)
-            if not module:
-                # If not in cache, try to import
-                module = import_module(module_name)
-                
-            if module and hasattr(module, 'unregister'):
+    """Unregister all operators"""
+    for module_name in reversed(_modules):
+        if module_name in _imported_modules and _imported_modules[module_name]:
+            module = _imported_modules[module_name]
+            if hasattr(module, "unregister"):
                 try:
                     module.unregister()
-                except RuntimeError as e:
-                    # Ignore already unregistered class errors
-                    if "unregister_class(...)" not in str(e):
-                        raise
                 except Exception as e:
                     print(f"Error unregistering {module_name}: {str(e)}")
-                    
-        bpy.utils.unregister_class(PROJECTMANAGER_OT_update_project_type)
-        
-    except Exception as e:
-        print(f"Error unregistering operators: {str(e)}")
-        raise
-    finally:
-        # Clear module cache
-        _imported_modules.clear()
+    _imported_modules.clear()
 
 class PROJECTMANAGER_OT_update_project_type(Operator):
     """Update project type based on project info"""

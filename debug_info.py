@@ -1,24 +1,30 @@
-import bpy
+﻿import bpy
 import os
 
+def get_addon_preferences():
+    """Retorna as preferÃªncias do addon"""
+    if 'blender_project_manager' in bpy.context.preferences.addons:
+        return bpy.context.preferences.addons['blender_project_manager'].preferences
+    return None
+
 def check_addon_state():
-    """Verifica o estado atual do addon e suas dependências"""
+    """Verifica o estado atual do addon e suas dependÃªncias"""
     info = []
     
-    # Verificar se o addon está registrado
-    if 'gerenciador_projetos' in bpy.context.preferences.addons:
-        info.append("Addon está registrado")
+    # Verificar se o addon estÃ¡ registrado
+    if 'blender_project_manager' in bpy.context.preferences.addons:
+        info.append("Addon estÃ¡ registrado")
         
-        # Verificar preferências
-        prefs = bpy.context.preferences.addons['gerenciador_projetos'].preferences
-        info.append(f"Número de cargos configurados: {len(prefs.role_mappings)}")
+        # Verificar preferÃªncias
+        prefs = bpy.context.preferences.addons['blender_project_manager'].preferences
+        info.append(f"NÃºmero de cargos configurados: {len(prefs.role_mappings)}")
         
         # Listar cargos configurados
         info.append("\nCargos configurados:")
         for role in prefs.role_mappings:
-            info.append(f"- {role.role_name} (Ícone: {role.icon})")
+            info.append(f"- {role.role_name} (Ãcone: {role.icon})")
     else:
-        info.append("Addon não está registrado!")
+        info.append("Addon nÃ£o estÃ¡ registrado!")
     
     # Verificar propriedades da cena
     info.append("\nPropriedades da cena:")
@@ -60,11 +66,11 @@ def check_addon_state():
     return "\n".join(info)
 
 def check_role_mappings():
-    """Verifica as configurações de cargos"""
+    """Verifica as configuraÃ§Ãµes de cargos"""
     info = []
     
     try:
-        prefs = bpy.context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = bpy.context.preferences.addons['blender_project_manager'].preferences
         settings = bpy.context.scene.project_settings
         
         if settings.project_type == 'TEAM':
@@ -75,13 +81,13 @@ def check_role_mappings():
                     has_assembly = True
                     info.append("\n=== CARGO ASSEMBLY ===")
                     info.append(f"Nome: {role.role_name}")
-                    info.append(f"Descrição: {role.description}")
+                    info.append(f"DescriÃ§Ã£o: {role.description}")
                     info.append(f"Link: {role.link_type}")
-                    info.append(f"Ícone: {role.icon}")
+                    info.append(f"Ãcone: {role.icon}")
                     break
                     
             if not has_assembly:
-                info.append("\nAVISO: Cargo Assembly não encontrado!")
+                info.append("\nAVISO: Cargo Assembly nÃ£o encontrado!")
         
         info.append("\n=== CARGOS CONFIGURADOS ===")
         for role in prefs.role_mappings:
@@ -90,19 +96,19 @@ def check_role_mappings():
                     info.append(f"\nCargo: {role.role_name}")
                     info.append(f"- Nome: {role.description}")
                     info.append(f"- Link: {role.link_type}")
-                    info.append(f"- Ícone: {role.icon}")
+                    info.append(f"- Ãcone: {role.icon}")
             else:
                 info.append(f"\nCargo: {role.role_name}")
                 info.append(f"- Nome: {role.description}")
                 info.append(f"- Link: {role.link_type}")
-                info.append(f"- Ícone: {role.icon}")
+                info.append(f"- Ãcone: {role.icon}")
     except Exception as e:
         info.append(f"Erro ao verificar cargos: {str(e)}")
     
     return "\n".join(info)
 
 def check_project_mode(context):
-    """Verifica o modo do projeto e suas configurações"""
+    """Verifica o modo do projeto e suas configuraÃ§Ãµes"""
     info = []
     
     try:
@@ -112,13 +118,13 @@ def check_project_mode(context):
             info.append(f"Tipo de Link: {settings.asset_linking}")
             info.append(f"Versionamento: {'Ativo' if settings.use_versioning else 'Inativo'}")
             
-            # Verificar configurações específicas do modo
+            # Verificar configuraÃ§Ãµes especÃ­ficas do modo
             if settings.project_type == 'TEAM':
-                info.append("\nVerificação do modo Equipe:")
+                info.append("\nVerificaÃ§Ã£o do modo Equipe:")
                 # Verificar estrutura de assembly
                 project_path = context.scene.current_project
                 if project_path:
-                    prefs = context.preferences.addons['gerenciador_projetos'].preferences
+                    prefs = context.preferences.addons['blender_project_manager'].preferences
                     _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
                     assembly_path = os.path.join(workspace_path, "SHOTS", "ASSEMBLY")
                     
@@ -127,7 +133,7 @@ def check_project_mode(context):
                     else:
                         info.append("- Pasta ASSEMBLY: FALTANDO")
             else:
-                info.append("\nVerificação do modo Solo:")
+                info.append("\nVerificaÃ§Ã£o do modo Solo:")
                 # Verificar estrutura simplificada
                 if context.scene.current_project:
                     info.append("- Projeto carregado: OK")
@@ -135,7 +141,7 @@ def check_project_mode(context):
                         info.append("- Shot/Cena atual: OK")
                         # Verificar estrutura de cena
                         project_path = context.scene.current_project
-                        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+                        prefs = context.preferences.addons['blender_project_manager'].preferences
                         _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
                         scene_path = os.path.join(workspace_path, "SCENES", context.scene.current_shot)
                         if os.path.exists(scene_path):
@@ -147,7 +153,7 @@ def check_project_mode(context):
                 else:
                     info.append("- Nenhum projeto carregado")
         else:
-            info.append("\nERRO: Configurações do projeto não encontradas!")
+            info.append("\nERRO: ConfiguraÃ§Ãµes do projeto nÃ£o encontradas!")
             
     except Exception as e:
         info.append(f"\nErro ao verificar modo do projeto: {str(e)}")
@@ -155,14 +161,23 @@ def check_project_mode(context):
     return "\n".join(info)
 
 def print_debug_info():
-    """Imprime informações de debug no console"""
-    print("\n=== DIAGNÓSTICO DO GERENCIADOR DE PROJETOS ===")
+    """Imprime informaÃ§Ãµes de debug no console"""
+    print("\n=== DIAGNÃ“STICO DO GERENCIADOR DE PROJETOS ===")
     print(check_addon_state())
     print("\n=== MODO DO PROJETO ===")
     print(check_project_mode(bpy.context))
-    print("\n=== CONFIGURAÇÕES DE CARGOS ===")
+    print("\n=== CONFIGURAÃ‡Ã•ES DE CARGOS ===")
     print(check_role_mappings())
     print("============================================\n")
+
+def get_project_info(project_path, use_fixed_root):
+    """Retorna informaÃ§Ãµes do projeto atual"""
+    prefs = bpy.context.preferences.addons['blender_project_manager'].preferences
+    
+    # Implemente a lÃ³gica para obter informaÃ§Ãµes do projeto com base no project_path e use_fixed_root
+    # Esta Ã© uma implementaÃ§Ã£o bÃ¡sica e pode ser ajustada de acordo com a estrutura do seu projeto
+    workspace_path = project_path
+    return workspace_path, workspace_path, workspace_path
 
 if __name__ == "__main__":
     print_debug_info() 

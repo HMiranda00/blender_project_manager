@@ -1,4 +1,4 @@
-"""
+﻿"""
 Project Context module for managing project state.
 This module handles saving and loading project state to/from files.
 """
@@ -156,7 +156,7 @@ class ProjectContext:
             return False
     
     def update_blender_context(self):
-        """Atualiza o contexto do Blender com as informações carregadas"""
+        """Atualiza o contexto do Blender com as informaÃ§Ãµes carregadas"""
         scene = bpy.context.scene
         
         if not hasattr(scene, "project_settings"):
@@ -197,11 +197,11 @@ class ProjectContext:
         # Salva o contexto atualizado
         self.save_context()
 
-# Instância global do contexto
+# InstÃ¢ncia global do contexto
 project_context = ProjectContext()
 
 def get_project_context():
-    """Retorna a instância global do contexto"""
+    """Retorna a instÃ¢ncia global do contexto"""
     return project_context
 
 def load_project_context():

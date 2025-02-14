@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty
 from ..i18n.translations import translate as i18n_translate

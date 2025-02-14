@@ -1,8 +1,12 @@
+﻿"""
+Asset Browser view operator
+"""
 import bpy
 import os
 from bpy.types import Operator
 from ..utils import get_project_info
 from ..i18n.translations import translate as i18n_translate
+from ..utils.project_utils import get_addon_prefs
 
 class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
     bl_idname = "project.toggle_asset_browser"
@@ -41,7 +45,7 @@ class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
                 
             # Split area horizontally at the bottom (30% height)
             with context.temp_override(area=view3d_area):
-                bpy.ops.screen.area_split(direction='HORIZONTAL', factor=0.3)
+                bpy.ops.screen.area_split(direction='HORIZONTAL', factor=0.7)
                 
             # Configure new area as Asset Browser
             new_area = context.screen.areas[-1]
@@ -51,31 +55,18 @@ class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
             # Configure Asset Browser
             space = new_area.spaces.active
             if hasattr(space, "params"):
-                # Aguardar até que o espaço esteja completamente inicializado
-                def setup_space():
-                    if not hasattr(space.params, "asset_library_reference"):
-                        return 0.1  # Tentar novamente em 0.1 segundos
-                    space.params.asset_library_reference = 'LOCAL'
-                    return None
+                space.params.asset_library_reference = 'LOCAL'
                 
-                bpy.app.timers.register(setup_space)
-                
-            # Configure project library
-            if context.scene.current_project:
-                prefs = context.preferences.addons['gerenciador_projetos'].preferences
-                project_name, _, _ = get_project_info(context.scene.current_project, prefs.use_fixed_root)
-                
-                def set_library():
-                    if not hasattr(space.params, "asset_library_reference"):
-                        return 0.1  # Tentar novamente em 0.1 segundos
+                # Configure project library
+                if context.scene.current_project:
+                    prefs = get_addon_prefs()
+                    project_name, _, _ = get_project_info(context.scene.current_project, prefs.use_fixed_root)
+                    
                     for library in context.preferences.filepaths.asset_libraries:
                         if library.name == project_name:
                             space.params.asset_library_reference = library.name
-                            return None
-                    return 0.1  # Tentar novamente em 0.1 segundos
-                
-                bpy.app.timers.register(set_library)
-
+                            break
+            
             return {'FINISHED'}
             
         except Exception as e:

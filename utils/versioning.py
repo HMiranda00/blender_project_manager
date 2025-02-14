@@ -1,3 +1,6 @@
+﻿"""
+Versioning utilities
+"""
 import bpy
 import os
 import re
@@ -5,14 +8,16 @@ import shutil
 from datetime import datetime, timedelta
 from ..utils import get_project_info, get_publish_path
 from .cache import DirectoryCache
+from pathlib import Path
+from .project_utils import get_addon_prefs
 
 def get_version_number(filepath):
-    """Extrai o número da versão do nome do arquivo"""
+    """Extrai o nÃºmero da versÃ£o do nome do arquivo"""
     match = re.search(r'_(\d{3})\.blend$', filepath)
     return int(match.group(1)) if match else 0
 
 def get_last_publish_info(context):
-    """Retorna informação sobre a última publicação"""
+    """Retorna informaÃ§Ã£o sobre a Ãºltima publicaÃ§Ã£o"""
     try:
         # Se temos um timestamp salvo, usar ele
         if hasattr(context.scene, "last_publish_time") and context.scene.last_publish_time:
@@ -21,27 +26,27 @@ def get_last_publish_info(context):
             now = datetime.now()
             diff = now - publish_time
             
-            # Formatar diferença de tempo
+            # Formatar diferenÃ§a de tempo
             if diff.days > 0:
-                return f"há {diff.days} dias"
+                return f"hÃ¡ {diff.days} dias"
             elif diff.seconds >= 3600:
                 hours = diff.seconds // 3600
-                return f"há {hours} horas"
+                return f"hÃ¡ {hours} horas"
             elif diff.seconds >= 60:
                 minutes = diff.seconds // 60
-                return f"há {minutes} min"
+                return f"hÃ¡ {minutes} min"
             else:
-                return f"há {diff.seconds} seg"
+                return f"hÃ¡ {diff.seconds} seg"
                 
-        # Se não temos timestamp, tentar obter do arquivo
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        # Se nÃ£o temos timestamp, tentar obter do arquivo
+        prefs = (get_addon_prefs())
         project_path = context.scene.current_project
         shot_name = context.scene.current_shot
         role_name = context.scene.current_role
         
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         
-        # Encontrar configurações do cargo
+        # Encontrar configuraÃ§Ãµes do cargo
         role_settings = None
         for role_mapping in prefs.role_mappings:
             if role_mapping.role_name == role_name:
@@ -72,34 +77,34 @@ def get_last_publish_info(context):
             
             if delta < timedelta(hours=1):
                 minutes = int(delta.total_seconds() / 60)
-                return f"há {minutes} minutos"
+                return f"hÃ¡ {minutes} minutos"
             elif delta < timedelta(days=1):
                 hours = int(delta.total_seconds() / 3600)
-                return f"há {hours} horas"
+                return f"hÃ¡ {hours} horas"
             elif delta < timedelta(days=5):
                 days = delta.days
-                return f"há {days} dias"
+                return f"hÃ¡ {days} dias"
             else:
                 return last_modified.strftime("%d/%m/%Y")
         return None
     except Exception as e:
-        print(f"Erro ao obter info da publicação: {str(e)}")
+        print(f"Erro ao obter info da publicaÃ§Ã£o: {str(e)}")
         return None
 
 def get_next_version_path(context):
-    """Retorna o caminho para a próxima versão do arquivo"""
+    """Retorna o caminho para a prÃ³xima versÃ£o do arquivo"""
     try:
         if not context.scene.current_project or not context.scene.current_shot or not context.scene.current_role:
             return None
             
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = (get_addon_prefs())
         project_path = context.scene.current_project
         shot_name = context.scene.current_shot
         role_name = context.scene.current_role
         
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         
-        # Encontrar configurações do cargo
+        # Encontrar configuraÃ§Ãµes do cargo
         role_settings = None
         for role_mapping in prefs.role_mappings:
             if role_mapping.role_name == role_name:
@@ -126,26 +131,26 @@ def get_next_version_path(context):
         # Base do nome do arquivo
         base_name = f"{project_prefix}_{shot_name}_{role_name}"
         
-        # Encontrar última versão
+        # Encontrar Ãºltima versÃ£o
         files = DirectoryCache.get_files(wip_path)
         version_files = [f for f in files if f.startswith(f"{base_name}_WIP_") and f.endswith(".blend")]
         
         if not version_files:
-            # Primeira versão
+            # Primeira versÃ£o
             version = 1
         else:
-            # Próxima versão
+            # PrÃ³xima versÃ£o
             version = max(get_version_number(f) for f in version_files) + 1
             
         new_filename = f"{base_name}_WIP_{version:03d}.blend"
         return os.path.join(wip_path, new_filename)
         
     except Exception as e:
-        print(f"Erro ao gerar próxima versão: {str(e)}")
+        print(f"Erro ao gerar prÃ³xima versÃ£o: {str(e)}")
         return None
 
 def get_version_status(context):
-    """Retorna o status da versão atual e um ícone apropriado"""
+    """Retorna o status da versÃ£o atual e um Ã­cone apropriado"""
     try:
         if not bpy.data.is_saved:
             return 'NOT_SAVED', 'ERROR'
@@ -163,7 +168,7 @@ def get_version_status(context):
         if not os.path.exists(publish_filepath):
             return 'NEVER_PUBLISHED', 'ERROR'  # Vermelho
             
-        # Comparar datas de modificação
+        # Comparar datas de modificaÃ§Ã£o
         wip_time = os.path.getmtime(current_file)
         pub_time = os.path.getmtime(publish_filepath)
         
@@ -179,7 +184,7 @@ def get_version_status(context):
 
 def create_first_wip(context, publish_filepath):
     """
-    Cria a primeira versão WIP a partir de um arquivo publicado
+    Cria a primeira versÃ£o WIP a partir de um arquivo publicado
     Retorna o caminho do novo arquivo WIP
     """
     try:
@@ -191,7 +196,7 @@ def create_first_wip(context, publish_filepath):
         
         # Construir nome do arquivo WIP
         base_name = os.path.basename(publish_filepath)
-        base_name = base_name.replace(".blend", "")  # Remove extensão
+        base_name = base_name.replace(".blend", "")  # Remove extensÃ£o
         wip_file = f"{base_name}_WIP_001.blend"
         wip_filepath = os.path.join(wip_path, wip_file)
         
@@ -220,14 +225,14 @@ def redirect_to_latest_wip(context, filepath):
             
         # Obter base do nome do arquivo
         base_name = os.path.basename(filepath)
-        base_name = base_name.replace(".blend", "")  # Remove extensão
+        base_name = base_name.replace(".blend", "")  # Remove extensÃ£o
         
         # Procurar arquivos WIP existentes
         files = DirectoryCache.get_files(wip_path)
         wip_files = [f for f in files if f.startswith(f"{base_name}_WIP_") and f.endswith(".blend")]
         
         if wip_files:
-            # Se existem versões WIP, usar a mais recente
+            # Se existem versÃµes WIP, usar a mais recente
             latest_wip = max(wip_files, key=lambda f: get_version_number(f))
             wip_filepath = os.path.join(wip_path, latest_wip)
             return True, wip_filepath
@@ -240,13 +245,13 @@ def redirect_to_latest_wip(context, filepath):
 
 def get_next_version_number(folder_path):
     """
-    Retorna o próximo número de versão baseado nos arquivos existentes
+    Retorna o prÃ³ximo nÃºmero de versÃ£o baseado nos arquivos existentes
     """
     try:
         if not os.path.exists(folder_path):
             return 1
             
-        # Procurar por arquivos com padrão _v001.blend
+        # Procurar por arquivos com padrÃ£o _v001.blend
         versions = []
         for file in os.listdir(folder_path):
             if file.endswith('.blend'):
@@ -254,9 +259,13 @@ def get_next_version_number(folder_path):
                 if match:
                     versions.append(int(match.group(1)))
         
-        # Retornar próximo número
+        # Retornar prÃ³ximo nÃºmero
         return max(versions, default=0) + 1
         
     except Exception as e:
-        print(f"Erro ao obter próximo número de versão: {str(e)}")
+        print(f"Erro ao obter prÃ³ximo nÃºmero de versÃ£o: {str(e)}")
         return 1 
+
+def get_next_version(current_version):
+    """Get next version number"""
+    return current_version + 1 if current_version else 1 

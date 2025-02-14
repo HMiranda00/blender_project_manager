@@ -1,60 +1,56 @@
+﻿"""
+Project loading operator
+"""
 import bpy
+import os
 from bpy.types import Operator
 from bpy.props import StringProperty
-from bpy_extras.io_utils import ImportHelper
-import os
+from ..utils.project_utils import get_addon_prefs
 from ..utils import get_project_info
-from ..core.project_context import ProjectContextManager
-from ..i18n.translations import translate as i18n_translate
+from ..utils.project_context import load_project_context
+from .. import i18n
 
-class PROJECT_OT_load_project(Operator, ImportHelper):
+class LoadProjectOperator(Operator):
     """Load an existing project"""
     bl_idname = "project.load_project"
-    bl_label = "Load Project"
+    bl_label = i18n.translate("Load Project")
+    bl_description = i18n.translate("Load an existing project")
     
-    filename_ext = ""
-    use_filter_folder = True
-    
-    project_path: StringProperty(
-        name=i18n_translate("Project Path"),
-        description=i18n_translate("Path to project folder"),
-        default="",
+    filepath: StringProperty(
+        name=i18n.translate("Project Path"),
+        description=i18n.translate("Path to project folder"),
         subtype='DIR_PATH'
-    )
-    
-    selected_project: StringProperty(
-        name=i18n_translate("Selected Project"),
-        description=i18n_translate("Selected project from list"),
-        default=""
     )
     
     def execute(self, context):
         try:
-            filepath = self.filepath
-            
-            if not os.path.exists(filepath):
-                self.report({'ERROR'}, "Selected path does not exist")
+            if not self.filepath:
+                self.report({'ERROR'}, i18n.translate("No project path selected"))
                 return {'CANCELLED'}
+                
+            # Normalize path
+            project_path = os.path.normpath(self.filepath)
             
-            # Set current project
-            context.scene.current_project = filepath
-            
-            # Update project type safely using the new operator
-            bpy.ops.project.update_project_type()
-            
-            # Add to recent projects
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
-            prefs.add_recent_project(filepath)
-            
-            return {'FINISHED'}
-            
+            # Load project context
+            if load_project_context(project_path):
+                self.report({'INFO'}, i18n.translate("Project loaded successfully"))
+                return {'FINISHED'}
+            else:
+                # If no context file, just set the project path
+                context.scene.current_project = project_path
+                self.report({'INFO'}, i18n.translate("Project loaded (no context found)"))
+                return {'FINISHED'}
+                
         except Exception as e:
-            print(f"Error loading project: {str(e)}")
-            self.report({'ERROR'}, str(e))
+            self.report({'ERROR'}, i18n.translate("Error loading project: {}").format(str(e)))
             return {'CANCELLED'}
+    
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
 
 def register():
-    bpy.utils.register_class(PROJECT_OT_load_project)
+    bpy.utils.register_class(LoadProjectOperator)
 
 def unregister():
-    bpy.utils.unregister_class(PROJECT_OT_load_project)
+    bpy.utils.unregister_class(LoadProjectOperator)

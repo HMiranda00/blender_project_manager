@@ -1,6 +1,6 @@
-import bpy
+﻿import bpy
 from bpy.types import Operator
-from bpy.props import StringProperty, EnumProperty
+from bpy.props import StringProperty, EnumProperty, BoolProperty
 import os
 import re
 from ..utils import (
@@ -13,6 +13,8 @@ from ..utils.versioning import (
     create_first_wip
 )
 from ..utils.cache import DirectoryCache
+from ..utils.project_utils import get_addon_prefs
+from .. import i18n
 
 class SaveContextOperator(Operator):
     bl_idname = "project.save_context"
@@ -67,204 +69,87 @@ class PROJECT_OT_open_shot(Operator):
     bl_label = "Abrir Shot"
     bl_description = "Abre um shot existente do projeto"
 
-    def get_shots(self, context):
-        print("\n=== Debug Get Shots ===")
-        
-        if not context.scene.current_project:
-            print("Nenhum projeto selecionado")
-            return [('NONE', "Nenhum projeto selecionado", "", 'ERROR', 0)]
-
-        try:
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
-            project_path = context.scene.current_project
-            project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-            
-            print(f"Project Path: {project_path}")
-            print(f"Project Name: {project_name}")
-            print(f"Workspace: {workspace_path}")
-            
-            shots_path = os.path.join(workspace_path, "SHOTS")
-            print(f"Shots Path: {shots_path}")
-            
-            if not os.path.exists(shots_path):
-                print("Pasta SHOTS não existe")
-                return [('NONE', "Pasta SHOTS não encontrada", "", 'ERROR', 0)]
-
-            # Listar pastas
-            items = []
-            shot_folders = []
-            
-            # Primeiro coletar todas as pastas válidas
-            for f in os.listdir(shots_path):
-                if f not in {'ASSEMBLY', '!LOCAL', '_WIP', 'ASSETS 3D'}:
-                    full_path = os.path.join(shots_path, f)
-                    if os.path.isdir(full_path):
-                        shot_folders.append(f)
-            
-            print(f"Pastas encontradas: {shot_folders}")
-            
-            # Processar shots regulares primeiro
-            for folder in sorted(shot_folders):
-                if folder.startswith("SHOT_"):
-                    shot_num = folder.replace("SHOT_", "")
-                    items.append((
-                        folder,
-                        f"Shot {shot_num}",
-                        f"Shot {shot_num}",
-                        'SEQUENCE',
-                        len(items)
-                    ))
-            
-            # Depois processar cenas
-            for folder in sorted(shot_folders):
-                if folder.startswith("SCENE_"):
-                    scene_name = folder.replace("SCENE_", "")
-                    items.append((
-                        folder,
-                        f"Cena: {scene_name}",
-                        f"Cena única: {scene_name}",
-                        'SCENE_DATA',
-                        len(items)
-                    ))
-
-            print(f"Items processados: {items}")
-            
-            if not items:
-                return [('NONE', "Nenhum shot encontrado", "", 'ERROR', 0)]
-            
-            return items
-
-        except Exception as e:
-            print(f"Erro ao listar shots: {str(e)}")
-            import traceback
-            traceback.print_exc()
-            return [('ERROR', "Erro ao listar shots", str(e), 'ERROR', 0)]
-
-    def get_roles(self, context):
-        """Lista todos os cargos configurados"""
-        try:
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
-            roles = []
-            
-            # Primeiro adiciona o ASSEMBLY se estiver em modo TEAM
-            if context.scene.project_settings.project_type == 'TEAM':
-                roles.append(('ASSEMBLY', 'Assembly', 'Montagem final do projeto', 'COMMUNITY', 0))
-            
-            # Depois adiciona os outros cargos
-            for i, rm in enumerate(prefs.role_mappings, start=1):
-                if rm.role_name != 'ASSEMBLY':  # Ignora o ASSEMBLY nos cargos regulares
-                    roles.append((rm.role_name, rm.role_name, rm.description, rm.icon, i))
-            
-            return roles
-        except Exception as e:
-            print(f"Erro ao listar cargos: {str(e)}")
-            return [('NONE', "Erro ao listar cargos", "", 'ERROR', 0)]
-
-    shot_to_open: EnumProperty(
-        name="Shot",
-        description="Selecione o shot para abrir",
-        items=get_shots
-    )
-
-    selected_role: EnumProperty(
-        name="Cargo",
-        description="Selecione o cargo para abrir",
-        items=get_roles
+    shot_to_open: StringProperty(
+        name=i18n.translate("Shot"),
+        description=i18n.translate("Shot to open"),
+        default=""
     )
 
     def execute(self, context):
         try:
-            if not self.shot_to_open or self.shot_to_open in {'NONE', 'ERROR'}:
-                self.report({'ERROR'}, "Selecione um shot válido")
+            if not self.shot_to_open:
+                self.report({'ERROR'}, i18n.translate("Select a shot to open"))
+                return {'CANCELLED'}
+                
+            if not context.scene.current_project:
+                self.report({'ERROR'}, i18n.translate("No project loaded"))
                 return {'CANCELLED'}
 
-            if not self.selected_role:
-                self.report({'ERROR'}, "Selecione um cargo")
-                return {'CANCELLED'}
-
-            # Salvar arquivo atual se necessário
-            if bpy.data.is_saved and bpy.data.is_dirty:
-                bpy.ops.wm.save_mainfile()
-
-            # Obter informações do projeto
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            # Get project info
+            prefs = get_addon_prefs()
             project_path = context.scene.current_project
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-
-            # Tratamento especial para o ASSEMBLY
-            if self.selected_role == 'ASSEMBLY':
-                # Caminho do arquivo de assembly
-                assembly_path = os.path.join(workspace_path, "SHOTS", "ASSEMBLY")
-                blend_file = f"{project_prefix}_{self.shot_to_open}_ASSEMBLY.blend"
-                assembly_filepath = os.path.join(assembly_path, blend_file)
-                
-                # Atualizar contexto
-                context.scene.current_shot = self.shot_to_open
-                context.scene.current_role = 'ASSEMBLY'
-                
-                if os.path.exists(assembly_filepath):
-                    bpy.ops.wm.open_mainfile(filepath=assembly_filepath)
-                    self.report({'INFO'}, f"Arquivo de assembly do shot {self.shot_to_open} aberto")
-                else:
-                    self.report({'WARNING'}, f"Arquivo de assembly não encontrado: {assembly_filepath}")
-                    
-                return {'FINISHED'}
-
-            # Para outros cargos, continua com o comportamento normal
-            role_settings = None
-            for role_mapping in prefs.role_mappings:
-                if role_mapping.role_name == self.selected_role:
-                    role_settings = role_mapping
-                    break
-
-            if not role_settings:
-                self.report({'ERROR'}, f"Configurações do cargo '{self.selected_role}' não encontradas")
-                return {'CANCELLED'}
-
-            # Obter caminho do publish
-            publish_path = get_publish_path(
-                role_settings.publish_path_preset,
-                role_settings,
-                context,
-                project_path,
-                project_name,
-                self.shot_to_open,
-                asset_name=self.selected_role
-            )
-
-            # Nome base do arquivo
-            blend_file = f"{project_prefix}_{self.shot_to_open}_{self.selected_role}.blend"
-            publish_filepath = os.path.join(publish_path, blend_file)
-
-            # Atualizar contexto em qualquer caso
-            context.scene.current_shot = self.shot_to_open
-            context.scene.current_role = self.selected_role
-
-            # Verificar se existe arquivo publicado
-            if os.path.exists(publish_filepath):
-                # Verificar se existe WIP mais recente
-                should_redirect, wip_path = redirect_to_latest_wip(context, publish_filepath)
-                
-                if should_redirect and wip_path:
-                    # Abrir último WIP
-                    bpy.ops.wm.open_mainfile(filepath=wip_path)
-                    self.report({'INFO'}, f"Último WIP do shot {self.shot_to_open} aberto")
-                else:
-                    # Se não há WIP, criar primeiro WIP
-                    wip_path = create_first_wip(context, publish_filepath)
-                    if wip_path:
-                        bpy.ops.wm.open_mainfile(filepath=wip_path)
-                        self.report({'INFO'}, f"Primeiro WIP do shot {self.shot_to_open} criado e aberto")
-                    else:
-                        self.report({'ERROR'}, "Erro ao criar primeiro WIP")
-                        return {'CANCELLED'}
+            
+            # Get shot path
+            if context.scene.project_settings.project_type == 'TEAM':
+                shot_path = os.path.join(workspace_path, "SHOTS", self.shot_to_open)
+                role_path = os.path.join(shot_path, context.scene.current_role or "MAIN")
+                publish_path = os.path.join(role_path, "PUBLISH")
             else:
-                self.report({'WARNING'}, f"Arquivo do shot não encontrado: {publish_filepath}")
-
+                shot_path = os.path.join(workspace_path, "SCENES", self.shot_to_open)
+                publish_path = os.path.join(shot_path, "PUBLISH")
+            
+            if not os.path.exists(shot_path):
+                self.report({'ERROR'}, i18n.translate("Shot not found: {}").format(self.shot_to_open))
+                return {'CANCELLED'}
+            
+            # Save current file if needed
+            if not save_current_file():
+                self.report({'WARNING'}, i18n.translate("Current file not saved"))
+            
+            # Get publish file path
+            role_name = context.scene.current_role or "MAIN"
+            publish_file = f"{project_prefix}_{self.shot_to_open}_{role_name}.blend"
+            publish_filepath = os.path.join(publish_path, publish_file)
+            
+            if not os.path.exists(publish_filepath):
+                self.report({'ERROR'}, i18n.translate("Shot file not found: {}").format(publish_file))
+                return {'CANCELLED'}
+            
+            # Check for WIP version
+            should_redirect, wip_path = redirect_to_latest_wip(context, publish_filepath)
+            
+            # Save current context
+            current_project = context.scene.current_project
+            current_shot = self.shot_to_open
+            current_role = role_name
+            
+            if should_redirect and wip_path:
+                # Open latest WIP
+                bpy.ops.wm.open_mainfile(filepath=wip_path)
+                self.report({'INFO'}, i18n.translate("Latest WIP opened: {}").format(os.path.basename(wip_path)))
+            else:
+                # Create first WIP if none exists
+                wip_path = create_first_wip(context, publish_filepath)
+                if wip_path:
+                    bpy.ops.wm.open_mainfile(filepath=wip_path)
+                    self.report({'INFO'}, i18n.translate("First WIP created and opened: {}").format(os.path.basename(wip_path)))
+                else:
+                    self.report({'ERROR'}, i18n.translate("Error creating WIP version"))
+                    return {'CANCELLED'}
+            
+            # Restore context
+            context.scene.current_project = current_project
+            context.scene.current_shot = current_shot
+            context.scene.current_role = current_role
+            
+            # Save context to file
+            save_project_context()
+            
             return {'FINISHED'}
             
         except Exception as e:
-            self.report({'ERROR'}, f"Erro ao abrir shot: {str(e)}")
+            self.report({'ERROR'}, i18n.translate("Error opening shot: {}").format(str(e)))
             return {'CANCELLED'}
 
     def invoke(self, context, event):
@@ -280,45 +165,133 @@ class PROJECT_OT_open_shot(Operator):
         # Mostrar projeto atual
         box = layout.box()
         box.label(text="Projeto Atual:", icon='FILE_FOLDER')
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = (get_addon_prefs())
         project_name, _, _ = get_project_info(context.scene.current_project, prefs.use_fixed_root)
         box.label(text=project_name)
         
         # Seleção de shot
         layout.prop(self, "shot_to_open")
-        layout.prop(self, "selected_role")
 
-class PROJECT_OT_UpdateProjectType(Operator):
-    """Update project type safely"""
+class UpdateProjectTypeOperator(Operator):
     bl_idname = "project.update_project_type"
-    bl_label = "Update Project Type"
-    bl_options = {'INTERNAL'}
+    bl_label = i18n.translate("Update Project Type")
     
     def execute(self, context):
         try:
-            if not context.scene.current_project:
+            # Get addon preferences
+            prefs = get_addon_prefs()
+            if not prefs:
+                self.report({'ERROR'}, i18n.translate("Addon preferences not found. Make sure the addon is enabled."))
                 return {'CANCELLED'}
-                
-            project_info = get_project_info(context.scene.current_project)
             
-            if isinstance(project_info, dict):
-                context.scene.project_settings.project_type = project_info.get('project_type', 'TEAM')
-            elif isinstance(project_info, tuple):
-                context.scene.project_settings.project_type = 'TEAM'  # Default para TEAM se for tupla
-                
+            # Get project info
+            project_path = context.scene.current_project
+            if not project_path:
+                self.report({'ERROR'}, i18n.translate("No project loaded"))
+                return {'CANCELLED'}
+            
+            project_name, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
+            
+            # Update project type based on folder structure
+            if os.path.exists(os.path.join(workspace_path, "SHOTS")):
+                context.scene.project_settings.project_type = 'TEAM'
+            else:
+                context.scene.project_settings.project_type = 'SOLO'
+            
             return {'FINISHED'}
+            
         except Exception as e:
-            print(f"Error updating project type: {str(e)}")
+            self.report({'ERROR'}, i18n.translate("Error updating project type: {}").format(str(e)))
             return {'CANCELLED'}
+
+class UpdateProjectSettingsOperator(Operator):
+    bl_idname = "project.update_settings"
+    bl_label = i18n.translate("Update Project Settings")
+    
+    project_type: EnumProperty(
+        name=i18n.translate("Project Type"),
+        items=[
+            ('TEAM', i18n.translate("Team"), i18n.translate("Project with multiple roles and assembly"), 'COMMUNITY', 0),
+            ('SOLO', i18n.translate("Solo"), i18n.translate("Simplified individual project"), 'PERSON', 1)
+        ],
+        default='TEAM'
+    )
+    
+    asset_linking: EnumProperty(
+        name=i18n.translate("Asset Reference"),
+        items=[
+            ('LINK', i18n.translate("Link"), i18n.translate("Assets will be linked"), 'LINKED', 0),
+            ('APPEND', i18n.translate("Append"), i18n.translate("Assets will be appended"), 'APPEND_BLEND', 1)
+        ],
+        default='LINK'
+    )
+    
+    use_versioning: BoolProperty(
+        name=i18n.translate("Use Versioning"),
+        description=i18n.translate("Enable WIP/Publish version control system"),
+        default=True
+    )
+    
+    def execute(self, context):
+        try:
+            # Get addon preferences
+            prefs = get_addon_prefs()
+            if not prefs:
+                self.report({'ERROR'}, i18n.translate("Addon preferences not found. Make sure the addon is enabled."))
+                return {'CANCELLED'}
+            
+            # Update project settings
+            context.scene.project_settings.project_type = self.project_type
+            context.scene.project_settings.asset_linking = self.asset_linking
+            context.scene.project_settings.use_versioning = self.use_versioning
+            
+            # Update Asset Browser settings
+            bpy.ops.project.setup_asset_browser(
+                link_type='LINK' if self.asset_linking == 'LINK' else 'APPEND'
+            )
+            
+            self.report({'INFO'}, i18n.translate("Project settings updated"))
+            return {'FINISHED'}
+            
+        except Exception as e:
+            self.report({'ERROR'}, i18n.translate("Error updating project settings: {}").format(str(e)))
+            return {'CANCELLED'}
+    
+    def invoke(self, context, event):
+        # Load current settings
+        self.project_type = context.scene.project_settings.project_type
+        self.asset_linking = context.scene.project_settings.asset_linking
+        self.use_versioning = context.scene.project_settings.use_versioning
+        return context.window_manager.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        
+        # Project type
+        box = layout.box()
+        box.label(text=i18n.translate("Project Settings:"), icon='SETTINGS')
+        box.prop(self, "project_type", expand=True)
+        
+        # Asset settings
+        asset_box = layout.box()
+        asset_box.label(text=i18n.translate("Asset Settings:"), icon='ASSET_MANAGER')
+        asset_box.prop(self, "asset_linking")
+        
+        # Version control
+        version_box = layout.box()
+        version_box.label(text=i18n.translate("Version Control:"), icon='RECOVER_LAST')
+        version_box.prop(self, "use_versioning")
 
 def register():
     bpy.utils.register_class(SaveContextOperator)
     bpy.utils.register_class(SetContextOperator)
     bpy.utils.register_class(PROJECT_OT_open_shot)
-    bpy.utils.register_class(PROJECT_OT_UpdateProjectType)
+    bpy.utils.register_class(UpdateProjectTypeOperator)
+    bpy.utils.register_class(UpdateProjectSettingsOperator)
 
 def unregister():
     bpy.utils.unregister_class(SaveContextOperator)
     bpy.utils.unregister_class(SetContextOperator)
     bpy.utils.unregister_class(PROJECT_OT_open_shot)
-    bpy.utils.unregister_class(PROJECT_OT_UpdateProjectType) 
+    bpy.utils.unregister_class(UpdateProjectTypeOperator)
+    bpy.utils.unregister_class(UpdateProjectSettingsOperator) 

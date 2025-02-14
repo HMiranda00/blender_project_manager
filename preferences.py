@@ -1,4 +1,4 @@
-import bpy
+﻿import bpy
 import os
 import json
 from bpy.types import AddonPreferences, PropertyGroup, Operator, UIList
@@ -189,7 +189,7 @@ class PROJECTMANAGER_UL_recent_projects(UIList):
             project_name = item.name if item.name else os.path.basename(os.path.dirname(item.path))
             layout.label(text=project_name, icon='FILE_BLEND')
             op = layout.operator("project.open_recent", text="", icon='FILEBROWSER', emboss=False)
-            op.project_path = item.path
+            op.selected_project = item.path
 
 class PROJECTMANAGER_OT_add_role_mapping(Operator):
     """Adiciona um novo cargo"""
@@ -197,7 +197,7 @@ class PROJECTMANAGER_OT_add_role_mapping(Operator):
     bl_label = "Adicionar Cargo"
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         new_role = prefs.role_mappings.add()
         
         # Se não houver cargo Assembly, criar como primeiro
@@ -222,7 +222,7 @@ class PROJECTMANAGER_OT_remove_role_mapping(Operator):
     index: IntProperty()
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         prefs.role_mappings.remove(self.index)
         return {'FINISHED'}
 
@@ -246,7 +246,7 @@ class PROJECTMANAGER_OT_export_config(Operator):
         return {'RUNNING_MODAL'}
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         
         config = {
             'use_fixed_root': prefs.use_fixed_root,
@@ -311,7 +311,7 @@ class PROJECTMANAGER_OT_import_config(Operator):
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 config = json.load(f)
             
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             
             prefs.use_fixed_root = config.get('use_fixed_root', True)
             prefs.fixed_root_path = config.get('fixed_root_path', '')
@@ -345,7 +345,7 @@ class ProjectPreferences(AddonPreferences):
     use_fixed_root: BoolProperty(
         name=i18n_translate("Use Fixed Root"),
         description=i18n_translate("If checked, will use a fixed root folder for all projects"),
-        default=True
+        default=False
     )
 
     fixed_root_path: StringProperty(
@@ -556,3 +556,23 @@ def unregister():
     except Exception as e:
         print(f"Error unregistering preferences: {str(e)}")
         raise
+
+def get_prefs(context):
+    """Retorna as preferências do addon"""
+    return context.preferences.addons['blender_project_manager'].preferences
+
+def update_role_mapping(self, context):
+    """Atualiza o mapeamento de cargos"""
+    prefs = context.preferences.addons['blender_project_manager'].preferences
+    
+    # ... existing code ...
+
+def update_role_mapping_list(self, context):
+    """Atualiza a lista de mapeamentos de cargos"""
+    prefs = context.preferences.addons['blender_project_manager'].preferences
+    
+    # ... existing code ...
+
+def update_recent_projects(self, context):
+    """Atualiza a lista de projetos recentes"""
+    prefs = context.preferences.addons['blender_project_manager'].preferences

@@ -1,8 +1,9 @@
-import bpy
+﻿import bpy
+import addon_utils
 
 def fix_addon_registration():
     """Tenta corrigir o registro do addon"""
-    addon_name = "gerenciador_projetos"
+    addon_name = "blender_project_manager"
     
     # Primeiro, vamos tentar desregistrar o addon completamente
     if addon_name in bpy.context.preferences.addons:
@@ -51,10 +52,10 @@ def fix_addon_registration():
     except Exception as e:
         print(f"Erro ao reabilitar addon: {str(e)}")
     
-    return "Processo de correção concluído"
+    return "Processo de correÃ§Ã£o concluÃ­do"
 
 if __name__ == "__main__":
-    print("\n=== INICIANDO CORREÇÃO DO REGISTRO ===")
+    print("\n=== INICIANDO CORREÃ‡ÃƒO DO REGISTRO ===")
     result = fix_addon_registration()
     print(result)
     print("=====================================\n") 
