@@ -5,11 +5,11 @@ from ..utils import get_project_info, get_publish_path, save_current_file
 from ..utils.cache import DirectoryCache
 
 class PROJECT_PT_Panel(Panel):
-    bl_label = "Project Manager"
+    bl_label = "Blender Project Manager"
     bl_idname = "VIEW3D_PT_project_management"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Projeto'
+    bl_category = 'Project'
     
     def verify_role_file(self, context, role_name):
         """Verifies if there is a file for the specified role"""

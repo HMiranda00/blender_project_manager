@@ -1,5 +1,5 @@
 bl_info = {
-    "name": "Project Manager",
+    "name": "Blender Project Manager",
     "author": "Henrique Miranda",
     "version": (1, 5, 4, 0),
     "blender": (2, 80, 0),
