@@ -117,7 +117,7 @@ class PROJECTMANAGER_OT_add_role_mapping(Operator):
     bl_label = "Add Role"
     
     def execute(self, context):
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         new_role = prefs.role_mappings.add()
         new_role.role_name = "NEW_ROLE"
         new_role.description = "New role description"
@@ -132,7 +132,7 @@ class PROJECTMANAGER_OT_remove_role_mapping(Operator):
     index: IntProperty()
     
     def execute(self, context):
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         prefs.role_mappings.remove(self.index)
         return {'FINISHED'}
 
@@ -156,7 +156,7 @@ class PROJECTMANAGER_OT_export_config(Operator):
         return {'RUNNING_MODAL'}
     
     def execute(self, context):
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         
         config = {
             'use_fixed_root': prefs.use_fixed_root,
@@ -221,7 +221,7 @@ class PROJECTMANAGER_OT_import_config(Operator):
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 config = json.load(f)
             
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             
             prefs.use_fixed_root = config.get('use_fixed_root', True)
             prefs.fixed_root_path = config.get('fixed_root_path', '')
@@ -250,7 +250,7 @@ class PROJECTMANAGER_OT_import_config(Operator):
             return {'CANCELLED'}
 
 class ProjectPreferences(AddonPreferences):
-    bl_idname = 'project_manager'
+    bl_idname = 'blender_project_manager'
 
     use_fixed_root: BoolProperty(
         name="Use Fixed Root",

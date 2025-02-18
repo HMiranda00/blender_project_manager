@@ -18,7 +18,7 @@ class PROJECT_PT_Panel(Panel):
                 return None
                 
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
             
@@ -65,7 +65,7 @@ class PROJECT_PT_Panel(Panel):
     
     def draw(self, context):
         layout = self.layout
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         
         # Projetos Recentes
         if not context.scene.current_project:
@@ -233,7 +233,7 @@ class PROJECT_PT_Panel(Panel):
         header_row.label(text="Asset Browser", icon='ASSET_MANAGER')
 
         if context.scene.show_asset_manager:
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             project_path = context.scene.current_project
             project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
             

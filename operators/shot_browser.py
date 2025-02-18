@@ -17,7 +17,7 @@ class OpenShotOperator(Operator):
 
         try:
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             
             # Caminho para a pasta SHOTS
@@ -39,7 +39,7 @@ class OpenShotOperator(Operator):
         return items
 
     def get_roles(self, context):
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         return [(rm.role_name, rm.role_name, rm.description, rm.icon, i)
                 for i, rm in enumerate(prefs.role_mappings)]
 
@@ -60,7 +60,7 @@ class OpenShotOperator(Operator):
             save_current_file()
             
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
 
             # Usar o cargo selecionado em vez de ANIMATION
@@ -111,7 +111,7 @@ class OpenShotOperator(Operator):
             return {'CANCELLED'}
             
         # Se não houver cargos configurados
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         if not prefs.role_mappings:
             self.report({'ERROR'}, "Configure pelo menos um cargo nas preferências do addon.")
             return {'CANCELLED'}

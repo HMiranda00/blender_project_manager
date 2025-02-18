@@ -40,7 +40,7 @@ def get_next_project_number(root_path):
 
 def get_publish_path(preset, role_settings, context, project_path, project_name, shot_name, asset_name):
     """Get the publish path based on settings"""
-    prefs = context.preferences.addons['project_manager'].preferences
+    prefs = context.preferences.addons['blender_project_manager'].preferences
     _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
     
     placeholders = {

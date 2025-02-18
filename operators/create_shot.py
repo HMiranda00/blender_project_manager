@@ -22,7 +22,7 @@ class CreateShotOperator(Operator):
     )
 
     def get_roles(self, context):
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         return [(rm.role_name, rm.role_name, rm.description, rm.icon, i)
                 for i, rm in enumerate(prefs.role_mappings)]
 
@@ -33,7 +33,7 @@ class CreateShotOperator(Operator):
     )
 
     def check_preferences(self, context):
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         missing = []
 
         if len(prefs.role_mappings) == 0:
@@ -45,7 +45,7 @@ class CreateShotOperator(Operator):
         try:
             save_current_file()
             
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             project_path = context.scene.current_project
 
             if not project_path or not os.path.exists(project_path):

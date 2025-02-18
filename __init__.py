@@ -5,7 +5,7 @@ bl_info = {
     "blender": (2, 80, 0),
     "location": "N-Panel",
     "description": "Addon for project management and organization",
-    "category": "Project Management",
+    "category": "Project Management"
 }
 
 import bpy

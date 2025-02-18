@@ -23,7 +23,7 @@ class CreateProjectOperator(Operator):
     )
     
     def check_preferences(self, context):
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         missing = []
         
         if prefs.use_fixed_root:
@@ -33,7 +33,7 @@ class CreateProjectOperator(Operator):
 
     def execute(self, context):
         try:
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             
             if prefs.use_fixed_root:
                 if not self.project_name:
@@ -113,7 +113,7 @@ class CreateProjectOperator(Operator):
 
     def draw(self, context):
         layout = self.layout
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         
         if prefs.use_fixed_root:
             layout.prop(self, "project_name")

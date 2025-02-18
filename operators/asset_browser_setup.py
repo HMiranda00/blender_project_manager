@@ -24,7 +24,7 @@ def cleanup_project_libraries(scene=None):
     
     current_project_name = None
     if has_project_context:
-        prefs = ctx.preferences.addons['project_manager'].preferences
+        prefs = ctx.preferences.addons['blender_project_manager'].preferences
         project_path = ctx.scene.current_project
         project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
         current_project_name = project_name
@@ -89,7 +89,7 @@ f5780a5c-74a4-4dd9-9e3d-c3654cf91f5c:MATERIALS:MATERIALS"""
             # Clear other project libraries first
             cleanup_project_libraries(context.scene)
             
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             project_path = context.scene.current_project
             project_name, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
             

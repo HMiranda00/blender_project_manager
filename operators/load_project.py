@@ -11,7 +11,7 @@ class LoadProjectOperator(Operator):
     
     def get_projects(self, context):
         items = []
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         
         if not prefs.use_fixed_root or not prefs.fixed_root_path:
             return [('CUSTOM', "Select folder...", "Manually select the project folder", 'FILE_FOLDER', 0)]
@@ -60,7 +60,7 @@ class LoadProjectOperator(Operator):
         try:
             save_current_file()
             
-            prefs = context.preferences.addons['project_manager'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             
             if prefs.use_fixed_root:
                 if self.selected_project == 'CUSTOM':
@@ -103,14 +103,14 @@ class LoadProjectOperator(Operator):
             return {'CANCELLED'}
 
     def invoke(self, context, event):
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         if not prefs.use_fixed_root:
             return context.window_manager.invoke_props_dialog(self)
         return context.window_manager.invoke_props_dialog(self, width=400)
 
     def draw(self, context):
         layout = self.layout
-        prefs = context.preferences.addons['project_manager'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         
         if prefs.use_fixed_root:
             layout.prop(self, "selected_project")

@@ -1,0 +1,552 @@
+🔄 blenderkit: Verbose is enabled
+🔄 blenderkit: Read in JSON settings from file
+Add-on not loaded: "space_view3d_3d_navigation", cause: No module named 'space_view3d_3d_navigation'
+Add-on not loaded: "io_scene_3ds", cause: No module named 'io_scene_3ds'
+Add-on not loaded: "io_import_dxf", cause: No module named 'io_import_dxf'
+Add-on not loaded: "io_import_palette", cause: No module named 'io_import_palette'
+Add-on not loaded: "space_view3d_pie_menus", cause: No module named 'space_view3d_pie_menus'
+Add-on not loaded: "space_view3d_copy_attributes", cause: No module named 'space_view3d_copy_attributes'
+Add-on not loaded: "space_view3d_brush_menus", cause: No module named 'space_view3d_brush_menus'
+Add-on not loaded: "space_view3d_spacebar_menu", cause: No module named 'space_view3d_spacebar_menu'
+Add-on not loaded: "lighting_dynamic_sky", cause: No module named 'lighting_dynamic_sky'
+Add-on not loaded: "sun_position", cause: No module named 'sun_position'
+Add-on not loaded: "lighting_tri_lights", cause: No module named 'lighting_tri_lights'
+Add-on not loaded: "materials_library_vx", cause: No module named 'materials_library_vx'
+Add-on not loaded: "materials_utils", cause: No module named 'materials_utils'
+Add-on not loaded: "mesh_auto_mirror", cause: No module named 'mesh_auto_mirror'
+Add-on not loaded: "mesh_bsurfaces", cause: No module named 'mesh_bsurfaces'
+Registered MACHIN3tools 1.0.2 with 7 tools, 7 pie menus
+Add-on not loaded: "node_arrange", cause: No module named 'node_arrange'
+Add-on not loaded: "object_boolean_tools", cause: No module named 'object_boolean_tools'
+Add-on not loaded: "object_fracture_cell", cause: No module named 'object_fracture_cell'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\TEST.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\Text.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\angavrilov-rigs-master\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\animate\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\auto_load.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bake\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bind\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\core\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ctrl_rig\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_base.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_popup.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\extra_operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\finalize\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\keymap_helper.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\landmarks\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\mocap\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panel_utils.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panels\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\properties\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retarget_fbx\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retargeting\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\rigging\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\setup\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\shape_keys\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ui.py'
+Add-on not loaded: "object_color_rules", cause: No module named 'object_color_rules'
+Add-on not loaded: "real_snow", cause: No module named 'real_snow'
+Add-on not loaded: "object_skinify", cause: No module named 'object_skinify'
+Add-on not loaded: "paint_palette", cause: No module named 'paint_palette'
+Add-on not loaded: "render_ui_animation_render", cause: No module named 'render_ui_animation_render'
+Add-on not loaded: "power_sequencer", cause: No module named 'power_sequencer'
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\scripts\modules\addon_utils.py", line 428, in enable
+    mod = importlib.import_module(module_name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\python\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\xol_splink\__init__.py", line 20, in <module>
+    import xol_splink.fmanager  as fmanager
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\xol_splink\fmanager.py", line 11, in <module>
+    import xol_splink.xolotl_splink as xol
+ImportError: DLL load failed while importing xolotl_splink: The specified module could not be found.
+Add-on not loaded: "magic_uv", cause: No module named 'magic_uv'
+Add-on not loaded: "space_clip_editor_refine_solution", cause: No module named 'space_clip_editor_refine_solution'
+Add-on not loaded: "mesh_snap_utilities_line", cause: No module named 'mesh_snap_utilities_line'
+Start generating Sanctus Libraries...
+Sanctus Library Size: 868
+Loaded SL Previews in 2.28 seconds.
+Loading SL Preferences...
+blendartrack-main - Initializing...
+blendartrack-main - Attempt to reload...
+blendartrack-main - Reload successful!
+Register BlendArTrack
+
+Graswald Debug Mode: False
+GRASWALD INFO: Registering scatter plugin: Graswald Internal
+GRASWALD ERROR<{code.co_name} in {code.co_filename}:{code.co_firstlineno}>: Failed to read news. HTTP Error 404: Not Found
+GRASWALD WARNING: You must enable the copy attributes addon use the CTRL+C graswald > copy to clipboard
+GRASWALD ERROR: FAILED TO RUN <function register at 0x000001F076B3B740>
+ validating class:: 'INTERNAL' not found in ('SEARCH_ON_KEY_PRESS')
+files/Graswald-Pro_latest_version
+GRASWALD INFO: Addon is Up-To-Date None
+GRASWALD INFO: <Graswald-Pro.upgrade.backend.updater.Updater object at 0x000001F076CA1690>
+
+### Loading Rokoko Studio Live for Blender...
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\TEST.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\Text.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\angavrilov-rigs-master\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\animate\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\auto_load.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bake\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bind\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\core\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ctrl_rig\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_base.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_popup.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\extra_operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\finalize\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\keymap_helper.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\landmarks\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\mocap\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panel_utils.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panels\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\properties\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retarget_fbx\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retargeting\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\rigging\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\setup\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\shape_keys\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ui.py'
+LOADED UPDATER!
+### Loaded Rokoko Studio Live for Blender successfully!
+
+animation_layers_updater addon: Verbose is enabled
+animation_layers_updater addon: Read in JSON settings from file
+Add-on not loaded: "Boxcutter", cause: No module named 'Boxcutter'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\TEST.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\Text.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\angavrilov-rigs-master\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\animate\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\auto_load.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bake\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bind\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\core\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ctrl_rig\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_base.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_popup.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\extra_operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\finalize\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\keymap_helper.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\landmarks\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\mocap\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panel_utils.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panels\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\properties\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retarget_fbx\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retargeting\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\rigging\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\setup\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\shape_keys\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ui.py'
+Exception in module register(): C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\extensions\blender_org\storypencil_storyboard_tools\__init__.py
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\scripts\modules\addon_utils.py", line 511, in enable
+    mod.register()
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\extensions\blender_org\storypencil_storyboard_tools\__init__.py", line 225, in register
+    bpy.types.VIEW3D_MT_draw_gpencil.append(scene_tools.setup_storyboard)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'module' object has no attribute 'VIEW3D_MT_draw_gpencil'
+Update armature presets...
+register_class(...):
+Info: Registering operator class: 'OBJECT_OT_AlignOperator', bl_idname 'object.align' has been registered before, unregistering previous
+module changed on disk: 'C:\\Program Files\\WindowsApps\\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\\Blender\\4.3\\scripts\\addons_core\\rigify\\__init__.py' reloading...
+Reloading external rigs...
+Reloading external metarigs...
+Rigify Error: Could not load feature set 'CloudRig_master' metarigs: exception occurred.
+
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\scripts\addons_core\rigify\metarig_menu.py", line 255, in get_external_metarigs
+    get_metarigs(metarigs['external'], base_dir, base_path)
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\scripts\addons_core\rigify\metarig_menu.py", line 76, in get_metarigs
+    get_metarigs(metarig_table[f], base_dir, base_path, path=[*path, f], nested=True)
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\scripts\addons_core\rigify\metarig_menu.py", line 80, in get_metarigs
+    module = get_resource('.'.join([*base_path, *path, f]))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\scripts\addons_core\rigify\utils\rig.py", line 343, in get_resource
+    module = importlib.import_module(resource_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\python\Lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1126, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1204, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\rigify\CloudRig_master\__init__.py", line 8, in <module>
+    from .generation import troubleshooting, cloud_generator
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\rigify\CloudRig_master\generation\cloud_generator.py", line 8, in <module>
+    from bone_selection_sets import from_json, to_json
+ModuleNotFoundError: No module named 'bone_selection_sets'
+
+register_class(...):
+Warning: 'view3d.sync_lock_view_master' does not contain '_PT_' with prefix and suffix
+register_class(...):
+Warning: 'view3d.view_sync_panel' does not contain '_PT_' with prefix and suffix
+====================
+bl_ext.user_default.bradley_geo_nodes_presets
+====================
+register_class(...):
+Info: Registering operator class: 'IO_OT_export_after_effects', bl_idname 'export.jsx' has been registered before, unregistering previous
+Custom IES folders are not specified in the addon preferences.
+Exception in module register(): C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\extensions\blender_org\hot_node\__init__.py
+Traceback (most recent call last):
+  File "C:\Program Files\WindowsApps\BlenderFoundation.Blender_4.3.2.0_x64__ppwjx1n5r4v9t\Blender\4.3\scripts\modules\addon_utils.py", line 511, in enable
+    mod.register()
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\extensions\blender_org\hot_node\__init__.py", line 86, in register
+    file.init()
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\extensions\blender_org\hot_node\file.py", line 776, in init
+    pack_names = load_packs()
+                 ^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\extensions\blender_org\hot_node\file.py", line 476, in load_packs
+    icon = pack_meta.get("icon", 'NONE')
+           ^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+HardOps 0.9.88.7 available!
+Add-on not loaded: "quick_output_settings", cause: No module named 'quick_output_settings'
+Erro ao registrar classe BlenderJSONEncoder: register_class(...):, missing bl_rna attribute from 'type' instance (may not be registered)
+INFO: Ucupaint 2.1.5 is registered!
+init
+GRASWALD INFO: Reading blend: Graswald Pro (1, 3, 16), blend (1, 3, 16), blender (4, 3, 2)
+GRASWALD INFO: FILE UP TO DATE
+Asset library 'BRD_Data' found at index 4. Path updated to: C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\extensions\user_default\bradley_geo_nodes_presets\Data
+AUTORELOAD --- Setting autoreload categories
+AUTORELOAD --- Reloading external files
+Render Preset --- Startup handler
+Render Preset --- Reloading presets
+Render Preset --- Loaded : C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\extensions\.user\blender_org\render_preset\512spp 2K.json
+Render Preset --- Presets reloaded
+INFO: Ucupaint update routine is done in 1.00 ms!
+🔄 blenderkit: Running background update callback
+🔄 blenderkit: Attempted popup prompt
+ℹ️  blenderkit: Global dir permissions are OK. [15:51:12.619, utils.py:1332]
+Could not find a keymap for gpencil.extrude_move
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\TEST.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\Text.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\angavrilov-rigs-master\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\animate\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\auto_load.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bake\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bind\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\core\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ctrl_rig\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_base.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_popup.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\extra_operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\finalize\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\keymap_helper.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\landmarks\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\mocap\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panel_utils.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panels\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\properties\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retarget_fbx\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retargeting\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\rigging\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\setup\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\shape_keys\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ui.py'
+⚠️  blenderkit: Request for BlenderKit-Client reports failed: <class 'requests.exceptions.ConnectTimeout'> HTTPConnectionPool(host='127.0.0.1', port=62485): Max retries exceeded with url: /report (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x000001F07C91BA90>, 'Connection to 127.0.0.1 timed out. (connect timeout=0.1)')) [15:51:13.639, timer.py:54]
+ℹ️  blenderkit: BlenderKit-Client v1.2.1 starting on http://127.0.0.1:62485, log file at: C:\Users\henri\blenderkit_data\client\default.log [15:51:13.645, client_lib.py:627]
+ℹ️  blenderkit: BlenderKit-Client is running on port 62485! [15:51:13.790, timer.py:101]
+🔄 blenderkit: Running the install popup handler.
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+WARN (bpy.rna): C:\Users\blender\git\blender-v430\blender.git\source\blender\python\intern\bpy_rna.cc:1373 pyrna_enum_to_py: current value '20512' matches no enum in 'Event', '(null)', 'type'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\TEST.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\Text.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\angavrilov-rigs-master\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\animate\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\auto_load.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bake\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bind\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\core\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ctrl_rig\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_base.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_popup.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\extra_operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\finalize\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\keymap_helper.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\landmarks\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\mocap\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panel_utils.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panels\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\properties\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retarget_fbx\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retargeting\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\rigging\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\setup\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\shape_keys\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ui.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\TEST.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\Text.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\angavrilov-rigs-master\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\animate\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\auto_load.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bake\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\bind\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\core\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ctrl_rig\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_base.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ed_popup.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\extra_operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\finalize\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\keymap_helper.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\landmarks\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\mocap\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\operators.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panel_utils.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\panels\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\properties\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retarget_fbx\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\retargeting\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\rigging\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\setup\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\shape_keys\\__init__.py'
+Warning: add-on missing 'bl_info', this can cause poor performance!: 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons\\ui.py'
+addon_utils.disable: blender_project_manager not loaded
+Modules Installed (blender_project_manager) from 'G:\\Shared drives\\M3D_OFFTOPIC\\OFF37 - Henrique\\h_addons\\blender_project_manager\\blender_project_manager.zip' into 'C:\\Users\\henri\\AppData\\Roaming\\Blender Foundation\\Blender\\4.3\\scripts\\addons'
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\preferences.py", line 120, in execute
+    prefs = context.preferences.addons['project_manager'].preferences
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'bpy_prop_collection[key]: key "project_manager" not found'
+Error: Python: Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\preferences.py", line 120, in execute
+    prefs = context.preferences.addons['project_manager'].preferences
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'bpy_prop_collection[key]: key "project_manager" not found'
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\preferences.py", line 120, in execute
+    prefs = context.preferences.addons['project_manager'].preferences
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'bpy_prop_collection[key]: key "project_manager" not found'
+Error: Python: Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\preferences.py", line 120, in execute
+    prefs = context.preferences.addons['project_manager'].preferences
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'bpy_prop_collection[key]: key "project_manager" not found'
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+                           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+                           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+                           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+                           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+                           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+                           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+                           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\operators\create_project.py", line 106, in invoke
+    missing_prefs = self.check_preferences(context)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\operators\create_project.py", line 26, in check_preferences
+    prefs = context.preferences.addons['project_manager'].preferences
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'bpy_prop_collection[key]: key "project_manager" not found'
+Error: Python: Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\operators\create_project.py", line 106, in invoke
+    missing_prefs = self.check_preferences(context)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\operators\create_project.py", line 26, in check_preferences
+    prefs = context.preferences.addons['project_manager'].preferences
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'bpy_prop_collection[key]: key "project_manager" not found'
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\operators\load_project.py", line 106, in invoke
+    prefs = context.preferences.addons['project_manager'].preferences
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'bpy_prop_collection[key]: key "project_manager" not found'
+Error: Python: Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\operators\load_project.py", line 106, in invoke
+    prefs = context.preferences.addons['project_manager'].preferences
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+KeyError: 'bpy_prop_collection[key]: key "project_manager" not found'
+Traceback (most recent call last):
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\panels\project_panel.py", line 238, in draw
+    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\henri\AppData\Roaming\Blender Foundation\Blender\4.3\scripts\addons\blender_project_manager\utils\__init__.py", line 26, in get_project_info
+    return project_folder, workspace_path, project_prefix
+           ^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'workspace_path' where it is not associated with a value

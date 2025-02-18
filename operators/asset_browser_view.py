@@ -60,7 +60,7 @@ class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
                     space = new_area.spaces.active
                     
                     # Configurar o Asset Browser para usar a biblioteca do projeto atual
-                    prefs = context.preferences.addons['project_manager'].preferences
+                    prefs = context.preferences.addons['blender_project_manager'].preferences
                     project_path = context.scene.current_project
                     project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
                     

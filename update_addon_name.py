@@ -7,12 +7,12 @@ def update_file(file_path):
     
     # Replace the addon name in preferences access
     content = content.replace(
-        "context.preferences.addons['project_manager']",
-        "context.preferences.addons['project_manager']"
+        "context.preferences.addons['blender_project_manager']",
+        "context.preferences.addons['blender_project_manager']"
     )
     content = content.replace(
-        "ctx.preferences.addons['project_manager']",
-        "ctx.preferences.addons['project_manager']"
+        "ctx.preferences.addons['blender_project_manager']",
+        "ctx.preferences.addons['blender_project_manager']"
     )
     
     with open(file_path, 'w', encoding='utf-8') as f:
