@@ -24,33 +24,33 @@ class ASSET_OT_reload_link(Operator):
 
 class ASSET_OT_create_asset(Operator):
     bl_idname = "project.create_asset"
-    bl_label = "Criar Asset"
-    bl_description = "Marca uma collection como asset ou cria um novo arquivo de asset"
+    bl_label = "Create Asset"
+    bl_description = "Mark a collection as an asset or create a new asset file"
 
     asset_type: EnumProperty(
-        name="Tipo de Asset",
+        name="Asset Type",
         items=[
-            ('PROPS', "Prop", "Objetos e props gerais"),
-            ('CHR', "Character", "Personagens e rigs"),
-            ('ENV', "Environment", "Ambientes e cenários")
+            ('PROPS', "Prop", "General objects and props"),
+            ('CHR', "Character", "Characters and rigs"),
+            ('ENV', "Environment", "Environments and scenarios")
         ],
         default='PROPS'
     )
 
     name: StringProperty(
-        name="Nome do Asset",
-        description="Nome do asset"
+        name="Asset Name",
+        description="Name of the asset"
     )
 
     save_mode: EnumProperty(
-        name="Modo de Salvamento",
+        name="Save Mode",
         items=[
-            ('NEW_FILE', "Novo Arquivo", "Cria um novo arquivo para o asset"),
-            ('SAVE_AS', "Salvar Como", "Salva o arquivo atual como um arquivo de asset"),
-            ('MARK_ONLY', "Apenas Marcar", "Apenas marca como asset sem salvar novo arquivo")
+            ('NEW_FILE', "New File", "Create a new file for the asset"),
+            ('SAVE_AS', "Save As", "Save the current file as an asset file"),
+            ('MARK_ONLY', "Mark Only", "Only mark as asset without saving new file")
         ],
         default='NEW_FILE',
-        description="Define como o asset será salvo"
+        description="Defines how the asset will be saved"
     )
 
     @classmethod
@@ -70,14 +70,14 @@ class ASSET_OT_create_asset(Operator):
             return False
             
         current_file = os.path.basename(bpy.data.filepath)
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         project_path = context.scene.current_project
         _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         return current_file.startswith(project_prefix + "_SHOT_")
 
     def get_asset_path(self, context):
         """Retorna o caminho correto para o asset"""
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         project_path = context.scene.current_project
         _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
         
@@ -109,7 +109,7 @@ class ASSET_OT_create_asset(Operator):
 
     def _get_preview_path(self, context):
         """Retorna o caminho onde o asset será salvo"""
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         project_path = context.scene.current_project
         _, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         
@@ -300,7 +300,7 @@ class ASSET_OT_create_asset(Operator):
         # Informações do Projeto
         box = layout.box()
         box.label(text="Projeto:", icon='FILE_FOLDER')
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         project_path = context.scene.current_project
         project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
         box.label(text=project_name)

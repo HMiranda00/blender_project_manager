@@ -7,20 +7,20 @@ from ..utils import get_project_info, save_current_file
 
 class LoadProjectOperator(Operator):
     bl_idname = "project.load_project"
-    bl_label = "Carregar Projeto"
+    bl_label = "Load Project"
     
     def get_projects(self, context):
         items = []
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         
         if not prefs.use_fixed_root or not prefs.fixed_root_path:
-            return [('CUSTOM', "Selecionar pasta...", "Selecione manualmente a pasta do projeto", 'FILE_FOLDER', 0)]
+            return [('CUSTOM', "Select folder...", "Manually select the project folder", 'FILE_FOLDER', 0)]
             
         root_path = bpy.path.abspath(prefs.fixed_root_path)
         if not os.path.exists(root_path):
             return items
             
-        # Listar todos os projetos na pasta raiz
+        # List all projects in root folder
         for folder in sorted(os.listdir(root_path)):
             folder_path = os.path.join(root_path, folder)
             if os.path.isdir(folder_path):
@@ -31,7 +31,7 @@ class LoadProjectOperator(Operator):
                         items.append((
                             folder_path,  # value
                             folder,       # label
-                            f"Carregar projeto: {folder}",  # description
+                            f"Load project: {folder}",  # description
                             'FILE_FOLDER',  # icon
                             number  # sort index
                         ))
@@ -39,13 +39,13 @@ class LoadProjectOperator(Operator):
                         continue
                     
         if not items:
-            items = [('CUSTOM', "Selecionar pasta...", "Selecione manualmente a pasta do projeto", 'FILE_FOLDER', 0)]
+            items = [('CUSTOM', "Select folder...", "Manually select the project folder", 'FILE_FOLDER', 0)]
             
         return items
     
     selected_project: EnumProperty(
-        name="Projeto",
-        description="Selecione o projeto para carregar",
+        name="Project",
+        description="Select the project to load",
         items=get_projects
     )
     
@@ -60,7 +60,7 @@ class LoadProjectOperator(Operator):
         try:
             save_current_file()
             
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = context.preferences.addons['project_manager'].preferences
             
             if prefs.use_fixed_root:
                 if self.selected_project == 'CUSTOM':
@@ -103,14 +103,14 @@ class LoadProjectOperator(Operator):
             return {'CANCELLED'}
 
     def invoke(self, context, event):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         if not prefs.use_fixed_root:
             return context.window_manager.invoke_props_dialog(self)
         return context.window_manager.invoke_props_dialog(self, width=400)
 
     def draw(self, context):
         layout = self.layout
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         
         if prefs.use_fixed_root:
             layout.prop(self, "selected_project")

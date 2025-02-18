@@ -1,10 +1,10 @@
 bl_info = {
-    "name": "Gerenciador de Projetos",
+    "name": "Project Manager",
     "author": "Henrique Miranda",
     "version": (1, 5, 4, 0),
     "blender": (2, 80, 0),
     "location": "N-Panel",
-    "description": "Addon para gerenciamento e organização de projetos",
+    "description": "Addon for project management and organization",
     "category": "Project Management",
 }
 

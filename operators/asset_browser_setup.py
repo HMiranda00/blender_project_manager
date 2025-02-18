@@ -12,10 +12,10 @@ from bpy.app.handlers import (
 from ..utils import get_project_info
 
 def cleanup_project_libraries(scene=None):
-    """Remove bibliotecas de projeto temporárias"""
+    """Remove project temporary libraries"""
     ctx = bpy.context
     
-    # Verificar se ainda temos contexto de projeto
+    # Check if we still have project context
     has_project_context = (
         hasattr(ctx.scene, "current_project") and 
         ctx.scene.current_project and 
@@ -24,7 +24,7 @@ def cleanup_project_libraries(scene=None):
     
     current_project_name = None
     if has_project_context:
-        prefs = ctx.preferences.addons['gerenciador_projetos'].preferences
+        prefs = ctx.preferences.addons['project_manager'].preferences
         project_path = ctx.scene.current_project
         project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
         current_project_name = project_name
@@ -33,41 +33,41 @@ def cleanup_project_libraries(scene=None):
     to_remove = []
     
     for lib in asset_libs:
-        # Verificar se é uma biblioteca gerenciada pelo nosso addon
+        # Check if it's a library managed by our addon
         lib_path = bpy.path.abspath(lib.path)
         if "ASSETS 3D" in lib_path:
-            # Se não houver projeto atual ou se for uma biblioteca de outro projeto
+            # If there's no current project or if it's a library from another project
             if not has_project_context or lib.name != current_project_name:
                 to_remove.append(lib)
     
-    # Remover bibliotecas coletadas
+    # Remove collected libraries
     for lib in to_remove:
         try:
             asset_libs.remove(lib)
         except Exception as e:
-            print(f"Erro ao remover biblioteca {lib.name}: {str(e)}")
+            print(f"Error removing library {lib.name}: {str(e)}")
 
 def on_file_change(dummy):
-    """Handler para mudanças no arquivo"""
+    """Handler for file changes"""
     cleanup_project_libraries()
     return None
 
 def on_undo_redo(dummy):
-    """Handler para undo/redo"""
+    """Handler for undo/redo"""
     cleanup_project_libraries()
     return None
 
 class PROJECTMANAGER_OT_setup_asset_browser(Operator):
     bl_idname = "project.setup_asset_browser"
-    bl_label = "Configurar Asset Browser"
-    bl_description = "Configura o Asset Browser do Blender para usar a pasta de assets do projeto"
+    bl_label = "Configure Asset Browser"
+    bl_description = "Configure Blender's Asset Browser to use the project's asset folder"
 
     @classmethod
     def poll(cls, context):
         return context.scene.current_project is not None
 
     def setup_catalogs(self, library_path):
-        """Cria catálogos padrão"""
+        """Create default catalogs"""
         catalog_path = os.path.join(library_path, "blender_assets.cats.txt")
         
         catalogs_data = """# This is an Asset Catalog Definition file for Blender.
@@ -86,46 +86,46 @@ f5780a5c-74a4-4dd9-9e3d-c3654cf91f5c:MATERIALS:MATERIALS"""
 
     def execute(self, context):
         try:
-            # Limpar outras bibliotecas de projeto primeiro
+            # Clear other project libraries first
             cleanup_project_libraries(context.scene)
             
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = context.preferences.addons['project_manager'].preferences
             project_path = context.scene.current_project
             project_name, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
             
-            # Configurar pasta de assets
+            # Configure asset folder
             assets_path = os.path.join(workspace_path, "ASSETS 3D")
             if not os.path.exists(assets_path):
                 os.makedirs(assets_path)
 
-            # Criar catálogos primeiro
+            # Create catalogs first
             self.setup_catalogs(assets_path)
 
-            # Remover biblioteca existente com mesmo nome se houver
+            # Remove existing library with the same name if there is one
             for lib in context.preferences.filepaths.asset_libraries:
                 if lib.name == project_name:
                     context.preferences.filepaths.asset_libraries.remove(
                         context.preferences.filepaths.asset_libraries.find(lib.name)
                     )
             
-            # Adicionar nova biblioteca
+            # Add new library
             bpy.ops.preferences.asset_library_add()
             new_lib = context.preferences.filepaths.asset_libraries[-1]
             new_lib.name = project_name
             new_lib.path = assets_path
             new_lib.import_method = 'LINK'
 
-            self.report({'INFO'}, f"Asset Library '{project_name}' configurada com catálogos")
+            self.report({'INFO'}, f"Asset Library '{project_name}' configured with catalogs")
             return {'FINISHED'}
 
         except Exception as e:
-            self.report({'ERROR'}, f"Erro ao configurar Asset Browser: {str(e)}")
+            self.report({'ERROR'}, f"Error configuring Asset Browser: {str(e)}")
             return {'CANCELLED'}
 
 def register():
     bpy.utils.register_class(PROJECTMANAGER_OT_setup_asset_browser)
     
-    # Registrar handlers para limpeza automática
+    # Register handlers for automatic cleanup
     handlers = [
         (load_post, on_file_change),
         (load_factory_preferences_post, on_file_change),
@@ -141,7 +141,7 @@ def register():
 def unregister():
     bpy.utils.unregister_class(PROJECTMANAGER_OT_setup_asset_browser)
     
-    # Remover handlers
+    # Remove handlers
     handlers = [
         (load_post, on_file_change),
         (load_factory_preferences_post, on_file_change),
@@ -154,5 +154,5 @@ def unregister():
         if func in handler_list:
             handler_list.remove(func)
     
-    # Limpar todas as bibliotecas ao desativar
+    # Clear all libraries when deactivating
     cleanup_project_libraries()

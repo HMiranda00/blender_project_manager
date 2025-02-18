@@ -10,7 +10,7 @@ class OpenRecentProjectOperator(Operator):
     is_fixed_root: bpy.props.BoolProperty()
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         
         if prefs.use_fixed_root != self.is_fixed_root:
             self.report({'ERROR'}, 
@@ -31,7 +31,7 @@ class ClearRecentListOperator(Operator):
     bl_description = "Limpar lista de projetos recentes"
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         prefs.recent_projects.clear()
         self.report({'INFO'}, "Lista de projetos recentes limpa")
         return {'FINISHED'}
@@ -47,7 +47,7 @@ class RemoveRecentProjectOperator(Operator):
     project_path: bpy.props.StringProperty()
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['project_manager'].preferences
         for i, proj in enumerate(prefs.recent_projects):
             if proj.path == self.project_path:
                 prefs.recent_projects.remove(i)
@@ -56,7 +56,7 @@ class RemoveRecentProjectOperator(Operator):
 
 def add_recent_project(context, project_path, project_name):
     MAX_RECENT = 5
-    prefs = context.preferences.addons['gerenciador_projetos'].preferences
+    prefs = context.preferences.addons['project_manager'].preferences
     
     # Remover se já existe
     recent_projects = prefs.recent_projects
