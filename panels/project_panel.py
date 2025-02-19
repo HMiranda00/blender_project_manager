@@ -5,20 +5,20 @@ from ..utils import get_project_info, get_publish_path, save_current_file
 from ..utils.cache import DirectoryCache
 
 class PROJECT_PT_Panel(Panel):
-    bl_label = "Gerenciador de Projetos"
+    bl_label = "Blender Project Manager"
     bl_idname = "VIEW3D_PT_project_management"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = 'Projeto'
+    bl_category = 'Project'
     
     def verify_role_file(self, context, role_name):
-        """Verifica se existe arquivo para o cargo especificado"""
+        """Verifies if there is a file for the specified role"""
         try:
             if not (context.scene.current_project and context.scene.current_shot):
                 return None
                 
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
             
@@ -47,11 +47,11 @@ class PROJECT_PT_Panel(Panel):
             return blend_path if os.path.exists(blend_path) else None
             
         except Exception as e:
-            print(f"Erro ao verificar arquivo do cargo {role_name}: {str(e)}")
+            print(f"Error verifying role file {role_name}: {str(e)}")
             return None
     
     def open_role_file(self, context, role_name):
-        """Abre o arquivo do cargo especificado"""
+        """Opens the specified role file"""
         try:
             blend_path = self.verify_role_file(context, role_name)
             if blend_path and os.path.exists(blend_path):
@@ -60,12 +60,12 @@ class PROJECT_PT_Panel(Panel):
                 return True
             return False
         except Exception as e:
-            print(f"Erro ao abrir arquivo do cargo {role_name}: {str(e)}")
+            print(f"Error opening role file {role_name}: {str(e)}")
             return False
     
     def draw(self, context):
         layout = self.layout
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         
         # Projetos Recentes
         if not context.scene.current_project:
@@ -85,7 +85,7 @@ class PROJECT_PT_Panel(Panel):
             )
             
             # Título e botões do cabeçalho
-            header.label(text="Projetos Recentes")
+            header.label(text="Recent Projects")
             header_buttons = header.row(align=True)
             header_buttons.alignment = 'RIGHT'
             header_buttons.prop(prefs, "recent_search", text="", icon='VIEWZOOM')
@@ -155,28 +155,28 @@ class PROJECT_PT_Panel(Panel):
                         row = content_box.row()
                         row.alignment = 'CENTER'
                         row.scale_y = 0.5
-                        row.label(text=f"... e mais {remaining} projeto{'s' if remaining > 1 else ''}")
+                        row.label(text=f"... and {remaining} more project{'s' if remaining > 1 else ''}")
             else:
-                box.label(text="Nenhum projeto recente", icon='INFO')
+                box.label(text="No recent projects", icon='INFO')
         
         # Current Project
         box = layout.box()
-        box.label(text="Projeto Atual:")
+        box.label(text="Current Project:")
         
         if context.scene.current_project:
             project_path = context.scene.current_project
             
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             
-            box.label(text=f"Projeto: {project_name}")
+            box.label(text=f"Project: {project_name}")
             box.label(text=f"Workspace: {workspace_path}")
-            box.label(text=f"Shot: {context.scene.current_shot or 'Nenhum'}")
-            box.label(text=f"Cargo: {context.scene.current_role or 'Nenhum'}")
+            box.label(text=f"Shot: {context.scene.current_shot or 'None'}")
+            box.label(text=f"Role: {context.scene.current_role or 'None'}")
             
             # Role Status
             if context.scene.current_shot:
                 status_box = layout.box()
-                status_box.label(text="Status dos Cargos", icon='INFO')
+                status_box.label(text="Role Status", icon='INFO')
                 
                 grid = status_box.grid_flow(
                     row_major=True,
@@ -191,23 +191,39 @@ class PROJECT_PT_Panel(Panel):
                         
                         col = grid.column()
                         box = col.box()
-                        button = box.operator(
-                            "project.open_role_file",
-                            text="",
-                            icon=role_mapping.icon,
-                            depress=(blend_path is not None)
-                        )
-                        if button:
+                        
+                        if blend_path:
+                            # Role exists, open it
+                            button = box.operator(
+                                "project.open_role_file",
+                                text="",
+                                icon=role_mapping.icon,
+                                depress=True
+                            )
+                            button.role_name = role_mapping.role_name
+                        else:
+                            # Role doesn't exist, create it
+                            button = box.operator(
+                                "project.create_shot",
+                                text="",
+                                icon=role_mapping.icon,
+                                depress=False
+                            )
+                            button.shot_name = context.scene.current_shot
                             button.role_name = role_mapping.role_name
 
         # Main buttons
         box = layout.box()
         if not context.scene.current_project:
             if prefs.use_fixed_root:
-                box.operator("project.create_project", icon='FILE_NEW', text="Criar Novo Projeto (Raiz Fixa)")
+                box.operator("project.create_project", icon='FILE_NEW', text="Create New Project (Fixed Root)")
             else:
-                box.operator("project.create_project", icon='FILE_NEW', text="Criar Novo Projeto")
+                box.operator("project.create_project", icon='FILE_NEW', text="Create New Project")
         box.operator("project.load_project", icon='FILE_FOLDER')
+
+        # Add button to open current file directory
+        dir_box = layout.box()
+        dir_box.operator("project.open_current_directory", icon='FILE_FOLDER')
         
         # Shot Management
         if context.scene.current_project:
@@ -219,62 +235,84 @@ class PROJECT_PT_Panel(Panel):
             
             if context.scene.current_shot:
                 shot_box.operator("project.link_role", icon='LINK_BLEND')
-            
-        # Asset Manager com layout melhorado
-        asset_box = layout.box()
-        header_row = asset_box.row()
-        header_row.prop(
-            context.scene,
-            "show_asset_manager",
-            icon='TRIA_DOWN' if context.scene.show_asset_manager else 'TRIA_RIGHT',
-            icon_only=True,
-            emboss=False
-        )
-        header_row.label(text="Gerenciador de Assets", icon='ASSET_MANAGER')
+                
+                # Version Control
+                if context.scene.current_role:
+                    version_box = layout.box()
+                    version_box.label(text="Version Control:", icon='RECOVER_LAST')
+                    
+                    # WIP Controls
+                    wip_row = version_box.row(align=True)
+                    wip_row.operator("project.new_wip_version", icon='FILE_NEW')
+                    wip_row.operator("project.open_latest_wip", icon='FILE_TICK')
+                    
+                    # Publish Control
+                    version_box.operator("project.publish_version", icon='EXPORT')
+                
+                # Assembly Management
+                assembly_box = layout.box()
+                assembly_box.label(text="Assembly:", icon='SCENE_DATA')
 
-        if context.scene.show_asset_manager:
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
-            project_path = context.scene.current_project
-            project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
+                # Check if we're in an assembly file
+                is_assembly = False
+                if bpy.data.is_saved:
+                    current_file = os.path.basename(bpy.data.filepath)
+                    is_assembly = "_ASSEMBLY.blend" in current_file
+
+                # Assembly controls
+                row = assembly_box.row(align=True)
+                row.operator("project.open_assembly", icon='FILE_BLEND')
+
+                if is_assembly:
+                    # Assembly file controls
+                    row = assembly_box.row(align=True)
+                    row.operator("project.rebuild_assembly", icon='FILE_REFRESH')
+                    row.operator("project.prepare_assembly_render", icon='RENDER_STILL')
             
-            # Verificar se existe Asset Browser configurado
-            has_asset_browser = False
+        # Asset Browser controls
+        asset_box = layout.box()
+        asset_box.label(text="Asset Browser:", icon='ASSET_MANAGER')
+        
+        # Check if asset browser is configured and visible
+        has_asset_browser = False
+        is_visible = False
+        if context.scene.current_project:
+            project_name, _, _ = get_project_info(context.scene.current_project, prefs.use_fixed_root)
             for lib in context.preferences.filepaths.asset_libraries:
-                if lib.name == project_name and "ASSETS 3D" in bpy.path.abspath(lib.path):
+                if lib.name == project_name:
                     has_asset_browser = True
                     break
             
-            if has_asset_browser:
-                # Layout melhorado quando o Asset Browser está configurado
-                col = asset_box.column(align=True)
-                
-                # Primeira linha: Criar Asset e Browser
-                row1 = col.row(align=True)
-                row1.scale_y = 1.2
-                row1.operator("project.create_asset", icon='ADD', text="Criar Asset")
-                row1.operator("project.toggle_asset_browser", icon='WINDOW', text="Abrir Browser")
-                
-                # Separador
-                col.separator(factor=0.7)
-                
-                # Segunda linha: Gerenciamento
-                row2 = col.row(align=True)
-                row2.scale_y = 0.9
-                row2.operator("project.reload_link", icon='FILE_REFRESH', text="Recarregar Links")
-            else:
-                # Layout quando não há Asset Browser configurado
-                col = asset_box.column(align=True)
-                
-                # Mensagem informativa
-                info_box = col.box()
-                info_box.scale_y = 0.9
-                info_box.label(text="Asset Browser não configurado", icon='INFO')
-                
-                # Botões
-                row = col.row(align=True)
-                row.scale_y = 1.2
-                row.operator("project.setup_asset_browser", icon='ASSET_MANAGER', text="Configurar Browser")
-                row.operator("project.reload_link", icon='FILE_REFRESH', text="Recarregar Links")
+            # Check if asset browser is visible
+            asset_areas = [area for area in context.screen.areas if area.type == 'FILE_BROWSER' and area.ui_type == 'ASSETS']
+            is_visible = len(asset_areas) > 0
+        
+        # First row: Create Asset and Browser
+        row1 = asset_box.row(align=True)
+        row1.scale_y = 1.2
+        row1.operator("project.create_asset", icon='ADD', text="Create Asset")
+        row1.operator("project.toggle_asset_browser", text="", icon='HIDE_OFF' if not is_visible else 'HIDE_ON')
+        
+        # Separator
+        asset_box.separator(factor=0.7)
+        
+        # Second row: Asset Browser Management
+        row2 = asset_box.row(align=True)
+        row2.scale_y = 0.9
+
+        # Setup/Reload button
+        if has_asset_browser:
+            row2.operator("project.reload_links", icon='FILE_REFRESH', text="Reload Assets")
+        else:
+            row2.operator("project.setup_asset_browser", icon='FILE_FOLDER', text="Setup Asset Browser")
+
+        
+
+def tag_redraw_all_areas():
+    """Force all areas to redraw"""
+    for window in bpy.context.window_manager.windows:
+        for area in window.screen.areas:
+            area.tag_redraw()
 
 def register():
     bpy.utils.register_class(PROJECT_PT_Panel)

@@ -10,7 +10,7 @@ class LinkRoleOperator(Operator):
     bl_description = "Linkar ou anexar cargo ao arquivo atual"
 
     def get_roles(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         current_role = context.scene.current_role
         
         items = []
@@ -36,7 +36,7 @@ class LinkRoleOperator(Operator):
         try:
             save_current_file()
             
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             project_path = context.scene.current_project
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
@@ -112,7 +112,7 @@ class LinkRoleOperator(Operator):
         layout.prop(self, "role_to_link")
         
         if self.role_to_link:
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             for role_mapping in prefs.role_mappings:
                 if role_mapping.role_name == self.role_to_link:
                     box = layout.box()

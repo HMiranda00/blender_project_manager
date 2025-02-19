@@ -10,136 +10,136 @@ class RecentProject(PropertyGroup):
     is_fixed_root: BoolProperty(name="Is Fixed Root")
 
 class RoleMapping(PropertyGroup):
-    """Classe para armazenar as configurações de cada cargo"""
+    """Class to store role configurations"""
     role_name: StringProperty(
-        name="Nome do Cargo",
-        description="Nome do cargo (ex: ANIMATION, LOOKDEV)",
+        name="Role Name",
+        description="Role name (e.g., ANIMATION, LOOKDEV)",
     )
     description: StringProperty(
-        name="Descrição",
-        description="Breve descrição do que este cargo faz",
-        default="Descrição do cargo"
+        name="Description",
+        description="Brief description of what this role does",
+        default="Role description"
     )
     link_type: EnumProperty(
-        name="Tipo de Referência",
-        description="Define se a collection será linkada ou anexada",
+        name="Reference Type",
+        description="Defines if the collection will be linked or appended",
         items=[
-            ('LINK', "Link", "Collection será linkada (referência)"),
-            ('APPEND', "Append", "Collection será anexada (cópia)")
+            ('LINK', "Link", "Collection will be linked (reference)"),
+            ('APPEND', "Append", "Collection will be appended (copy)")
         ],
         default='LINK'
     )
     icon: EnumProperty(
-        name="Ícone",
-        description="Ícone para representar este cargo",
+        name="Icon",
+        description="Icon to represent this role",
         items=[
-            ('OUTLINER_OB_ARMATURE', "Animação", "Responsável pela animação dos personagens e objetos", 'OUTLINER_OB_ARMATURE', 0),
-            ('MATERIAL', "Materiais", "Desenvolvimento de materiais e texturas", 'MATERIAL', 1),
-            ('OUTLINER_OB_MESH', "Modelos", "Modelagem de objetos e personagens", 'OUTLINER_OB_MESH', 2),
-            ('WORLD', "Ambiente", "Configuração do ambiente e iluminação global", 'WORLD', 3),
-            ('CAMERA_DATA', "Câmera", "Configuração e animação de câmeras", 'CAMERA_DATA', 4),
-            ('LIGHT', "Luzes", "Iluminação da cena", 'LIGHT', 5),
-            ('PARTICLE_DATA', "Efeitos", "Efeitos especiais e partículas", 'PARTICLE_DATA', 6),
-            ('RENDER_RESULT', "Composição", "Composição final e pós-produção", 'RENDER_RESULT', 7),
-            ('TOOL_SETTINGS', "Técnico", "Configurações técnicas e otimizações", 'TOOL_SETTINGS', 8),
-            ('MODIFIER', "Rigging", "Desenvolvimento de rigs e controles", 'MODIFIER', 9),
-            ('UV', "UV/Textura", "Unwrap UV e texturização", 'UV', 10),
-            ('VIEW3D', "Layout", "Layout de cena e blocking", 'VIEW3D', 11),
+            ('OUTLINER_OB_ARMATURE', "Animation", "Responsible for character and object animation", 'OUTLINER_OB_ARMATURE', 0),
+            ('MATERIAL', "Materials", "Material and texture development", 'MATERIAL', 1),
+            ('OUTLINER_OB_MESH', "Models", "Object and character modeling", 'OUTLINER_OB_MESH', 2),
+            ('WORLD', "Environment", "Environment setup and global illumination", 'WORLD', 3),
+            ('CAMERA_DATA', "Camera", "Camera setup and animation", 'CAMERA_DATA', 4),
+            ('LIGHT', "Lights", "Scene lighting", 'LIGHT', 5),
+            ('PARTICLE_DATA', "Effects", "Special effects and particles", 'PARTICLE_DATA', 6),
+            ('RENDER_RESULT', "Composition", "Final composition and post-production", 'RENDER_RESULT', 7),
+            ('TOOL_SETTINGS', "Technical", "Technical settings and optimizations", 'TOOL_SETTINGS', 8),
+            ('MODIFIER', "Rigging", "Rig and control development", 'MODIFIER', 9),
+            ('UV', "UV/Texture", "UV unwrap and texturing", 'UV', 10),
+            ('VIEW3D', "Layout", "Scene layout and blocking", 'VIEW3D', 11),
         ],
         default='TOOL_SETTINGS'
     )
     collection_color: EnumProperty(
-        name="Cor da Collection",
-        description="Cor para identificar visualmente a collection no outliner",
+        name="Collection Color",
+        description="Color to visually identify the collection in the outliner",
         items=[
-            ('NONE', "Nenhuma", "Sem cor", 'OUTLINER_COLLECTION', 0),
-            ('COLOR_01', "Vermelho", "Cor vermelha", 'COLLECTION_COLOR_01', 1),
-            ('COLOR_02', "Laranja", "Cor laranja", 'COLLECTION_COLOR_02', 2),
-            ('COLOR_03', "Amarelo", "Cor amarela", 'COLLECTION_COLOR_03', 3),
-            ('COLOR_04', "Verde", "Cor verde", 'COLLECTION_COLOR_04', 4),
-            ('COLOR_05', "Azul", "Cor azul", 'COLLECTION_COLOR_05', 5),
-            ('COLOR_06', "Roxo", "Cor roxa", 'COLLECTION_COLOR_06', 6),
-            ('COLOR_07', "Rosa", "Cor rosa", 'COLLECTION_COLOR_07', 7),
-            ('COLOR_08', "Marrom", "Cor marrom", 'COLLECTION_COLOR_08', 8),
+            ('NONE', "None", "No color", 'OUTLINER_COLLECTION', 0),
+            ('COLOR_01', "Red", "Red color", 'COLLECTION_COLOR_01', 1),
+            ('COLOR_02', "Orange", "Orange color", 'COLLECTION_COLOR_02', 2),
+            ('COLOR_03', "Yellow", "Yellow color", 'COLLECTION_COLOR_03', 3),
+            ('COLOR_04', "Green", "Green color", 'COLLECTION_COLOR_04', 4),
+            ('COLOR_05', "Blue", "Blue color", 'COLLECTION_COLOR_05', 5),
+            ('COLOR_06', "Purple", "Purple color", 'COLLECTION_COLOR_06', 6),
+            ('COLOR_07', "Pink", "Pink color", 'COLLECTION_COLOR_07', 7),
+            ('COLOR_08', "Brown", "Brown color", 'COLLECTION_COLOR_08', 8),
         ],
         default='NONE'
     )
     hide_viewport_default: BoolProperty(
-        name="Oculto por Padrão",
-        description="Define se a collection deve começar oculta no viewport",
+        name="Hidden by Default",
+        description="Defines if the collection should start hidden in viewport",
         default=False
     )
     exclude_from_view_layer: BoolProperty(
-        name="Excluir da View Layer",
-        description="Define se a collection deve ser excluída da view layer por padrão",
+        name="Exclude from View Layer",
+        description="Defines if the collection should be excluded from view layer by default",
         default=False
     )
     show_status: BoolProperty(
-        name="Mostrar Status",
-        description="Mostra o status deste cargo no painel principal",
+        name="Show Status",
+        description="Shows this role's status in the main panel",
         default=True
     )
     owns_world: BoolProperty(
-        name="Controla World",
-        description="Define se este cargo é responsável pelo World da cena",
+        name="Controls World",
+        description="Defines if this role is responsible for the scene's World",
         default=False
     )
     skip_assembly: BoolProperty(
-        name="Ignorar Assembly",
-        description="Se marcado, este cargo não será incluído no arquivo de assembly do shot",
+        name="Skip Assembly",
+        description="If checked, this role will not be included in the shot's assembly file",
         default=False
     )
     publish_path_preset: EnumProperty(
-        name="Pasta de Publicação",
-        description="Selecione o caminho de publicação para este cargo",
+        name="Publish Folder",
+        description="Select the publish path for this role",
         items=[
-            ('SHOTS', "SHOTS", "Publicação em shots"),
-            ('CHARACTERS', "CHARACTERS", "Publicação em personagens"),
-            ('PROPS', "PROPS", "Publicação em props"),
-            ('CUSTOM', "Custom", "Definir caminho personalizado"),
+            ('SHOTS', "SHOTS", "Publish in shots"),
+            ('CHARACTERS', "CHARACTERS", "Publish in characters"),
+            ('PROPS', "PROPS", "Publish in props"),
+            ('CUSTOM', "Custom", "Set custom path"),
         ],
         default='SHOTS'
     )
     custom_publish_path: StringProperty(
-        name="Caminho Personalizado",
-        description="Caminho personalizado para a pasta de publicação deste cargo (use placeholders como {root}, {projectCode}, {shot}, {role}, {assetName})",
+        name="Custom Path",
+        description="Custom path for this role's publish folder (use placeholders like {root}, {projectCode}, {shot}, {role}, {assetName})",
         default=""
     )
     expanded: BoolProperty(
-        name="Expandido",
+        name="Expanded",
         default=False,
-        description="Expande ou colapsa as configurações deste cargo"
+        description="Expands or collapses this role's settings"
     )
 
 class PROJECTMANAGER_OT_add_role_mapping(Operator):
-    """Adiciona um novo cargo às configurações"""
+    """Adds a new role to settings"""
     bl_idname = "project.add_role_mapping"
-    bl_label = "Adicionar Cargo"
+    bl_label = "Add Role"
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         new_role = prefs.role_mappings.add()
-        new_role.role_name = "NOVO_CARGO"
-        new_role.description = "Descrição do novo cargo"
+        new_role.role_name = "NEW_ROLE"
+        new_role.description = "New role description"
         new_role.icon = 'TOOL_SETTINGS'
         return {'FINISHED'}
 
 class PROJECTMANAGER_OT_remove_role_mapping(Operator):
-    """Remove um cargo das configurações"""
+    """Removes a role from settings"""
     bl_idname = "project.remove_role_mapping"
-    bl_label = "Remover Cargo"
+    bl_label = "Remove Role"
     
     index: IntProperty()
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         prefs.role_mappings.remove(self.index)
         return {'FINISHED'}
 
 class PROJECTMANAGER_OT_export_config(Operator):
-    """Exporta as configurações para um arquivo JSON"""
+    """Exports settings to a JSON file"""
     bl_idname = "project.export_config"
-    bl_label = "Exportar Configurações"
+    bl_label = "Export Settings"
     
     filepath: StringProperty(
         subtype='FILE_PATH',
@@ -156,7 +156,7 @@ class PROJECTMANAGER_OT_export_config(Operator):
         return {'RUNNING_MODAL'}
     
     def execute(self, context):
-        prefs = context.preferences.addons['gerenciador_projetos'].preferences
+        prefs = context.preferences.addons['blender_project_manager'].preferences
         
         config = {
             'use_fixed_root': prefs.use_fixed_root,
@@ -188,16 +188,16 @@ class PROJECTMANAGER_OT_export_config(Operator):
         try:
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(config, f, indent=4)
-            self.report({'INFO'}, f"Configurações exportadas para: {filepath}")
+            self.report({'INFO'}, f"Settings exported to: {filepath}")
             return {'FINISHED'}
         except Exception as e:
-            self.report({'ERROR'}, f"Erro ao exportar configurações: {str(e)}")
+            self.report({'ERROR'}, f"Error exporting settings: {str(e)}")
             return {'CANCELLED'}
 
 class PROJECTMANAGER_OT_import_config(Operator):
-    """Importa as configurações de um arquivo JSON"""
+    """Imports settings from a JSON file"""
     bl_idname = "project.import_config"
-    bl_label = "Importar Configurações"
+    bl_label = "Import Settings"
     
     filepath: StringProperty(
         subtype='FILE_PATH'
@@ -214,14 +214,14 @@ class PROJECTMANAGER_OT_import_config(Operator):
     
     def execute(self, context):
         if not os.path.exists(self.filepath):
-            self.report({'ERROR'}, "Arquivo não encontrado")
+            self.report({'ERROR'}, "File not found")
             return {'CANCELLED'}
             
         try:
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 config = json.load(f)
             
-            prefs = context.preferences.addons['gerenciador_projetos'].preferences
+            prefs = context.preferences.addons['blender_project_manager'].preferences
             
             prefs.use_fixed_root = config.get('use_fixed_root', True)
             prefs.fixed_root_path = config.get('fixed_root_path', '')
@@ -243,92 +243,92 @@ class PROJECTMANAGER_OT_import_config(Operator):
                 role_mapping.custom_publish_path = role_config.get('custom_publish_path', '')
                 role_mapping.link_type = role_config.get('link_type', 'LINK')
             
-            self.report({'INFO'}, "Configurações importadas com sucesso!")
+            self.report({'INFO'}, "Settings imported successfully!")
             return {'FINISHED'}
         except Exception as e:
-            self.report({'ERROR'}, f"Erro ao importar configurações: {str(e)}")
+            self.report({'ERROR'}, f"Error importing settings: {str(e)}")
             return {'CANCELLED'}
 
 class ProjectPreferences(AddonPreferences):
-    bl_idname = 'gerenciador_projetos'
+    bl_idname = 'blender_project_manager'
 
     use_fixed_root: BoolProperty(
-        name="Usar Raiz Fixa",
-        description="Se marcado, usará uma pasta raiz fixa para todos os projetos",
-        default=True
+        name="Use Fixed Root",
+        description="If checked, will use a fixed root folder for all projects",
+        default=False
     )
 
     fixed_root_path: StringProperty(
-        name="Pasta Raiz Fixa",
+        name="Fixed Root Path",
         subtype='DIR_PATH',
         default="",
-        description="Caminho para a pasta raiz fixa"
+        description="Path to the fixed root folder"
     )
 
     role_mappings: CollectionProperty(
         type=RoleMapping,
-        name="Configurações dos Cargos",
-        description="Define os cargos e suas configurações",
+        name="Role Settings",
+        description="Define roles and their settings",
     )
 
     recent_projects: CollectionProperty(
         type=RecentProject,
         name="Recent Projects",
-        description="Lista de projetos recentes"
+        description="List of recent projects"
     )
 
     show_all_recent: BoolProperty(
-        name="Mostrar Todos os Projetos",
+        name="Show All Projects",
         default=False,
-        description="Mostrar todos os projetos recentes ou apenas os 3 mais recentes"
+        description="Show all recent projects or just the 3 most recent ones"
     )
     
     recent_search: StringProperty(
-        name="Buscar Projetos",
+        name="Search Projects",
         default="",
-        description="Filtrar projetos recentes"
+        description="Filter recent projects"
     )
 
     def draw(self, context):
         layout = self.layout
         
-        # Documentação/Ajuda
+        # Documentation/Help
         help_box = layout.box()
-        help_box.label(text="Documentação", icon='HELP')
-        help_box.label(text="Como o addon funciona:", icon='INFO')
+        help_box.label(text="Documentation", icon='HELP')
+        help_box.label(text="How the addon works:", icon='INFO')
         col = help_box.column()
-        col.label(text="1. Cada cargo define uma collection principal com o mesmo nome")
-        col.label(text="2. As collections são criadas com as configurações definidas abaixo")
-        col.label(text="3. Ao criar um novo shot, a collection do cargo é criada automaticamente")
-        col.label(text="4. Ao linkar um cargo, sua collection é linkada e um override é criado")
+        col.label(text="1. Each role defines a main collection with the same name")
+        col.label(text="2. Collections are created with the settings defined below")
+        col.label(text="3. When creating a new shot, the role's collection is created automatically")
+        col.label(text="4. When linking a role, its collection is linked and an override is created")
         
-        # Configuração da Raiz do Projeto
+        # Project Root Configuration
         box = layout.box()
-        box.label(text="Configuração da Raiz do Projeto", icon='FILE_FOLDER')
+        box.label(text="Project Root Configuration", icon='FILE_FOLDER')
         box.prop(self, "use_fixed_root")
         if self.use_fixed_root:
             box.prop(self, "fixed_root_path")
         
-        # Botões de Importação/Exportação
+        # Import/Export Buttons
         box = layout.box()
-        box.label(text="Gerenciamento de Configurações", icon='SETTINGS')
+        box.label(text="Settings Management", icon='SETTINGS')
         row = box.row()
         row.operator("project.export_config", icon='EXPORT')
         row.operator("project.import_config", icon='IMPORT')
         
-        # Configurações dos cargos
+        # Role Settings
         box = layout.box()
-        box.label(text="Configurações dos Cargos", icon='COMMUNITY')
+        box.label(text="Role Settings", icon='COMMUNITY')
         
-        # Botão para adicionar novo cargo
+        # Add new role button
         row = box.row()
         row.operator("project.add_role_mapping", icon='ADD')
         
-        # Lista de cargos existentes
+        # List of existing roles
         for i, role_mapping in enumerate(self.role_mappings):
             role_box = box.box()
             
-            # Cabeçalho com nome e botão remover
+            # Header with name and remove button
             header = role_box.row()
             header.prop(role_mapping, "expanded", icon='TRIA_DOWN' if role_mapping.expanded else 'TRIA_RIGHT', icon_only=True, emboss=False)
             header.prop(role_mapping, "role_name", text="")
@@ -336,40 +336,38 @@ class ProjectPreferences(AddonPreferences):
             remove.index = i
             
             if role_mapping.expanded:
-                # Configurações básicas
+                # Basic settings
                 col = role_box.column()
                 col.prop(role_mapping, "description")
                 
-                # Configurações de publicação
+                # Publish settings
                 col.prop(role_mapping, "publish_path_preset")
                 if role_mapping.publish_path_preset == 'CUSTOM':
                     col.prop(role_mapping, "custom_publish_path")
                 
-                # Ícone com preview
+                # Icon with preview
                 icon_row = col.row()
                 icon_row.prop(role_mapping, "icon")
                 icon_row.label(icon=role_mapping.icon)
                 
-                # Configurações da collection
+                # Collection settings
                 col_settings = role_box.box()
-                col_settings.label(text="Configurações da Collection:", icon='OUTLINER')
+                col_settings.label(text="Collection Settings:", icon='OUTLINER')
                 col_settings.prop(role_mapping, "collection_color")
                 col_settings.prop(role_mapping, "hide_viewport_default")
                 col_settings.prop(role_mapping, "exclude_from_view_layer")
 
-                # Configurações do Link
+                # Link settings
                 link_settings = role_box.box()
-                link_settings.label(text="Configurações de Link:", icon='LINKED')
+                link_settings.label(text="Link Settings:", icon='LINKED')
                 link_settings.prop(role_mapping, "link_type")
 
-                # Configurações especiais
+                # Special settings
                 special_settings = role_box.box()
-                special_settings.label(text="Configurações Especiais:", icon='SETTINGS')
-                row = special_settings.row()
-                row.prop(role_mapping, "owns_world", icon='WORLD')
-                row.prop(role_mapping, "show_status", icon='INFO')
-                row = special_settings.row()
-                row.prop(role_mapping, "skip_assembly", icon='FILE_BLEND')
+                special_settings.label(text="Special Settings:", icon='SETTINGS')
+                special_settings.prop(role_mapping, "show_status")
+                special_settings.prop(role_mapping, "owns_world")
+                special_settings.prop(role_mapping, "skip_assembly")
 
 # Lista de classes para registro
 classes = (
@@ -385,6 +383,56 @@ classes = (
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
+    
+    # Add default roles
+    prefs = bpy.context.preferences.addons['blender_project_manager'].preferences
+    
+    # Only add if there are no roles yet
+    if len(prefs.role_mappings) == 0:
+        # Animation Role
+        role = prefs.role_mappings.add()
+        role.role_name = "ANIMATION"
+        role.description = "Animation and character performance"
+        role.icon = "OUTLINER_OB_ARMATURE"
+        role.collection_color = "COLOR_02"
+        role.hide_viewport_default = False
+        role.exclude_from_view_layer = False
+        role.show_status = True
+        role.owns_world = False
+        role.skip_assembly = False
+        role.publish_path_preset = "SHOTS"
+        role.custom_publish_path = ""
+        role.link_type = "LINK"
+        
+        # Lookdev Role
+        role = prefs.role_mappings.add()
+        role.role_name = "LOOKDEV"
+        role.description = "Materials, lighting and rendering"
+        role.icon = "LIGHT"
+        role.collection_color = "COLOR_03"
+        role.hide_viewport_default = False
+        role.exclude_from_view_layer = False
+        role.show_status = True
+        role.owns_world = True
+        role.skip_assembly = False
+        role.publish_path_preset = "SHOTS"
+        role.custom_publish_path = ""
+        role.link_type = "LINK"
+        
+        # Layout Role
+        role = prefs.role_mappings.add()
+        role.role_name = "LAYOUT"
+        role.description = "Scene layout and camera"
+        role.icon = "TOOL_SETTINGS"
+        role.collection_color = "NONE"
+        role.hide_viewport_default = False
+        role.exclude_from_view_layer = False
+        role.show_status = True
+        role.owns_world = False
+        role.skip_assembly = True
+        role.publish_path_preset = "SHOTS"
+        role.custom_publish_path = ""
+        role.link_type = "APPEND"
 
 def unregister():
     for cls in reversed(classes):
