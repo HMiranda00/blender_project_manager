@@ -194,12 +194,7 @@ For bug reports and feature requests, please use the GitHub Issues page.
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - the same license as Blender itself. This means you are free to:
-
-- Use the software for any purpose
-- Change the software to suit your needs
-- Share the software with your friends and neighbors
-- Share the changes you make
+This project is licensed under the GNU General Public License v3.0
 
 For more information, see the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
