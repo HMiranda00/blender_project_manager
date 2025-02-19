@@ -4,6 +4,7 @@ A comprehensive Blender addon for managing complex animation projects with multi
 
 ![Version](https://img.shields.io/badge/version-1.6.0.0-blue.svg)
 ![Blender](https://img.shields.io/badge/Blender-2.80+-orange.svg)
+![License](https://img.shields.io/badge/license-GPL%20v3-green.svg)
 
 ## Overview
 
@@ -193,8 +194,17 @@ For bug reports and feature requests, please use the GitHub Issues page.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the GNU General Public License v3.0 - the same license as Blender itself. This means you are free to:
+
+- Use the software for any purpose
+- Change the software to suit your needs
+- Share the software with your friends and neighbors
+- Share the changes you make
+
+For more information, see the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 ## Credits
 
-Created by Henrique Miranda 
+Created by:
+- Henrique Miranda
+- Higor Pereira 
