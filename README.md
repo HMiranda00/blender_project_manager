@@ -6,6 +6,8 @@ A comprehensive Blender addon for managing complex animation projects with multi
 ![Blender](https://img.shields.io/badge/Blender-2.80+-orange.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v3-green.svg)
 
+## Download(https://github.com/HMiranda00/blender_project_manager/releases/download/v1.6.0.0/Blender.Project.Manager_v1.6.0.0.zip)
+
 ## Overview
 
 Blender Project Manager is a powerful addon designed to streamline the workflow of animation projects by providing tools for:
