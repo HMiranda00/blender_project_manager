@@ -4,7 +4,6 @@ import re
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty
 from ..utils import get_project_info, save_current_file
-from .recent_projects import PROJECT_MT_recent_menu
 
 class LoadProjectOperator(Operator):
     bl_idname = "project.load_project"
@@ -66,13 +65,39 @@ class LoadProjectOperator(Operator):
         else:
             layout.prop(self, "project_path")
             
-        # Recent projects menu
+        # Recent projects
         if len(prefs.recent_projects) > 0:
-            print("\n[DEBUG] Desenhando diálogo de Load Project")
-            print(f"Total de projetos recentes: {len(prefs.recent_projects)}")
             layout.separator()
+            box = layout.box()
+            box.label(text="Recent Projects:", icon='FILE_FOLDER')
+            
+            # Usar o mesmo estilo do Blender para a lista de recentes
+            for recent in prefs.recent_projects:
+                # Criar um row que funciona como botão
+                row = box.row()
+                
+                # Adicionar o operador com o nome do projeto
+                project_name = os.path.basename(recent.path)
+                if recent.is_fixed_root:
+                    # Para projetos com raiz fixa, remover o número do início
+                    match = re.match(r'^\d+\s*-\s*(.+)$', project_name)
+                    if match:
+                        project_name = match.group(1)
+                
+                op = row.operator(
+                    "project.open_recent",
+                    text=project_name,
+                    icon='FILE_FOLDER',
+                    emboss=False,
+                    depress=False
+                )
+                op.project_path = recent.path
+                op.is_fixed_root = recent.is_fixed_root
+            
+            # Clear list button
             row = layout.row()
-            row.menu("PROJECT_MT_recent_menu", text="Recent Projects", icon='FILE_FOLDER')
+            row.alignment = 'RIGHT'
+            row.operator("project.clear_recent_list", text="Clear Recent", icon='TRASH', emboss=False)
     
     def execute(self, context):
         try:
@@ -103,26 +128,7 @@ class LoadProjectOperator(Operator):
             
             # Adicionar aos projetos recentes
             from ..operators.recent_projects import add_recent_project
-            
-            # Determinar o nome do projeto
-            project_name = os.path.basename(project_path.rstrip(os.path.sep))  # Remove trailing slash
-            print(f"[DEBUG] Nome da pasta do projeto: {project_name}")
-            
-            if prefs.use_fixed_root:
-                match = re.match(r'^(\d+)\s*-\s*(.+)$', project_name)
-                if match:
-                    project_name = match.group(2).strip()
-                    print(f"[DEBUG] Nome após remover número: {project_name}")
-            
-            # Garantir que temos um nome
-            if not project_name:
-                project_name = os.path.basename(project_path.rstrip(os.path.sep))
-                print(f"[DEBUG] Usando nome da pasta como fallback: {project_name}")
-            
-            print(f"\n[DEBUG] Carregando projeto:")
-            print(f"Path: {project_path}")
-            print(f"Name: {project_name}")
-            
+            project_name = os.path.basename(project_path)
             add_recent_project(context, project_path, project_name)
             
             # Configurar Asset Browser automaticamente
@@ -132,7 +138,7 @@ class LoadProjectOperator(Operator):
                 self.report({'WARNING'}, f"Projeto carregado, mas houve um erro ao configurar o Asset Browser: {str(e)}")
                 return {'FINISHED'}
 
-            self.report({'INFO'}, f"Projeto carregado: {project_name}")
+            self.report({'INFO'}, f"Projeto carregado: {os.path.basename(project_path)}")
             return {'FINISHED'}
             
         except Exception as e:
