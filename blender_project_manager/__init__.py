@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Blender Project Manager",
     "author": "Henrique Miranda",
-    "version": (1, 6, 0),
+    "version": (1, 6, 1),
     "blender": (2, 80, 0),
     "location": "N-Panel",
     "description": "Addon for project management and organization",
