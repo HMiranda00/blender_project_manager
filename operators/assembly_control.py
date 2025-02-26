@@ -6,82 +6,45 @@ from ..utils import get_project_info, get_publish_path, save_current_file
 
 def get_assembly_path(context, shot_name):
     """Get the assembly file path for a shot"""
-    try:
-        project_path = context.scene.current_project
-        prefs = context.preferences.addons['blender_project_manager'].preferences
-        project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-        
-        # Get assembly path
-        assembly_path = os.path.join(workspace_path, "SHOTS", shot_name, "ASSEMBLY", "PUBLISH")
-        os.makedirs(assembly_path, exist_ok=True)
-        
-        # Get folder code (always SH for shots)
-        folder_code = "SH"
-        
-        # Assembly filename
-        assembly_file = f"{project_prefix}_{folder_code}_{shot_name}_ASSEMBLY.blend"
-        return os.path.join(assembly_path, assembly_file)
-        
-    except Exception as e:
-        print(f"Error getting assembly path: {str(e)}")
-        return None
+    prefs = context.preferences.addons['blender_project_manager'].preferences
+    project_path = context.scene.current_project
+    project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+    
+    # Assembly is always in SHOTS folder
+    shots_path = os.path.join(workspace_path, "SHOTS", shot_name, "ASSEMBLY")
+    os.makedirs(shots_path, exist_ok=True)
+    
+    assembly_file = f"{project_prefix}_{shot_name}_ASSEMBLY.blend"
+    return os.path.join(shots_path, assembly_file)
 
 def get_role_publish_file(context, role_name, shot_name):
     """Get the publish file path for a role"""
-    try:
-        prefs = context.preferences.addons['blender_project_manager'].preferences
-        project_path = context.scene.current_project
-        project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-        
-        # Get role settings
-        role_settings = None
-        for role_mapping in prefs.role_mappings:
-            if role_mapping.role_name == role_name:
-                role_settings = role_mapping
-                break
-                
-        if not role_settings:
-            print(f"Role settings not found for {role_name}")
-            return None
+    prefs = context.preferences.addons['blender_project_manager'].preferences
+    project_path = context.scene.current_project
+    project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+    
+    # Get role settings
+    role_settings = None
+    for role_mapping in prefs.role_mappings:
+        if role_mapping.role_name == role_name:
+            role_settings = role_mapping
+            break
             
-        if role_settings.skip_assembly:
-            print(f"Role {role_name} is set to skip assembly")
-            return None
-            
-        publish_path = get_publish_path(
-            role_settings.publish_path_preset,
-            role_settings,
-            context,
-            project_path,
-            project_name,
-            shot_name,
-            asset_name=role_name
-        )
-        
-        print(f"Checking publish path: {publish_path}")
-        
-        # Try old format first (for compatibility)
-        old_file = f"{project_prefix}_{role_name}.blend"
-        old_path = os.path.join(publish_path, old_file)
-        if os.path.exists(old_path):
-            print(f"Found old format file: {old_path}")
-            return old_path
-            
-        # Try new format
-        folder_code = get_folder_code(publish_path, role_settings)
-        new_file = f"{project_prefix}_{folder_code}_{shot_name}_{role_name}.blend"
-        new_path = os.path.join(publish_path, new_file)
-        if os.path.exists(new_path):
-            print(f"Found new format file: {new_path}")
-            return new_path
-            
-        # If neither exists, return the new format path for creation
-        print(f"No existing file found, using new format: {new_path}")
-        return new_path
-        
-    except Exception as e:
-        print(f"Error getting role publish file: {str(e)}")
+    if not role_settings or role_settings.skip_assembly:
         return None
+        
+    publish_path = get_publish_path(
+        role_settings.publish_path_preset,
+        role_settings,
+        context,
+        project_path,
+        project_name,
+        shot_name,
+        asset_name=role_name
+    )
+    
+    publish_file = f"{project_prefix}_{shot_name}_{role_name}.blend"
+    return os.path.join(publish_path, publish_file)
 
 class ASSEMBLY_OT_rebuild(Operator):
     """Rebuild the assembly file by relinking all roles. Only use if links are broken or for initial setup."""
@@ -91,68 +54,86 @@ class ASSEMBLY_OT_rebuild(Operator):
     
     def execute(self, context):
         try:
-            if not context.scene.current_shot:
-                self.report({'ERROR'}, "No shot selected")
+            if not (context.scene.current_project and context.scene.current_shot):
+                self.report({'ERROR'}, "No project or shot selected")
                 return {'CANCELLED'}
-                
-            shot_name = context.scene.current_shot
+            
+            # Store current context and file
+            current_file = bpy.data.filepath
+            current_project = context.scene.current_project
+            current_shot = context.scene.current_shot
+            current_role = context.scene.current_role
+            
+            # Get project info
+            project_path = context.scene.current_project
             prefs = context.preferences.addons['blender_project_manager'].preferences
+            project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+            shot_name = context.scene.current_shot
             
-            # Get all roles that should be in assembly
-            roles_to_link = [rm.role_name for rm in prefs.role_mappings if not rm.skip_assembly]
-            if not roles_to_link:
-                self.report({'ERROR'}, "No roles configured for assembly")
-                return {'CANCELLED'}
-                
-            print(f"Roles to link: {roles_to_link}")
+            # Only remove collections that have broken links
+            for collection in bpy.data.collections:
+                if collection.name != "Master Collection":
+                    if collection.library and not os.path.exists(collection.library.filepath):
+                        bpy.data.collections.remove(collection)
             
-            # Remove existing collections
-            for role_name in roles_to_link:
-                if role_name in bpy.data.collections:
-                    collection = bpy.data.collections[role_name]
-                    if collection.name in context.scene.collection.children:
-                        context.scene.collection.children.unlink(collection)
-                    bpy.data.collections.remove(collection)
+            # Track which roles were successfully linked
+            linked_roles = []
+            required_roles = []
             
-            # Link each role's publish file
-            missing_roles = []
-            for role_name in roles_to_link:
-                publish_file = get_role_publish_file(context, role_name, shot_name)
-                if not publish_file or not os.path.exists(publish_file):
-                    print(f"Missing publish file for role {role_name}: {publish_file}")
-                    missing_roles.append(role_name)
+            # Link each role's publish file if not already linked
+            for role_mapping in prefs.role_mappings:
+                if role_mapping.skip_assembly:
                     continue
                     
-                # Get role settings
-                role_settings = None
-                for rm in prefs.role_mappings:
-                    if rm.role_name == role_name:
-                        role_settings = rm
-                        break
+                required_roles.append(role_mapping.role_name)
+                publish_path = get_publish_path(
+                    role_mapping.publish_path_preset,
+                    role_mapping,
+                    context,
+                    project_path,
+                    project_name,
+                    shot_name,
+                    asset_name=role_mapping.role_name
+                )
                 
-                print(f"Linking {role_name} from {publish_file}")
+                blend_filename = f"{project_prefix}_{shot_name}_{role_mapping.role_name}.blend"
+                blend_path = os.path.join(publish_path, blend_filename)
                 
-                # Link collection and world
-                with bpy.data.libraries.load(publish_file, link=True) as (data_from, data_to):
-                    data_to.collections = [role_name]
-                    if role_settings and role_settings.owns_world:
-                        data_to.worlds = [name for name in data_from.worlds]
+                # Check if collection is already linked
+                collection_exists = False
+                for collection in bpy.data.collections:
+                    if collection.name == role_mapping.role_name and collection.library:
+                        if os.path.normpath(collection.library.filepath) == os.path.normpath(blend_path):
+                            collection_exists = True
+                            linked_roles.append(role_mapping.role_name)
+                            break
                 
-                # Add collection to scene
-                for coll in data_to.collections:
-                    if coll is not None:
-                        context.scene.collection.children.link(coll)
-                        from ..utils import setup_collection_settings
-                        setup_collection_settings(coll, role_settings)
-                
-                # Setup world if needed
-                if role_settings and role_settings.owns_world and len(data_to.worlds) > 0:
-                    context.scene.world = data_to.worlds[0]
+                # Only link if collection doesn't exist and file exists
+                if not collection_exists and os.path.exists(blend_path):
+                    with bpy.data.libraries.load(blend_path, link=True) as (data_from, data_to):
+                        data_to.collections = [c for c in data_from.collections]
+                    
+                    # Add to scene
+                    for coll in data_to.collections:
+                        if coll is not None:
+                            context.scene.collection.children.link(coll)
+                            linked_roles.append(role_mapping.role_name)
+            
+            # Save the assembly file
+            bpy.ops.wm.save_mainfile()
+            
+            # Restore context
+            context.scene.current_project = current_project
+            context.scene.current_shot = current_shot
+            context.scene.current_role = current_role
+            
+            # Check if all required roles were linked
+            missing_roles = [role for role in required_roles if role not in linked_roles]
             
             if missing_roles:
-                self.report({'WARNING'}, f"Some roles are missing: {', '.join(missing_roles)}")
+                self.report({'WARNING'}, f"Assembly rebuilt but missing roles: {', '.join(missing_roles)}")
             else:
-                self.report({'INFO'}, "Assembly rebuilt successfully")
+                self.report({'INFO'}, "Assembly rebuilt successfully with all required roles")
             
             return {'FINISHED'}
             
@@ -359,13 +340,8 @@ class ASSEMBLY_OT_open_directory(Operator):
             return {'CANCELLED'}
 
 def register():
-    bpy.types.Scene.previous_file = StringProperty(
-        name="Previous File",
-        description="Path to the file that was open before the assembly"
-    )
-    
-    bpy.utils.register_class(ASSEMBLY_OT_rebuild)
     bpy.utils.register_class(ASSEMBLY_OT_prepare_render)
+    bpy.utils.register_class(ASSEMBLY_OT_rebuild)
     bpy.utils.register_class(ASSEMBLY_OT_open)
     bpy.utils.register_class(ASSEMBLY_OT_open_directory)
 
@@ -375,4 +351,6 @@ def unregister():
     bpy.utils.unregister_class(ASSEMBLY_OT_rebuild)
     bpy.utils.unregister_class(ASSEMBLY_OT_open_directory)
     
-    del bpy.types.Scene.previous_file 
+    # Remover previous_file apenas se existir
+    if hasattr(bpy.types.Scene, 'previous_file'):
+        del bpy.types.Scene.previous_file 

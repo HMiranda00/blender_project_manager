@@ -2,7 +2,7 @@ import bpy
 import os
 from bpy.types import Operator
 from bpy.props import StringProperty, BoolProperty
-from ..utils import get_project_info, get_publish_path, save_current_file, get_folder_code
+from ..utils import get_project_info, get_publish_path, save_current_file
 
 def get_wip_path(context, role_name):
     """Get the WIP path for the current role/shot"""
@@ -46,42 +46,20 @@ def get_latest_wip(context, role_name):
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
         
-        # Get role settings
-        role_settings = None
-        for role_mapping in prefs.role_mappings:
-            if role_mapping.role_name == role_name:
-                role_settings = role_mapping
-                break
-                
-        if not role_settings:
-            return None, 0
-            
-        # Get folder code
-        folder_code = get_folder_code(wip_path, role_settings)
-        
         # Find latest version
         latest_version = 0
         latest_file = None
         
-        # Try both new and old formats
-        base_filenames = [
-            f"{project_prefix}_{folder_code}_{shot_name}_{role_name}",  # New format
-            f"{project_prefix}_{role_name}"  # Old format
-        ]
-        
         for file in os.listdir(wip_path):
             if file.endswith(".blend"):
-                # Check if file matches any of our patterns
-                for base_filename in base_filenames:
-                    if base_filename in file:
-                        try:
-                            # Extract version number from filename
-                            version = int(file.split("_v")[-1].split(".")[0])
-                            if version > latest_version:
-                                latest_version = version
-                                latest_file = file
-                        except ValueError:
-                            continue
+                try:
+                    # Extract version number from filename
+                    version = int(file.split("_v")[-1].split(".")[0])
+                    if version > latest_version:
+                        latest_version = version
+                        latest_file = file
+                except ValueError:
+                    continue
         
         if latest_file:
             return os.path.join(wip_path, latest_file), latest_version
@@ -96,13 +74,11 @@ def create_or_update_publish(context, role_name):
     """Create or update the publish file by copying the latest WIP"""
     try:
         if not (context.scene.current_project and context.scene.current_shot):
-            print("Error: No project or shot selected")
             return None
             
         # Get latest WIP
         latest_wip, version = get_latest_wip(context, role_name)
         if not latest_wip:
-            print("Error: No WIP file found to publish")
             return None
             
         # Get publish path
@@ -118,7 +94,6 @@ def create_or_update_publish(context, role_name):
                 break
                 
         if not role_settings:
-            print("Error: Role settings not found")
             return None
             
         publish_path = get_publish_path(
@@ -131,39 +106,15 @@ def create_or_update_publish(context, role_name):
             asset_name=role_name
         )
         
-        if not publish_path:
-            print("Error: Could not determine publish path")
-            return None
-            
-        # Get folder code
-        folder_code = get_folder_code(publish_path, role_settings)
-        
         # Create publish file
-        try:
-            os.makedirs(publish_path, exist_ok=True)
-        except Exception as e:
-            print(f"Error creating publish directory: {str(e)}")
-            return None
-        
-        # Check if old format exists
-        old_format = f"{project_prefix}_{role_name}.blend"
-        old_path = os.path.join(publish_path, old_format)
-        
-        # Use old format if it exists, new format otherwise
-        if os.path.exists(old_path):
-            publish_file = old_path
-        else:
-            publish_file = os.path.join(publish_path, f"{project_prefix}_{folder_code}_{shot_name}_{role_name}.blend")
+        os.makedirs(publish_path, exist_ok=True)
+        publish_file = os.path.join(publish_path, f"{project_prefix}_{shot_name}_{role_name}.blend")
         
         # Copy latest WIP to publish
-        try:
-            import shutil
-            shutil.copy2(latest_wip, publish_file)
-            print(f"Successfully published file to: {publish_file}")
-            return publish_file
-        except Exception as e:
-            print(f"Error copying file to publish location: {str(e)}")
-            return None
+        import shutil
+        shutil.copy2(latest_wip, publish_file)
+        
+        return publish_file
         
     except Exception as e:
         print(f"Error creating/updating publish: {str(e)}")
@@ -189,18 +140,6 @@ class VERSION_OT_new_wip_version(Operator):
                 return {'CANCELLED'}
             
             role_name = context.scene.current_role
-            shot_name = context.scene.current_shot
-            
-            # Get role settings
-            role_settings = None
-            for role_mapping in context.preferences.addons['blender_project_manager'].preferences.role_mappings:
-                if role_mapping.role_name == role_name:
-                    role_settings = role_mapping
-                    break
-                    
-            if not role_settings:
-                self.report({'ERROR'}, "Role settings not found")
-                return {'CANCELLED'}
             
             # Get WIP path
             wip_path = get_wip_path(context, role_name)
@@ -212,16 +151,14 @@ class VERSION_OT_new_wip_version(Operator):
             project_path = context.scene.current_project
             prefs = context.preferences.addons['blender_project_manager'].preferences
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-            
-            # Get folder code
-            folder_code = get_folder_code(wip_path, role_settings)
+            shot_name = context.scene.current_shot
             
             # Get latest version
             _, latest_version = get_latest_wip(context, role_name)
             
             # Create new version
             new_version = latest_version + 1
-            new_file = os.path.join(wip_path, f"{project_prefix}_{folder_code}_{shot_name}_{role_name}_v{new_version:03d}.blend")
+            new_file = os.path.join(wip_path, f"{project_prefix}_{shot_name}_{role_name}_v{new_version:03d}.blend")
             
             # Save as new version
             bpy.ops.wm.save_as_mainfile(filepath=new_file)
@@ -252,17 +189,6 @@ class VERSION_OT_open_latest_wip(Operator):
             
             role_name = context.scene.current_role
             
-            # Get role settings
-            role_settings = None
-            for role_mapping in context.preferences.addons['blender_project_manager'].preferences.role_mappings:
-                if role_mapping.role_name == role_name:
-                    role_settings = role_mapping
-                    break
-                    
-            if not role_settings:
-                self.report({'ERROR'}, "Role settings not found")
-                return {'CANCELLED'}
-            
             # Get latest WIP
             latest_wip, version = get_latest_wip(context, role_name)
             if not latest_wip:
@@ -275,11 +201,9 @@ class VERSION_OT_open_latest_wip(Operator):
                 project_path = context.scene.current_project
                 prefs = context.preferences.addons['blender_project_manager'].preferences
                 project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+                shot_name = context.scene.current_shot
                 
-                # Get folder code
-                folder_code = get_folder_code(wip_path, role_settings)
-                
-                latest_wip = os.path.join(wip_path, f"{project_prefix}_{folder_code}_{role_name}_v001.blend")
+                latest_wip = os.path.join(wip_path, f"{project_prefix}_{shot_name}_{role_name}_v001.blend")
                 bpy.ops.wm.save_as_mainfile(filepath=latest_wip)
                 
                 # Create initial publish

@@ -3,7 +3,7 @@ import os
 import traceback
 from bpy.types import Operator
 from bpy.props import EnumProperty, StringProperty, BoolProperty
-from ..utils import save_current_file, get_project_info, get_folder_code
+from ..utils import save_current_file, get_project_info
 
 class ASSET_OT_reload_links(Operator):
     """Reload all linked assets and libraries"""
@@ -91,13 +91,8 @@ class ASSET_OT_create_asset(Operator):
         current_file = os.path.basename(bpy.data.filepath)
         prefs = context.preferences.addons['blender_project_manager'].preferences
         project_path = context.scene.current_project
-        _, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-        
-        # Verificar se o arquivo está na pasta SHOTS
-        file_path = bpy.data.filepath
-        if "SHOTS" in file_path.split(os.path.sep):
-            return True
-        return False
+        _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+        return current_file.startswith(project_prefix + "_SHOT_")
 
     def get_asset_path(self, context):
         """Retorna o caminho correto para o asset"""

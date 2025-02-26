@@ -11,8 +11,8 @@ class CreateShotOperator(Operator):
     
     shot_name: StringProperty(
         name="Shot Name",
-        description="Name of the shot (e.g., 010)",
-        default=""
+        description="Name of the shot (e.g., SHOT_010)",
+        default="SHOT_"
     )
     
     role_name: EnumProperty(
@@ -33,12 +33,6 @@ class CreateShotOperator(Operator):
             if not self.shot_name.strip():
                 self.report({'ERROR'}, "Shot name cannot be empty")
                 return {'CANCELLED'}
-            
-            # Store current context and file
-            current_file = bpy.data.filepath
-            current_project = context.scene.current_project
-            current_shot = context.scene.current_shot
-            current_role = context.scene.current_role
             
             # Save current file
             save_current_file()
@@ -102,52 +96,62 @@ class CreateShotOperator(Operator):
                 return {'CANCELLED'}
                 
             # Get assembly path
-            assembly_path = os.path.join(workspace_path, "SHOTS", self.shot_name, "ASSEMBLY", "PUBLISH")
+            assembly_path = os.path.join(workspace_path, "SHOTS", self.shot_name, "ASSEMBLY")
             os.makedirs(assembly_path, exist_ok=True)
-            
-            # Get folder code (always SH for shots)
-            folder_code = "SH"
-            assembly_file = f"{project_prefix}_{folder_code}_{self.shot_name}_ASSEMBLY.blend"
+            assembly_file = f"{project_prefix}_{self.shot_name}_ASSEMBLY.blend"
             assembly_filepath = os.path.join(assembly_path, assembly_file)
+            
+            # Store current file path to return later
+            current_filepath = bpy.data.filepath
             
             # Create or update assembly
             if not os.path.exists(assembly_filepath):
                 # Create new empty file for assembly
                 bpy.ops.wm.read_homefile(use_empty=True)
                 context.scene.name = self.shot_name
+            else:
+                # Open existing assembly
+                bpy.ops.wm.open_mainfile(filepath=assembly_filepath)
+            
+            # Get publish file path
+            publish_filename = f"{project_prefix}_{self.shot_name}_{self.role_name}.blend"
+            publish_filepath = os.path.join(publish_path, publish_filename)
+            
+            # Link collection from publish if role is not set to skip assembly
+            if role_settings and not role_settings.skip_assembly:
+                # Remove old collection if exists
+                if self.role_name in bpy.data.collections:
+                    collection = bpy.data.collections[self.role_name]
+                    if collection.name in context.scene.collection.children:
+                        context.scene.collection.children.unlink(collection)
+                    bpy.data.collections.remove(collection)
                 
-                # Restore context
-                context.scene.current_project = project_path
-                context.scene.current_shot = self.shot_name
+                # Link collection from publish
+                with bpy.data.libraries.load(publish_filepath, link=True) as (data_from, data_to):
+                    data_to.collections = [self.role_name]
+                    if role_settings.owns_world:
+                        data_to.worlds = [name for name in data_from.worlds]
                 
-                # Save assembly
-                bpy.ops.wm.save_as_mainfile(filepath=assembly_filepath)
+                # Add to scene
+                for coll in data_to.collections:
+                    if coll is not None:
+                        context.scene.collection.children.link(coll)
+                        setup_collection_settings(coll, role_settings)
+                
+                # Setup world if needed
+                if role_settings.owns_world and len(data_to.worlds) > 0:
+                    context.scene.world = data_to.worlds[0]
+            
+            # Save assembly
+            bpy.ops.wm.save_as_mainfile(filepath=assembly_filepath)
             
             # Return to WIP file
-            bpy.ops.wm.open_mainfile(filepath=wip_file)
-            
-            # Restore context again
-            context.scene.current_project = project_path
-            context.scene.current_shot = self.shot_name
-            context.scene.current_role = self.role_name
+            bpy.ops.wm.open_mainfile(filepath=current_filepath)
             
             self.report({'INFO'}, f"Shot created and file saved at: {wip_file}")
             return {'FINISHED'}
             
         except Exception as e:
-            # Em caso de erro, tentar restaurar o contexto original
-            try:
-                if 'current_project' in locals():
-                    context.scene.current_project = current_project
-                if 'current_shot' in locals():
-                    context.scene.current_shot = current_shot
-                if 'current_role' in locals():
-                    context.scene.current_role = current_role
-                if 'current_file' in locals() and os.path.exists(current_file):
-                    bpy.ops.wm.open_mainfile(filepath=current_file)
-            except:
-                pass
-                
             self.report({'ERROR'}, f"Error creating shot: {str(e)}")
             return {'CANCELLED'}
     

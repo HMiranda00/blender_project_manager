@@ -3,7 +3,6 @@ import os
 from bpy.types import Panel
 from ..utils import get_project_info, get_publish_path, save_current_file
 from ..utils.cache import DirectoryCache
-from ..utils.version_control import get_folder_code
 
 class PROJECT_PT_Panel(Panel):
     bl_label = "Blender Project Manager"
@@ -42,17 +41,8 @@ class PROJECT_PT_Panel(Panel):
                 asset_name=role_name
             )
             
-            # Get folder code for the role
-            folder_code = get_folder_code(publish_path, role_settings)
-            
-            # Check new format first
-            blend_filename = f"{project_prefix}_{folder_code}_{shot_name}_{role_name}.blend"
+            blend_filename = f"{project_prefix}_{shot_name}_{role_name}.blend"
             blend_path = os.path.join(publish_path, blend_filename)
-            
-            # If not found, try old format
-            if not os.path.exists(blend_path):
-                blend_filename = f"{project_prefix}_{role_name}.blend"
-                blend_path = os.path.join(publish_path, blend_filename)
             
             return blend_path if os.path.exists(blend_path) else None
             
@@ -95,6 +85,82 @@ class PROJECT_PT_Panel(Panel):
         else:
             header.operator("project.create_project", icon='FILE_NEW')
             header.operator("project.load_project", icon='FILE_FOLDER')
+            
+            # Projetos Recentes (colapsável)
+            if len(prefs.recent_projects) > 0:
+                box = layout.box()
+                row = box.row()
+                row.prop(prefs, "show_all_recent", text="Recent Projects", icon='DISCLOSURE_TRI_DOWN' if prefs.show_all_recent else 'DISCLOSURE_TRI_RIGHT', emboss=False)
+                search = row.row()
+                search.alignment = 'RIGHT'
+                search.prop(prefs, "recent_search", text="", icon='VIEWZOOM')
+                
+                if prefs.show_all_recent:
+                    # Filtrar projetos
+                    filtered_projects = [
+                        proj for proj in prefs.recent_projects 
+                        if prefs.recent_search.lower() in proj.name.lower()
+                    ]
+                    
+                    # Determinar quantos projetos mostrar
+                    display_count = len(filtered_projects) if prefs.show_all_recent else min(3, len(filtered_projects))
+                    
+                    # Área de conteúdo (só mostrar se expandido ou houver pesquisa)
+                    if prefs.show_all_recent or prefs.recent_search:
+                        content_box = box.column(align=True)
+                        
+                        for i, recent in enumerate(filtered_projects):
+                            if i < display_count:
+                                row = content_box.row(align=True)
+                                
+                                # Ícone e nome do projeto
+                                sub = row.row(align=True)
+                                sub.scale_x = 0.75
+                                sub.label(text="", icon='FILE_FOLDER')
+                                row.label(text=recent.name)
+                                
+                                # Botões de ação
+                                buttons = row.row(align=True)
+                                buttons.alignment = 'RIGHT'
+                                
+                                # Verificar se o modo corresponde
+                                mode_matches = (prefs.use_fixed_root == recent.is_fixed_root)
+                                
+                                # Botão de abrir
+                                op = buttons.operator(
+                                    "project.open_recent",
+                                    text="",
+                                    icon='RESTRICT_SELECT_OFF' if mode_matches else 'RESTRICT_SELECT_ON',
+                                    emboss=False,
+                                    depress=False
+                                )
+                                op.project_path = recent.path
+                                op.is_fixed_root = recent.is_fixed_root
+                                op.enabled = mode_matches
+                                
+                                # Indicador do modo do projeto
+                                buttons.label(
+                                    text="",
+                                    icon='LOCKED' if recent.is_fixed_root else 'UNLOCKED'
+                                )
+                                
+                                # Botão de remover
+                                remove = buttons.operator(
+                                    "project.remove_recent",
+                                    text="",
+                                    icon='PANEL_CLOSE',
+                                    emboss=False
+                                )
+                                remove.project_path = recent.path
+                        # Mostrar contador se houver mais projetos
+                        remaining = len(filtered_projects) - display_count
+                        if remaining > 0 and not prefs.show_all_recent:
+                            row = content_box.row()
+                            row.alignment = 'CENTER'
+                            row.scale_y = 0.5
+                            row.label(text=f"... and {remaining} more project{'s' if remaining > 1 else ''}")
+                else:
+                    box.label(text="No recent projects", icon='INFO')
             return
 
         # 2. SHOT MANAGEMENT
@@ -172,17 +238,14 @@ class PROJECT_PT_Panel(Panel):
             
             # Publish
             version_col.operator("project.publish_version", text="Publish Version", icon='EXPORT')
-
-        # 5. ASSET TOOLS (Moved outside of current_role check)
-        if context.scene.current_project:
-            layout.label(text="Asset Tools:", icon='ASSET_MANAGER')
-            asset_box = layout.box()
-            asset_row = asset_box.row(align=True)
+            
+            # Asset Tools
+            asset_row = tools_box.row(align=True)
             asset_row.scale_y = 1.1
             asset_row.operator("project.create_asset", icon='ADD', text="New Asset")
             asset_row.operator("project.toggle_asset_browser", text="Asset Browser", icon='ASSET_MANAGER')
 
-        # 6. ASSEMBLY TOOLS
+        # 5. ASSEMBLY TOOLS
         if context.scene.current_shot:
             layout.label(text="Assembly:", icon='SCENE_DATA')
             assembly_box = layout.box()
@@ -196,7 +259,7 @@ class PROJECT_PT_Panel(Panel):
             else:
                 assembly_row.operator("project.open_assembly", text="Open Assembly", icon='SCENE_DATA')
 
-        # 7. UTILITIES
+        # 6. UTILITIES
         layout.label(text="Utilities:", icon='TOOL_SETTINGS')
         utils_box = layout.box()
         utils_row = utils_box.row(align=True)

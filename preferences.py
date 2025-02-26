@@ -371,6 +371,7 @@ class ProjectPreferences(AddonPreferences):
 
 # Lista de classes para registro
 classes = (
+    RecentProject,
     RoleMapping,
     PROJECTMANAGER_OT_add_role_mapping,
     PROJECTMANAGER_OT_remove_role_mapping,
@@ -380,11 +381,6 @@ classes = (
 )
 
 def register():
-    # Registrar RecentProject primeiro
-    if not hasattr(bpy.types, 'RecentProject'):
-        bpy.utils.register_class(RecentProject)
-    
-    # Registrar outras classes
     for cls in classes:
         bpy.utils.register_class(cls)
     

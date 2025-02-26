@@ -340,8 +340,13 @@ class ASSEMBLY_OT_open_directory(Operator):
             return {'CANCELLED'}
 
 def register():
-    bpy.utils.register_class(ASSEMBLY_OT_prepare_render)
+    bpy.types.Scene.previous_file = StringProperty(
+        name="Previous File",
+        description="Path to the file that was open before the assembly"
+    )
+    
     bpy.utils.register_class(ASSEMBLY_OT_rebuild)
+    bpy.utils.register_class(ASSEMBLY_OT_prepare_render)
     bpy.utils.register_class(ASSEMBLY_OT_open)
     bpy.utils.register_class(ASSEMBLY_OT_open_directory)
 
@@ -351,6 +356,4 @@ def unregister():
     bpy.utils.unregister_class(ASSEMBLY_OT_rebuild)
     bpy.utils.unregister_class(ASSEMBLY_OT_open_directory)
     
-    # Remover previous_file apenas se existir
-    if hasattr(bpy.types.Scene, 'previous_file'):
-        del bpy.types.Scene.previous_file 
+    del bpy.types.Scene.previous_file 

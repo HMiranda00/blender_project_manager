@@ -6,11 +6,11 @@ from ..utils import get_project_info
 class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
     bl_idname = "project.toggle_asset_browser"
     bl_label = "Asset Browser"
-    bl_description = "Show/Hide project Asset Browser"
+    bl_description = "Abre/Fecha o Asset Browser do projeto"
 
     def execute(self, context):
         try:
-            # Find Asset Browser area
+            # Encontrar área do Asset Browser
             asset_area = None
             for area in context.screen.areas:
                 if area.type == 'FILE_BROWSER' and area.ui_type == 'ASSETS':
@@ -18,11 +18,11 @@ class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
                     break
 
             if asset_area:
-                # If exists, close Asset Browser area
+                # Se existe, fechar a área do Asset Browser
                 with context.temp_override(area=asset_area):
                     bpy.ops.screen.area_close()
             else:
-                # If doesn't exist, split current 3D area
+                # Se não existe, dividir a área 3D atual
                 view3d_area = None
                 for area in context.screen.areas:
                     if area.type == 'VIEW_3D':
@@ -30,18 +30,18 @@ class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
                         break
 
                 if view3d_area:
-                    # Capture areas before split
+                    # Capturar as áreas antes da divisão
                     areas_before = context.screen.areas[:]
 
-                    # Use temp_override to replace context
+                    # Usar temp_override para substituir o contexto
                     with context.temp_override(area=view3d_area, region=view3d_area.regions[0]):
-                        # Split horizontally with 15% height (smaller area at bottom)
+                        # Dividir horizontalmente com 15% da altura (área menor embaixo)
                         bpy.ops.screen.area_split(direction='HORIZONTAL', factor=0.15)
 
-                    # Capture areas after split
+                    # Capturar as áreas depois da divisão
                     areas_after = context.screen.areas[:]
 
-                    # Find newly created area
+                    # Encontrar a nova área criada
                     new_area = None
                     for area in areas_after:
                         if area not in areas_before:
@@ -49,22 +49,22 @@ class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
                             break
 
                     if new_area is None:
-                        self.report({'ERROR'}, "Could not find newly created area.")
+                        self.report({'ERROR'}, "Não foi possível encontrar a nova área criada.")
                         return {'CANCELLED'}
 
-                    # Set new area type to 'FILE_BROWSER' and ui_type to 'ASSETS'
+                    # Ajustar o tipo da nova área para 'FILE_BROWSER' e definir ui_type para 'ASSETS'
                     new_area.type = 'FILE_BROWSER'
                     new_area.ui_type = 'ASSETS'
 
-                    # Get active space of new area
+                    # Obter o espaço ativo da nova área
                     space = new_area.spaces.active
                     
-                    # Configure Asset Browser to use current project library
+                    # Configurar o Asset Browser para usar a biblioteca do projeto atual
                     prefs = context.preferences.addons['blender_project_manager'].preferences
                     project_path = context.scene.current_project
                     project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
                     
-                    # Wait one frame to ensure space is updated
+                    # Esperar um frame para garantir que o espaço foi atualizado
                     def set_library():
                         for library in context.preferences.filepaths.asset_libraries:
                             if library.name == project_name:

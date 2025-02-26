@@ -1,91 +1,84 @@
 import bpy
 import os
-from bpy.types import Operator
+from bpy.types import Operator, UIList, PropertyGroup
+from bpy.props import StringProperty, IntProperty, CollectionProperty
+
+class RecentProjectItem(PropertyGroup):
+    name: StringProperty(name="Name")
+    path: StringProperty(name="Path", subtype='DIR_PATH')
+
+class PROJECTMANAGER_UL_recent_projects(UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
+        if self.layout_type in {'DEFAULT', 'COMPACT'}:
+            layout.label(text=item.name, icon='FILE_FOLDER')
 
 class OpenRecentProjectOperator(Operator):
     bl_idname = "project.open_recent"
     bl_label = "Open Recent Project"
     
     project_path: bpy.props.StringProperty()
-    is_fixed_root: bpy.props.BoolProperty()
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
-        
-        if prefs.use_fixed_root != self.is_fixed_root:
-            self.report({'ERROR'}, 
-                "Current root mode does not match the mode used when the project was saved. "
-                "Please adjust the mode in addon preferences first.")
+        if not self.project_path:
             return {'CANCELLED'}
             
-        if prefs.use_fixed_root:
-            bpy.ops.project.load_project(selected_project=self.project_path)
-        else:
-            bpy.ops.project.load_project(project_path=self.project_path)
-            
+        bpy.ops.project.load_project(project_path=self.project_path)
         return {'FINISHED'}
 
 class ClearRecentListOperator(Operator):
     bl_idname = "project.clear_recent_list"
-    bl_label = "Clear List"
-    bl_description = "Clear recent projects list"
+    bl_label = "Clear Recent Projects"
+    bl_description = "Clear the recent projects list"
     
     def execute(self, context):
         prefs = context.preferences.addons['blender_project_manager'].preferences
         prefs.recent_projects.clear()
-        self.report({'INFO'}, "Recent projects list cleared")
-        return {'FINISHED'}
-    
-    def invoke(self, context, event):
-        return context.window_manager.invoke_confirm(self, event)
-
-class RemoveRecentProjectOperator(Operator):
-    bl_idname = "project.remove_recent"
-    bl_label = "Remove Project"
-    bl_description = "Remove project from recent list"
-    
-    project_path: bpy.props.StringProperty()
-    
-    def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
-        for i, proj in enumerate(prefs.recent_projects):
-            if proj.path == self.project_path:
-                prefs.recent_projects.remove(i)
-                break
         return {'FINISHED'}
 
 def add_recent_project(context, project_path, project_name):
-    MAX_RECENT = 5
+    """Add a project to the recent projects list"""
+    MAX_RECENT = 10
     prefs = context.preferences.addons['blender_project_manager'].preferences
     
-    # Remover se já existe
+    # Remove trailing slashes
+    project_path = project_path.rstrip("\\/")
+    
+    # If project_name is empty, use folder name
+    if not project_name:
+        project_name = os.path.basename(project_path)
+    
+    # Remove if already exists
     recent_projects = prefs.recent_projects
     for i, proj in enumerate(recent_projects):
-        if proj.path == project_path:
+        if proj.path.rstrip("\\/") == project_path:
             recent_projects.remove(i)
             break
     
-    # Adicionar novo projeto no início
+    # Add new project at the beginning
     new_project = recent_projects.add()
     new_project.path = project_path
     new_project.name = project_name
-    new_project.is_fixed_root = prefs.use_fixed_root
     
-    # Manter apenas os últimos MAX_RECENT projetos
+    # Move to first position
+    recent_projects.move(len(recent_projects)-1, 0)
+    
+    # Keep only the last MAX_RECENT projects
     while len(recent_projects) > MAX_RECENT:
         recent_projects.remove(len(recent_projects) - 1)
-    
-    # Forçar atualização da UI
-    for window in context.window_manager.windows:
-        for area in window.screen.areas:
-            area.tag_redraw()
 
 def register():
-    bpy.utils.register_class(OpenRecentProjectOperator)
+    bpy.utils.register_class(RecentProjectItem)
+    bpy.utils.register_class(PROJECTMANAGER_UL_recent_projects)
     bpy.utils.register_class(ClearRecentListOperator)
-    bpy.utils.register_class(RemoveRecentProjectOperator)
+    
+    # Adicionar propriedades para a UIList
+    bpy.types.Scene.recent_project_list_index = IntProperty()
+    bpy.types.Scene.recent_projects = CollectionProperty(type=RecentProjectItem)
 
 def unregister():
-    bpy.utils.unregister_class(RemoveRecentProjectOperator)
+    del bpy.types.Scene.recent_projects
+    del bpy.types.Scene.recent_project_list_index
+    
     bpy.utils.unregister_class(ClearRecentListOperator)
-    bpy.utils.unregister_class(OpenRecentProjectOperator)
+    bpy.utils.unregister_class(PROJECTMANAGER_UL_recent_projects)
+    bpy.utils.unregister_class(RecentProjectItem)

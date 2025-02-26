@@ -2,7 +2,7 @@ import bpy
 import os
 import re
 from bpy.types import Operator
-from bpy.props import StringProperty, EnumProperty, BoolProperty
+from bpy.props import StringProperty, EnumProperty
 from ..utils import get_project_info, save_current_file
 
 class LoadProjectOperator(Operator):
@@ -46,21 +46,16 @@ class LoadProjectOperator(Operator):
     selected_project: EnumProperty(
         name="Project",
         description="Select the project to load",
-        items=get_projects,
-        update=lambda self, context: self.on_project_update(context)
+        items=get_projects
     )
     
     project_path: StringProperty(
-        name="Project Path",
-        description="Path to the project folder",
-        subtype='DIR_PATH'
+        name="Caminho do Projeto",
+        description="Selecione a pasta do projeto",
+        subtype='DIR_PATH',
+        default=""
     )
-    
-    def on_project_update(self, context):
-        """Called when selected_project changes"""
-        if self.selected_project != 'CUSTOM':
-            self.project_path = self.selected_project
-    
+
     def execute(self, context):
         try:
             save_current_file()
@@ -85,28 +80,22 @@ class LoadProjectOperator(Operator):
                 self.report({'ERROR'}, "Caminho do projeto não existe")
                 return {'CANCELLED'}
 
-            # Get project name for display
-            project_name = os.path.basename(project_path.rstrip(os.path.sep))
-            if prefs.use_fixed_root:
-                match = re.match(r'^(\d+)\s*-\s*(.+)$', project_name)
-                if match:
-                    project_name = match.group(2).strip()
-
-            # Set current project
+            # Definir projeto atual
             context.scene.current_project = project_path
             
-            # Add to recent projects
+            # Adicionar aos projetos recentes
             from ..operators.recent_projects import add_recent_project
+            project_name = os.path.basename(project_path)
             add_recent_project(context, project_path, project_name)
             
-            # Configure Asset Browser automatically
+            # Configurar Asset Browser automaticamente
             try:
                 bpy.ops.project.setup_asset_browser()
             except Exception as e:
                 self.report({'WARNING'}, f"Projeto carregado, mas houve um erro ao configurar o Asset Browser: {str(e)}")
                 return {'FINISHED'}
 
-            self.report({'INFO'}, f"Projeto carregado: {project_name}")
+            self.report({'INFO'}, f"Projeto carregado: {os.path.basename(project_path)}")
             return {'FINISHED'}
             
         except Exception as e:
@@ -115,17 +104,6 @@ class LoadProjectOperator(Operator):
 
     def invoke(self, context, event):
         prefs = context.preferences.addons['blender_project_manager'].preferences
-        
-        # Sync recent projects from preferences to scene
-        context.scene.recent_projects.clear()
-        for proj in prefs.recent_projects:
-            item = context.scene.recent_projects.add()
-            item.name = proj.name
-            item.path = proj.path
-        
-        # Reset selection
-        context.scene.recent_project_list_index = -1
-        
         if not prefs.use_fixed_root:
             return context.window_manager.invoke_props_dialog(self)
         return context.window_manager.invoke_props_dialog(self, width=400)
@@ -134,38 +112,12 @@ class LoadProjectOperator(Operator):
         layout = self.layout
         prefs = context.preferences.addons['blender_project_manager'].preferences
         
-        # Project selection
         if prefs.use_fixed_root:
             layout.prop(self, "selected_project")
             if self.selected_project == 'CUSTOM':
                 layout.prop(self, "project_path")
         else:
             layout.prop(self, "project_path")
-        
-        # Recent projects list
-        if len(context.scene.recent_projects) > 0:
-            layout.label(text="Recent Projects:")
-            
-            # UIList
-            row = layout.row()
-            row.template_list(
-                "PROJECTMANAGER_UL_recent_projects",
-                "recent_projects",
-                context.scene,
-                "recent_projects",
-                context.scene,
-                "recent_project_list_index",
-                rows=min(len(context.scene.recent_projects), 5)
-            )
-            
-            # Clear button at bottom
-            layout.operator("project.clear_recent_list", text="Clear Recent", icon='TRASH')
-            
-            # Auto-fill path when selecting from list
-            if context.scene.recent_project_list_index >= 0 and len(context.scene.recent_projects) > 0:
-                selected = context.scene.recent_projects[context.scene.recent_project_list_index]
-                if selected:
-                    self.project_path = selected.path
 
 def register():
     bpy.utils.register_class(LoadProjectOperator)

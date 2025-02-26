@@ -2,7 +2,7 @@ import os
 import bpy
 import re
 from .cache import DirectoryCache
-from .version_control import get_wip_path, create_first_wip, get_folder_code
+from .version_control import get_wip_path, create_first_wip
 from .core import (
     get_project_info,
     get_next_project_number,
@@ -125,6 +125,5 @@ __all__ = [
     'force_ui_update',
     'get_wip_path',
     'create_first_wip',
-    'DirectoryCache',
-    'get_folder_code'
+    'DirectoryCache'
 ]
