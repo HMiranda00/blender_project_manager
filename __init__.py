@@ -13,11 +13,19 @@ from bpy.props import StringProperty, BoolProperty, EnumProperty, CollectionProp
 from . import operators
 from . import panels
 from . import preferences
+from . import handlers
 
 def register():
+    # Registrar as pastas utils
+    from . import utils
+    
+    # Registrar módulos
     preferences.register()
     operators.register()
     panels.register()
+    
+    # Registrar handlers
+    handlers.register_handlers()
     
     # Registrar propriedades da cena
     bpy.types.Scene.current_project = StringProperty(
@@ -49,6 +57,9 @@ def register():
     bpy.types.Scene.show_role_status = bpy.props.BoolProperty(name="Show Role Status")
 
 def unregister():
+    # Parar os handlers
+    handlers.unregister_handlers()
+    
     # Remover propriedades da cena
     del bpy.types.Scene.current_project
     del bpy.types.Scene.current_shot

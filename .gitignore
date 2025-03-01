@@ -1,0 +1,31 @@
+# Arquivos e diretórios ignorados pelo Git
+
+# Scripts para desenvolvimento e teste
+scripts_github/
+
+# Cache e arquivos temporários do Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Arquivos temporários e de backup do Blender
+*.blend1
+*.blend2
+*.blend3
+*.blend4
+*.blend5
+
+# Arquivos gerados pelo sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos de ambiente virtual
+venv/
+env/
+ENV/
+
+# Arquivos de distribuição do addon
+*.zip
+build/ 
