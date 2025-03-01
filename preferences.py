@@ -161,6 +161,8 @@ class PROJECTMANAGER_OT_export_config(Operator):
         config = {
             'use_fixed_root': prefs.use_fixed_root,
             'fixed_root_path': prefs.fixed_root_path,
+            'username': prefs.username,
+            'inactivity_timeout': prefs.inactivity_timeout,
             'roles': []
         }
         
@@ -225,6 +227,8 @@ class PROJECTMANAGER_OT_import_config(Operator):
             
             prefs.use_fixed_root = config.get('use_fixed_root', True)
             prefs.fixed_root_path = config.get('fixed_root_path', '')
+            prefs.username = config.get('username', '')
+            prefs.inactivity_timeout = config.get('inactivity_timeout', 300)
             
             prefs.role_mappings.clear()
             
@@ -249,6 +253,90 @@ class PROJECTMANAGER_OT_import_config(Operator):
             self.report({'ERROR'}, f"Error importing settings: {str(e)}")
             return {'CANCELLED'}
 
+class PROJECTMANAGER_OT_test_webhook(Operator):
+    """Tests a webhook"""
+    bl_idname = "project.test_webhook"
+    bl_label = "Test Webhook"
+    
+    webhook_type: EnumProperty(
+        name="Webhook Type",
+        description="Select the webhook type to test",
+        items=[
+            ('DISCORD', "Discord", "Test Discord webhook"),
+            ('SLACK', "Slack", "Test Slack webhook"),
+        ],
+        default='DISCORD'
+    )
+    
+    def execute(self, context):
+        prefs = context.preferences.addons['blender_project_manager'].preferences
+        
+        webhook_url = ""
+        if self.webhook_type == 'DISCORD':
+            webhook_url = prefs.discord_webhook_url
+            service_name = "Discord"
+        else:
+            webhook_url = prefs.slack_webhook_url
+            service_name = "Slack"
+        
+        if not webhook_url:
+            self.report({'ERROR'}, f"{service_name} webhook URL not set")
+            return {'CANCELLED'}
+        
+        try:
+            # Importar o notification_manager
+            from .utils.notification_manager import notification_manager
+            
+            # Configurar o gerenciador para o teste
+            notification_manager.username = prefs.username or "Test User"
+            
+            if self.webhook_type == 'DISCORD':
+                # Configurar o webhook do Discord para o teste
+                notification_manager.discord_integration.set_webhook_url(webhook_url)
+                
+                # Primeiro tenta com uma mensagem simples para validação básica
+                print("\n======= TESTE DE WEBHOOK DO DISCORD =======")
+                print("Testando com mensagem básica primeiro...")
+                simple_test_success = notification_manager.discord_integration.validate_webhook_with_simple_message()
+                
+                if simple_test_success:
+                    print("Teste básico bem-sucedido, agora testando com mensagem completa...")
+                    # Se o teste simples funcionar, tenta com a mensagem completa
+                    success = notification_manager.discord_integration.send_notification(
+                        notification_manager.NotificationType.FILE_OPENED,
+                        "Webhook test from Blender Project Manager",
+                        file_path="test_file.blend",
+                        user=notification_manager.username,
+                        note="This is a test notification."
+                    )
+                else:
+                    print("Teste básico falhou. O webhook parece estar inválido.")
+                    success = False
+                    
+                print("======= FIM DO TESTE DE WEBHOOK =======\n")
+            else:
+                # Configurar o webhook do Slack para o teste
+                notification_manager.slack_integration.set_webhook_url(webhook_url)
+                
+                # Enviar mensagem de teste
+                success = notification_manager.slack_integration.send_notification(
+                    notification_manager.NotificationType.FILE_OPENED,
+                    "Webhook test from Blender Project Manager",
+                    file_path="test_file.blend",
+                    user=notification_manager.username,
+                    note="This is a test notification."
+                )
+            
+            if success:
+                self.report({'INFO'}, f"{service_name} webhook test successful!")
+            else:
+                self.report({'ERROR'}, f"{service_name} webhook test failed. Check console for details.")
+                
+            return {'FINISHED'}
+        except Exception as e:
+            self.report({'ERROR'}, f"Error testing {service_name} webhook: {str(e)}")
+            return {'CANCELLED'}
+
 class ProjectPreferences(AddonPreferences):
     bl_idname = 'blender_project_manager'
 
@@ -263,6 +351,35 @@ class ProjectPreferences(AddonPreferences):
         subtype='DIR_PATH',
         default="",
         description="Path to the fixed root folder"
+    )
+
+    # Configurações de integração
+    username: StringProperty(
+        name="Username",
+        description="Your username for notifications",
+        default="",
+    )
+
+    discord_webhook_url: StringProperty(
+        name="Discord Webhook URL",
+        description="Discord webhook URL for notifications",
+        default="",
+        subtype='PASSWORD'
+    )
+
+    slack_webhook_url: StringProperty(
+        name="Slack Webhook URL",
+        description="Slack webhook URL for notifications",
+        default="",
+        subtype='PASSWORD'
+    )
+
+    inactivity_timeout: IntProperty(
+        name="Inactivity Timeout (seconds)",
+        description="Inactivity time in seconds before automatically unlocking files",
+        default=300,
+        min=60,
+        max=3600
     )
 
     role_mappings: CollectionProperty(
@@ -308,6 +425,33 @@ class ProjectPreferences(AddonPreferences):
         box.prop(self, "use_fixed_root")
         if self.use_fixed_root:
             box.prop(self, "fixed_root_path")
+        
+        # Seção de integração
+        integration_box = layout.box()
+        integration_box.label(text="Webhook Integration Settings")
+            
+        # Campos para configuração das integrações
+        user_row = integration_box.row()
+        user_row.prop(self, "username", text="Username")
+        
+        webhook_box = integration_box.box()
+        webhook_box.label(text="Notification Webhooks:", icon='WORLD')
+        
+        discord_row = webhook_box.row()
+        discord_row.label(text="Discord:")
+        discord_row.prop(self, "discord_webhook_url", text="")
+        discord_test = discord_row.operator("project.test_webhook", text="", icon='PLAY')
+        discord_test.webhook_type = 'DISCORD'
+        
+        slack_row = webhook_box.row()
+        slack_row.label(text="Slack:")
+        slack_row.prop(self, "slack_webhook_url", text="")
+        slack_test = slack_row.operator("project.test_webhook", text="", icon='PLAY')
+        slack_test.webhook_type = 'SLACK'
+        
+        timeout_row = integration_box.row()
+        timeout_row.label(text="File Locking Settings:")
+        timeout_row.prop(self, "inactivity_timeout")
         
         # Import/Export Buttons
         box = layout.box()
@@ -377,6 +521,7 @@ classes = (
     PROJECTMANAGER_OT_remove_role_mapping,
     PROJECTMANAGER_OT_export_config,
     PROJECTMANAGER_OT_import_config,
+    PROJECTMANAGER_OT_test_webhook,
     ProjectPreferences,
 )
 

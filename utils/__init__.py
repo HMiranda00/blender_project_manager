@@ -1,8 +1,17 @@
+# Pacote utils
+# Contém utilitários para o addon Project Manager
+
+# Este arquivo permite que o diretório seja importado como um pacote
+
+# Por enquanto não é necessário inicializar nada aqui
+
 import os
 import bpy
 import re
 from .cache import DirectoryCache
 from .version_control import get_wip_path, create_first_wip
+from .notification_manager import notification_manager
+from .file_lock_manager import file_lock_manager
 from .core import (
     get_project_info,
     get_next_project_number,
@@ -125,5 +134,7 @@ __all__ = [
     'force_ui_update',
     'get_wip_path',
     'create_first_wip',
-    'DirectoryCache'
+    'DirectoryCache',
+    'notification_manager',
+    'file_lock_manager'
 ]
