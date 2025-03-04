@@ -1,4 +1,5 @@
 import bpy
+from ..preferences import get_addon_preferences
 import os
 from bpy.types import Panel
 from ..utils import get_project_info, get_publish_path, save_current_file
@@ -18,7 +19,7 @@ class PROJECT_PT_Panel(Panel):
                 return None
                 
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
             
@@ -65,7 +66,7 @@ class PROJECT_PT_Panel(Panel):
     
     def draw(self, context):
         layout = self.layout
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
 
         # Verifica se o asset browser está configurado
         has_asset_browser = False
@@ -203,17 +204,35 @@ class PROJECT_PT_Panel(Panel):
                     
                     # Botão principal
                     blend_path = self.verify_role_file(context, role_mapping.role_name)
-                    button = cell.operator(
-                        "project.open_role_file" if blend_path else "project.create_shot",
-                        text=role_mapping.role_name,  # Mostra o nome do role no botão
-                        icon=role_mapping.icon,
-                        depress=blend_path is not None
-                    )
                     if blend_path:
+                        button = cell.operator(
+                            "project.open_role_file",
+                            text=role_mapping.role_name,
+                            icon=role_mapping.icon,
+                            depress=True
+                        )
                         button.role_name = role_mapping.role_name
                     else:
-                        button.shot_name = context.scene.current_shot
-                        button.role_name = role_mapping.role_name
+                        # Dois botões quando o arquivo não existe
+                        row = cell.row(align=True)
+                        
+                        # Botão para criar um novo arquivo diretamente
+                        create_button = row.operator(
+                            "project.create_role_file",
+                            text=role_mapping.role_name,
+                            icon=role_mapping.icon
+                        )
+                        create_button.role_name = role_mapping.role_name
+                        create_button.file_name = f"{context.scene.current_project.split(os.sep)[-1]}_{context.scene.current_shot}_{role_mapping.role_name}"
+                        
+                        # Botão para criar shot (como antes)
+                        shot_button = row.operator(
+                            "project.create_shot",
+                            text="",
+                            icon='ADD'
+                        )
+                        shot_button.shot_name = context.scene.current_shot
+                        shot_button.role_name = role_mapping.role_name
                     
                     # Adiciona espaço após cada célula
                     cell.separator(factor=0.3)

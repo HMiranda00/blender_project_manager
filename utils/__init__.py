@@ -7,6 +7,7 @@
 
 import os
 import bpy
+from ..preferences import get_addon_preferences
 import re
 from .cache import DirectoryCache
 from .version_control import get_wip_path, create_first_wip
@@ -20,7 +21,9 @@ from .core import (
     create_project_structure,
     setup_collection_settings,
     setup_role_world,
-    force_ui_update
+    force_ui_update,
+    get_project_settings,
+    verify_role_file
 )
 
 def get_project_info(path, is_fixed_root=False):
@@ -60,7 +63,7 @@ def get_next_project_number(root_path):
 
 def get_publish_path(preset, role_settings, context, project_path, project_name, shot_name, asset_name):
     """Get the publish path based on settings"""
-    prefs = context.preferences.addons['blender_project_manager'].preferences
+    prefs = get_addon_preferences(context)
     _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
     
     placeholders = {
@@ -136,5 +139,7 @@ __all__ = [
     'create_first_wip',
     'DirectoryCache',
     'notification_manager',
-    'file_lock_manager'
+    'file_lock_manager',
+    'get_project_settings',
+    'verify_role_file'
 ]

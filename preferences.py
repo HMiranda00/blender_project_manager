@@ -3,6 +3,9 @@ import os
 import json
 from bpy.types import AddonPreferences, PropertyGroup, Operator
 from bpy.props import StringProperty, CollectionProperty, EnumProperty, IntProperty, BoolProperty
+import importlib
+import sys
+import traceback
 
 class RecentProject(PropertyGroup):
     path: StringProperty(name="Project Path")
@@ -117,7 +120,7 @@ class PROJECTMANAGER_OT_add_role_mapping(Operator):
     bl_label = "Add Role"
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         new_role = prefs.role_mappings.add()
         new_role.role_name = "NEW_ROLE"
         new_role.description = "New role description"
@@ -132,7 +135,7 @@ class PROJECTMANAGER_OT_remove_role_mapping(Operator):
     index: IntProperty()
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         prefs.role_mappings.remove(self.index)
         return {'FINISHED'}
 
@@ -156,7 +159,7 @@ class PROJECTMANAGER_OT_export_config(Operator):
         return {'RUNNING_MODAL'}
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         
         config = {
             'use_fixed_root': prefs.use_fixed_root,
@@ -223,7 +226,7 @@ class PROJECTMANAGER_OT_import_config(Operator):
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 config = json.load(f)
             
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             
             prefs.use_fixed_root = config.get('use_fixed_root', True)
             prefs.fixed_root_path = config.get('fixed_root_path', '')
@@ -269,7 +272,7 @@ class PROJECTMANAGER_OT_test_webhook(Operator):
     )
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         
         webhook_url = ""
         if self.webhook_type == 'DISCORD':
@@ -337,8 +340,101 @@ class PROJECTMANAGER_OT_test_webhook(Operator):
             self.report({'ERROR'}, f"Error testing {service_name} webhook: {str(e)}")
             return {'CANCELLED'}
 
+def check_blender_version():
+    """Verifica se o Blender é versão 4.0 ou superior"""
+    return bpy.app.version[0] >= 4
+
+def _get_preference_bl_idname():
+    """Get the correct preference bl_idname (package name)"""
+    try:
+        # Primeiro, verifica se estamos rodando como extensão (Blender 4.0+)
+        if check_blender_version():
+            try:
+                # Verifica se o módulo bl_ext existe
+                if 'bl_ext' in sys.modules:
+                    # Verifica as extensões registradas
+                    for ext_name in dir(sys.modules['bl_ext']):
+                        if ext_name.startswith('__'):
+                            continue
+                        
+                        ext_module = getattr(sys.modules['bl_ext'], ext_name)
+                        if hasattr(ext_module, 'blender_project_manager'):
+                            return f"bl_ext.{ext_name}.blender_project_manager"
+            except Exception as e:
+                print(f"Erro ao verificar extensões: {str(e)}")
+                traceback.print_exc()
+        
+        # Fallback para método legado (Blender 3.x)
+        filename = os.path.basename(os.path.dirname(__file__))
+        
+        # Tenta importar o módulo diretamente
+        try:
+            return importlib.import_module(f"{filename}").__name__
+        except:
+            pass
+            
+        # Se falhar, tenta obter pelo path
+        return os.path.splitext(filename)[0]
+    except:
+        # Se tudo falhar, assume que o nome é blender_project_manager
+        return "blender_project_manager"
+
+def get_addon_name():
+    """Return the addon name"""
+    return _get_preference_bl_idname()
+
+def get_addon_preferences(context=None):
+    """Get addon preferences"""
+    try:
+        if context is None:
+            context = bpy.context
+        
+        addon_name = _get_preference_bl_idname()
+            
+        # Tenta obter as preferências como extensão (Blender 4.0+)
+        if check_blender_version():
+            # Verifica se é uma extensão
+            parts = addon_name.split('.')
+            if len(parts) >= 3 and parts[0] == 'bl_ext':
+                prefs = None
+                try:
+                    # Acessa as preferências diretamente através do módulo bl_ext
+                    ext_prefs = context.preferences.addons.get(addon_name)
+                    if ext_prefs:
+                        prefs = ext_prefs.preferences
+                    
+                    # Se não encontrou, procura nos módulos carregados
+                    if not prefs:
+                        for mod_name in sys.modules:
+                            if mod_name.startswith(f"{parts[0]}.{parts[1]}") and mod_name.endswith("blender_project_manager"):
+                                ext_prefs = context.preferences.addons.get(mod_name)
+                                if ext_prefs:
+                                    prefs = ext_prefs.preferences
+                                    break
+                    
+                    if prefs:
+                        return prefs
+                except Exception as e:
+                    print(f"Erro ao acessar preferências como extensão: {str(e)}")
+        
+        # Fallback: tenta obter as preferências como addon normal
+        return context.preferences.addons[addon_name].preferences
+    except Exception as e:
+        # Se falhou, tenta encontrar diretamente na lista de preferências
+        try:
+            for addon_pref in context.preferences.addons:
+                if hasattr(addon_pref, "preferences") and isinstance(addon_pref.preferences, ProjectPreferences):
+                    return addon_pref.preferences
+        except:
+            pass
+        
+        print(f"Erro ao obter preferências do addon: {str(e)}")
+        
+        # Se tudo falhar, retorna uma instância vazia
+        return None
+
 class ProjectPreferences(AddonPreferences):
-    bl_idname = 'blender_project_manager'
+    bl_idname = __package__
 
     use_fixed_root: BoolProperty(
         name="Use Fixed Root",
@@ -526,11 +622,19 @@ classes = (
 )
 
 def register():
+    # Verifica se cada classe já está registrada antes de registrá-la
     for cls in classes:
-        bpy.utils.register_class(cls)
+        try:
+            # Verifica se a classe já existe em bpy.types
+            if not hasattr(bpy.types, cls.__name__):
+                bpy.utils.register_class(cls)
+            else:
+                print(f"Classe {cls.__name__} já registrada, pulando.")
+        except Exception as e:
+            print(f"Não foi possível registrar a classe {cls.__name__}: {str(e)}")
     
     # Add default roles
-    prefs = bpy.context.preferences.addons['blender_project_manager'].preferences
+    prefs = get_addon_preferences()
     
     # Only add if there are no roles yet
     if len(prefs.role_mappings) == 0:
@@ -581,4 +685,8 @@ def register():
 
 def unregister():
     for cls in reversed(classes):
-        bpy.utils.unregister_class(cls)
+        try:
+            if hasattr(bpy.types, cls.__name__):
+                bpy.utils.unregister_class(cls)
+        except Exception as e:
+            print(f"Não foi possível desregistrar a classe {cls.__name__}: {str(e)}")
