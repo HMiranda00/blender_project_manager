@@ -1,6 +1,6 @@
 # Blender Project Manager
 
-A comprehensive Blender addon for managing complex animation projects with multiple roles and assets.
+A comprehensive project management addon for Blender, designed to streamline animation and VFX production workflows.
 
 [![Download Latest Release](https://img.shields.io/github/v/release/HMiranda00/blender_project_manager?label=Download%20Latest%20Release&style=for-the-badge)](https://github.com/HMiranda00/blender_project_manager/releases/latest/download/blender_project_manager_v1.6.0.0.zip)
 
@@ -8,98 +8,35 @@ A comprehensive Blender addon for managing complex animation projects with multi
 ![Blender](https://img.shields.io/badge/Blender-2.80+-orange.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v3-green.svg)
 
-## Download(https://github.com/HMiranda00/blender_project_manager/releases/download/v1.6.0.0/Blender.Project.Manager_v1.6.0.0.zip)
-
-## Overview
-
-Blender Project Manager is a powerful addon designed to streamline the workflow of animation projects by providing tools for:
-
-- Project organization and structure
-- Shot management
-- Role-based workflow
-- Asset management
-- Version control
-- Assembly system
-
 ## Features
 
-### Project Management
+- Project structure management
+- Role-based workflow system
+- Asset management
+- Shot management and assembly
+- Version control integration
+- Notification system via webhooks (Discord, Slack)
 
-- **Project Creation**: Create new projects with standardized folder structure
-- **Project Loading**: Quick access to recent projects
-- **Flexible Root System**: Support for both fixed and flexible project root paths
-- **Project Structure**:
-  ```
-  PROJECT_ROOT/
-  ├── SHOTS/
-  │   ├── SHOT_010/
-  │   │   ├── ANIMATION/
-  │   │   │   ├── WIP/
-  │   │   │   └── PUBLISH/
-  │   │   ├── LOOKDEV/
-  │   │   └── ASSEMBLY/
-  │   └── SHOT_020/
-  ├── ASSETS 3D/
-  │   ├── PROPS/
-  │   ├── CHR/
-  │   └── ENV/
-  └── ...
-  ```
+## Compatibility
 
-### Role System
-
-- **Customizable Roles**: Define different departments/roles (Animation, Lookdev, Layout, etc.)
-- **Role Settings**:
-  - Custom icons and colors
-  - Publish path presets
-  - Collection visibility settings
-  - World ownership
-  - Assembly inclusion/exclusion
-  - Link/Append behavior
-
-### Shot Management
-
-- **Shot Creation**: Create new shots with role-specific file structure
-- **Role Files**: Separate files for each role in a shot
-- **Assembly System**: Automatic assembly file creation and management
-- **Role Status**: Visual feedback on available roles per shot
-
-### Asset Management
-
-- **Asset Creation**: Convert collections to assets with proper categorization
-- **Asset Browser Integration**: Automatic setup of asset libraries
-- **Asset Categories**:
-  - Props
-  - Characters
-  - Environments
-- **Asset Workflows**:
-  - Create new asset files
-  - Convert existing files to assets
-  - Mark collections as assets
-  - Extract assets from shots
-
-### Version Control
-
-- **WIP Versions**: Automatic versioning of work-in-progress files
-- **Publishing System**: Standardized publish system for sharing work between roles
-- **File Organization**: Clear separation between WIP and published files
-
-### Assembly System
-
-- **Automatic Assembly**: Creates and maintains assembly files for each shot
-- **Link Management**: Smart handling of linked collections and overrides
-- **Render Preparation**: Tools for preparing assembly files for rendering
-  - Make local options
-  - Resource packing
-  - Missing file check
-  - Render settings setup
+- Blender 3.x (Traditional addon system)
+- Blender 4.0+ (New extension system)
 
 ## Installation
 
-1. Download the latest release
+### Blender 3.x
+
+1. Download the latest release ZIP file
 2. In Blender, go to Edit > Preferences > Add-ons
-3. Click "Install" and select the downloaded .zip file
+3. Click "Install..." and select the downloaded ZIP file
 4. Enable the addon by checking the box
+
+### Blender 4.0+
+
+1. Download the latest release ZIP file
+2. In Blender, go to Edit > Preferences > Extensions
+3. Click "Install..." and select the downloaded ZIP file
+4. Enable the extension by checking the box
 
 ## Configuration
 
@@ -207,3 +144,61 @@ For more information, see the [GNU General Public License v3.0](https://www.gnu.
 Created by:
 - Henrique Miranda
 - Higor Pereira 
+
+## Recent Code Improvements
+
+The codebase has undergone significant improvements in organization and structure:
+
+### 1. Modularization
+
+Large modules have been split into smaller, focused components for better maintainability:
+
+- **preferences.py** → preferences/ module with specialized components:
+  - `__init__.py`: Entry point and registration
+  - `preference_class.py`: Core preference classes
+  - `preference_utils.py`: Utility functions
+  - `preference_io.py`: Import/Export functionality
+  - `role_definitions.py`: Role configuration classes
+  - `webhooks.py`: Notification system
+
+### 2. Code Documentation
+
+- Comprehensive docstrings in standard Python format
+- Type hints for better IDE support and code understanding
+- Clear inline comments explaining complex operations
+
+### 3. Blender 4.0+ Extension Support
+
+Special handling has been implemented for the new Blender 4.0+ extension system:
+
+- Dynamic bl_idname resolution to work with Blender's extension naming scheme
+- Compatibility layer that works across both addon and extension systems
+- Robust error handling with fallbacks for edge cases
+
+## Developer Notes
+
+### Extension System Considerations
+
+The Blender 4.0+ extension system handles package names differently from the traditional addon system:
+
+1. **Package Naming**: Extensions can have prefixed names or different naming conventions to avoid conflicts
+2. **Registration**: Extensions are registered differently than traditional addons
+3. **Preferences Access**: Accessing preferences requires special handling in the extension system
+
+The code handles these differences through utility functions that:
+
+- Dynamically determine the correct package name
+- Support multiple fallback strategies
+- Add additional debugging information during registration
+
+For further development, always use the provided utility functions to access addon preferences rather than hardcoding paths or names.
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes following the established coding style
+4. Add appropriate tests and documentation
+5. Submit a pull request

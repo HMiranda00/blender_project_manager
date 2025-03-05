@@ -6,13 +6,11 @@ def register():
     from . import link_role
     from . import open_role_file
     from . import create_role_file
-    from . import asset_operators
-    from . import asset_browser_setup
-    from . import asset_browser_view
+    from . import assets
     from . import recent_projects
     from . import ui_operators
     from . import version_control
-    from . import assembly_control
+    from . import assembly
     
     create_project.register()
     load_project.register()
@@ -21,13 +19,11 @@ def register():
     link_role.register()
     open_role_file.register()
     create_role_file.register()
-    asset_operators.register()
-    asset_browser_setup.register()
-    asset_browser_view.register()
+    assets.register()
     recent_projects.register()
     ui_operators.register()
     version_control.register()
-    assembly_control.register()
+    assembly.register()
 
 def unregister():
     from . import create_project
@@ -37,21 +33,17 @@ def unregister():
     from . import link_role
     from . import open_role_file
     from . import create_role_file
-    from . import asset_operators
-    from . import asset_browser_setup
-    from . import asset_browser_view
+    from . import assets
     from . import recent_projects
     from . import ui_operators
     from . import version_control
-    from . import assembly_control
+    from . import assembly
     
-    assembly_control.unregister()
+    assembly.unregister()
     version_control.unregister()
     ui_operators.unregister()
     recent_projects.unregister()
-    asset_browser_view.unregister()
-    asset_browser_setup.unregister()
-    asset_operators.unregister()
+    assets.unregister()
     create_role_file.unregister()
     open_role_file.unregister()
     link_role.unregister()

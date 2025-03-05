@@ -19,6 +19,7 @@ from . import operators
 from . import panels
 from . import preferences
 from . import handlers
+import traceback
 
 def register():
     try:
@@ -26,13 +27,14 @@ def register():
         try:
             from . import utils
         except Exception as e:
-            print(f"Erro ao importar o módulo utils: {str(e)}")
+            print(f"Error importing utils module: {str(e)}")
         
         # Registrar módulos na ordem correta - preferences primeiro
         try:
             preferences.register()
         except Exception as e:
-            print(f"Erro ao registrar preferências: {str(e)}")
+            print(f"Error registering preferences: {str(e)}")
+            traceback.print_exc()
             
         try:
             operators.register()

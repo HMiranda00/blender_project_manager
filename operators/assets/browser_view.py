@@ -1,7 +1,7 @@
 import bpy
 import os
 from bpy.types import Operator
-from ..utils import get_project_info
+from ...utils import get_project_info
 
 class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
     bl_idname = "project.toggle_asset_browser"
@@ -48,41 +48,39 @@ class PROJECTMANAGER_OT_toggle_asset_browser(Operator):
                             new_area = area
                             break
 
-                    if new_area is None:
-                        self.report({'ERROR'}, "Não foi possível encontrar a nova área criada.")
-                        return {'CANCELLED'}
+                    if new_area:
+                        # Mudar o tipo da nova área para Asset Browser
+                        new_area.type = 'FILE_BROWSER'
+                        new_area.ui_type = 'ASSETS'
 
-                    # Ajustar o tipo da nova área para 'FILE_BROWSER' e definir ui_type para 'ASSETS'
-                    new_area.type = 'FILE_BROWSER'
-                    new_area.ui_type = 'ASSETS'
+                        # Configurar o Asset Browser para o projeto atual
+                        if hasattr(context.scene, "current_project") and context.scene.current_project:
+                            # Obter informações do projeto
+                            prefs = context.preferences.addons['blender_project_manager'].preferences
+                            project_path = context.scene.current_project
+                            project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
 
-                    # Obter o espaço ativo da nova área
-                    space = new_area.spaces.active
-                    
-                    # Configurar o Asset Browser para usar a biblioteca do projeto atual
-                    prefs = context.preferences.addons['blender_project_manager'].preferences
-                    project_path = context.scene.current_project
-                    project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
-                    
-                    # Esperar um frame para garantir que o espaço foi atualizado
-                    def set_library():
-                        for library in context.preferences.filepaths.asset_libraries:
-                            if library.name == project_name:
-                                space = new_area.spaces.active
-                                if hasattr(space, "params"):
-                                    space.params.asset_library_reference = library.name
-                                return None
-                        return None
-                    
-                    bpy.app.timers.register(set_library, first_interval=0.1)
+                            # Definir a biblioteca de assets correta
+                            def set_library():
+                                for space in new_area.spaces:
+                                    if space.type == 'FILE_BROWSER':
+                                        # Tentar encontrar a biblioteca pelo nome do projeto
+                                        for i, library in enumerate(context.preferences.filepaths.asset_libraries):
+                                            if library.name == project_name:
+                                                space.params.asset_library_reference = 'LIBRARY'
+                                                space.params.asset_library_ref_index = i
+                                                break
+
+                            # Executar após um pequeno atraso para garantir que a UI esteja atualizada
+                            bpy.app.timers.register(set_library, first_interval=0.1)
 
             return {'FINISHED'}
         except Exception as e:
-            self.report({'ERROR'}, str(e))
+            self.report({'ERROR'}, f"Erro ao alternar Asset Browser: {str(e)}")
             return {'CANCELLED'}
 
 def register():
     bpy.utils.register_class(PROJECTMANAGER_OT_toggle_asset_browser)
 
 def unregister():
-    bpy.utils.unregister_class(PROJECTMANAGER_OT_toggle_asset_browser)
+    bpy.utils.unregister_class(PROJECTMANAGER_OT_toggle_asset_browser) 

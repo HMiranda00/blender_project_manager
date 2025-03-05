@@ -2,6 +2,8 @@
 
 # Scripts para desenvolvimento e teste
 scripts_github/
+build_tools/
+other scripts/
 
 # Cache e arquivos temporários do Python
 __pycache__/
@@ -28,4 +30,11 @@ ENV/
 
 # Arquivos de distribuição do addon
 *.zip
-build/ 
+build/
+
+# Arquivos e pastas de desenvolvimento
+.vscode/
+.idea/
+temp/
+cache/
+logs/ 

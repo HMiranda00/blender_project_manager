@@ -10,20 +10,31 @@ import bpy
 from ..preferences import get_addon_preferences
 import re
 from .cache import DirectoryCache
-from .version_control import get_wip_path, create_first_wip
-from .notification_manager import notification_manager
-from .file_lock_manager import file_lock_manager
+from .version_control import create_first_wip
+from .notifications import notification_manager
+from .file_lock import file_lock_manager
 from .core import (
+    save_current_file,
+    create_project_structure,
+    force_ui_update,
+    get_project_settings
+)
+from .path_utils import (
     get_project_info,
     get_next_project_number,
     get_publish_path,
-    save_current_file,
-    create_project_structure,
+    verify_role_file,
+    get_wip_path,
+    get_latest_wip,
+    get_role_path,
+    get_assembly_path
+)
+from .role_utils import (
+    get_roles,
+    get_role_settings,
+    open_role_file,
     setup_collection_settings,
-    setup_role_world,
-    force_ui_update,
-    get_project_settings,
-    verify_role_file
+    setup_role_world
 )
 
 def get_project_info(path, is_fixed_root=False):
@@ -136,10 +147,16 @@ __all__ = [
     'setup_role_world',
     'force_ui_update',
     'get_wip_path',
+    'get_latest_wip',
     'create_first_wip',
     'DirectoryCache',
     'notification_manager',
     'file_lock_manager',
     'get_project_settings',
-    'verify_role_file'
+    'verify_role_file',
+    'get_roles',
+    'get_role_settings',
+    'open_role_file',
+    'get_role_path',
+    'get_assembly_path'
 ]

@@ -4,7 +4,7 @@ from bpy.app.handlers import persistent
 
 # Try to import notification and file lock managers
 try:
-    from .utils.notification_manager import notification_manager
+    from .utils.notifications import notification_manager
     from .utils.file_lock_manager import file_lock_manager
     
     # Flag to indicate that modules were successfully imported

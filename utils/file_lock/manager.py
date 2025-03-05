@@ -1,3 +1,7 @@
+"""
+Módulo principal do gerenciador de bloqueio de arquivos.
+"""
+
 import bpy
 import os
 import json
@@ -6,14 +10,9 @@ import time
 from datetime import datetime
 
 # Importar o gerenciador de notificações
-from .notification_manager import notification_manager
-
-# Tempo de inatividade em segundos antes de desbloquear automaticamente
-DEFAULT_INACTIVITY_TIMEOUT = 300  # 5 minutos
-
-# Intervalos de verificação em segundos
-ACTIVITY_CHECK_INTERVAL = 10  # Verifica atividade a cada 10 segundos
-SAVE_INTERVAL = 120  # Salva a cada 2 minutos em caso de arquivo bloqueado e com alterações
+from ..notifications import notification_manager
+from .constants import DEFAULT_INACTIVITY_TIMEOUT, ACTIVITY_CHECK_INTERVAL, SAVE_INTERVAL
+from .utils import normalize_path
 
 class FileLockManager:
     """Manages file locking to prevent simultaneous editing"""
@@ -83,7 +82,7 @@ class FileLockManager:
         if not file_path or not self.username:
             return False
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         
         # Check if file is already locked by another user
         if file_path in self.locks and self.locks[file_path]["user"] != self.username:
@@ -119,7 +118,7 @@ class FileLockManager:
         if not file_path:
             return False
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         
         # Verifica se o arquivo está bloqueado pelo usuário atual
         if file_path not in self.locks or self.locks[file_path]["user"] != self.username:
@@ -151,7 +150,7 @@ class FileLockManager:
         if not file_path:
             return False
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         return file_path in self.locks
     
     def is_locked_by_me(self, file_path):
@@ -159,7 +158,7 @@ class FileLockManager:
         if not file_path:
             return False
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         return file_path in self.locks and self.locks[file_path]["user"] == self.username
     
     def get_lock_info(self, file_path):
@@ -167,7 +166,7 @@ class FileLockManager:
         if not file_path or file_path not in self.locks:
             return None
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         return self.locks[file_path]
     
     def update_note(self, file_path, note):
@@ -175,7 +174,7 @@ class FileLockManager:
         if not file_path or not self.is_locked_by_me(file_path):
             return False
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         
         # Atualiza a nota
         self.locks[file_path]["note"] = note
@@ -196,7 +195,7 @@ class FileLockManager:
         if not file_path or file_path not in self.locks:
             return ""
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         return self.locks[file_path].get("note", "")
     
     def _register_activity(self):
@@ -274,7 +273,7 @@ class FileLockManager:
         if not file_path:
             return
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         
         # Desbloqueia o arquivo atual se for diferente
         if self.current_file and self.current_file != file_path:
@@ -301,7 +300,7 @@ class FileLockManager:
         if not file_path:
             return
             
-        file_path = os.path.normpath(file_path)
+        file_path = normalize_path(file_path)
         
         # Registra atividade
         self._register_activity()
@@ -317,7 +316,4 @@ class FileLockManager:
             
         # Se o arquivo não está bloqueado, bloqueia automaticamente
         if not self.is_file_locked(file_path):
-            self.lock_file(file_path)
-
-# Singleton para acessar de qualquer lugar
-file_lock_manager = FileLockManager() 
+            self.lock_file(file_path) 
