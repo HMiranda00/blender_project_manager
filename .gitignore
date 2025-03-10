@@ -1,6 +1,3 @@
-# Pasta de documentação
-/docs/
-
 # Python cache files
 __pycache__/
 *.py[cod]
