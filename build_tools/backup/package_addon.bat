@@ -1,0 +1,6 @@
+@echo off
+echo Empacotando Blender Project Manager...
+python "%~dp0package_addon.py"
+echo.
+echo Pressione qualquer tecla para sair...
+pause > nul 
