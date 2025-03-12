@@ -1,0 +1,18 @@
+schema_version = "1.0.0"
+id = "blender_project_manager"
+version = "1.6.2"
+name = "Blender Project Manager"
+tagline = "Gerenciamento completo de projetos de animação no Blender"
+maintainer = "Henrique Miranda <henriquemirandamotion@gmail.com>"
+type = "add-on"
+
+website = "https://github.com/HMiranda00/blender_project_manager"
+tags = ["Animation", "Organization", "Project Management"]
+
+blender_version_min = "4.2.0"
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+[permissions]
+files = "Gerenciamento de projetos e arquivos" 
