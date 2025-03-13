@@ -76,91 +76,35 @@ class PROJECT_PT_Panel(Panel):
                     has_asset_browser = True
                     break
 
-        # 1. HEADER - Projeto Atual ou Seleção de Projeto
+        # 1. HEADER - Projeto Atual ou Seleção de Projeto com Utilities integradas
         header = layout.row(align=True)
         if context.scene.current_project:
             project_name, _, _ = get_project_info(context.scene.current_project, prefs.use_fixed_root)
             header.label(text=project_name, icon='FILE_BLEND')
-            header.operator("project.load_project", text="", icon='FILE_FOLDER')
+            
+            # Botão de carregar projeto com ícone mais adequado
+            header.operator("project.load_project", text="", icon='LOOP_BACK')
+            
+            # Pequeno espaçador para separar o botão de carregar projeto dos outros
+            header.separator(factor=1.0)
+            
+            # Botões de utilities integrados ao header com ícones ajustados
+            header.operator("project.open_current_directory", text="", icon='FILE_FOLDER')
+            
+            if has_asset_browser:
+                header.operator("project.reload_links", text="", icon='FILE_REFRESH')
+                
+            # Assembly
+            if context.scene.current_shot:
+                is_assembly = bpy.data.is_saved and "_ASSEMBLY.blend" in os.path.basename(bpy.data.filepath)
+                if is_assembly:
+                    header.operator("project.rebuild_assembly", text="", icon='OUTLINER_OB_GROUP_INSTANCE')
+                    header.operator("project.prepare_assembly_render", text="", icon='RENDER_STILL')
+                else:
+                    header.operator("project.open_assembly", text="", icon='OUTLINER_OB_GROUP_INSTANCE')
         else:
             header.operator("project.create_project", icon='FILE_NEW')
-            header.operator("project.load_project", icon='FILE_FOLDER')
-            
-            # Projetos Recentes (colapsável)
-            if len(prefs.recent_projects) > 0:
-                box = layout.box()
-                row = box.row()
-                row.prop(prefs, "show_all_recent", text="Recent Projects", icon='DISCLOSURE_TRI_DOWN' if prefs.show_all_recent else 'DISCLOSURE_TRI_RIGHT', emboss=False)
-                search = row.row()
-                search.alignment = 'RIGHT'
-                search.prop(prefs, "recent_search", text="", icon='VIEWZOOM')
-                
-                if prefs.show_all_recent:
-                    # Filtrar projetos
-                    filtered_projects = [
-                        proj for proj in prefs.recent_projects 
-                        if prefs.recent_search.lower() in proj.name.lower()
-                    ]
-                    
-                    # Determinar quantos projetos mostrar
-                    display_count = len(filtered_projects) if prefs.show_all_recent else min(3, len(filtered_projects))
-                    
-                    # Área de conteúdo (só mostrar se expandido ou houver pesquisa)
-                    if prefs.show_all_recent or prefs.recent_search:
-                        content_box = box.column(align=True)
-                        
-                        for i, recent in enumerate(filtered_projects):
-                            if i < display_count:
-                                row = content_box.row(align=True)
-                                
-                                # Ícone e nome do projeto
-                                sub = row.row(align=True)
-                                sub.scale_x = 0.75
-                                sub.label(text="", icon='FILE_FOLDER')
-                                row.label(text=recent.name)
-                                
-                                # Botões de ação
-                                buttons = row.row(align=True)
-                                buttons.alignment = 'RIGHT'
-                                
-                                # Verificar se o modo corresponde
-                                mode_matches = (prefs.use_fixed_root == recent.is_fixed_root)
-                                
-                                # Botão de abrir
-                                op = buttons.operator(
-                                    "project.open_recent",
-                                    text="",
-                                    icon='RESTRICT_SELECT_OFF' if mode_matches else 'RESTRICT_SELECT_ON',
-                                    emboss=False,
-                                    depress=False
-                                )
-                                op.project_path = recent.path
-                                op.is_fixed_root = recent.is_fixed_root
-                                op.enabled = mode_matches
-                                
-                                # Indicador do modo do projeto
-                                buttons.label(
-                                    text="",
-                                    icon='LOCKED' if recent.is_fixed_root else 'UNLOCKED'
-                                )
-                                
-                                # Botão de remover
-                                remove = buttons.operator(
-                                    "project.remove_recent",
-                                    text="",
-                                    icon='PANEL_CLOSE',
-                                    emboss=False
-                                )
-                                remove.project_path = recent.path
-                        # Mostrar contador se houver mais projetos
-                        remaining = len(filtered_projects) - display_count
-                        if remaining > 0 and not prefs.show_all_recent:
-                            row = content_box.row()
-                            row.alignment = 'CENTER'
-                            row.scale_y = 0.5
-                            row.label(text=f"... and {remaining} more project{'s' if remaining > 1 else ''}")
-                else:
-                    box.label(text="No recent projects", icon='INFO')
+            header.operator("project.load_project", icon='LOOP_BACK')
             return
 
         # 2. SHOT MANAGEMENT
@@ -173,6 +117,7 @@ class PROJECT_PT_Panel(Panel):
         if context.scene.current_shot:
             shot_row.label(text=context.scene.current_shot, icon='SEQUENCE')
             shot_row.operator("project.create_shot", text="New Shot", icon='ADD')
+            shot_row.operator("project.duplicate_shot", text="", icon='DUPLICATE')
             shot_row.operator("project.open_shot", text="", icon='FILE_FOLDER')
         else:
             shot_row.operator("project.create_shot", text="New Shot", icon='ADD')
@@ -180,7 +125,11 @@ class PROJECT_PT_Panel(Panel):
 
         # 3. ROLE MANAGEMENT
         if context.scene.current_shot:
-            layout.label(text="Role Management:", icon='GROUP')
+            role_header = layout.row(align=True)
+            role_header.label(text="Role Management:", icon='GROUP')
+            # Link Role agora ao lado do título
+            role_header.operator("project.link_role", icon='LINK_BLEND', text="Link Role")
+            
             role_box = layout.box()
             
             # Grid de Roles com mais espaço
@@ -201,72 +150,81 @@ class PROJECT_PT_Panel(Panel):
                     # Adiciona espaço entre células
                     cell.separator(factor=0.3)
                     
-                    # Botão principal
+                    # Verificar se existe um arquivo WIP para este cargo
+                    from ..operators.version_control import get_latest_wip
+                    latest_wip, version = get_latest_wip(context, role_mapping.role_name)
+                    
+                    # Botão principal - agora sempre abre o último WIP se disponível
                     blend_path = self.verify_role_file(context, role_mapping.role_name)
-                    button = cell.operator(
-                        "project.open_role_file" if blend_path else "project.create_shot",
-                        text=role_mapping.role_name,  # Mostra o nome do role no botão
-                        icon=role_mapping.icon,
-                        depress=blend_path is not None
-                    )
-                    if blend_path:
+                    if latest_wip:
+                        # Se tiver WIP, usar o operador open_latest_wip
+                        button = cell.operator(
+                            "project.open_latest_wip",
+                            text=role_mapping.role_name,
+                            icon=role_mapping.icon,
+                            depress=True
+                        )
+                        button.role_name = role_mapping.role_name
+                    elif blend_path:
+                        # Se não tiver WIP mas tiver arquivo publicado, criar primeiro WIP
+                        button = cell.operator(
+                            "project.open_latest_wip",
+                            text=role_mapping.role_name,
+                            icon=role_mapping.icon,
+                            depress=True
+                        )
                         button.role_name = role_mapping.role_name
                     else:
+                        # Se não tiver nenhum arquivo, criar novo
+                        button = cell.operator(
+                            "project.create_shot",
+                            text=role_mapping.role_name,
+                            icon=role_mapping.icon,
+                            depress=False
+                        )
                         button.shot_name = context.scene.current_shot
                         button.role_name = role_mapping.role_name
                     
                     # Adiciona espaço após cada célula
                     cell.separator(factor=0.3)
             
-            # Link Role button
-            role_box.separator(factor=0.5)
-            role_box.operator("project.link_role", icon='LINK_BLEND', text="Link Role")
+            # Removido: Link Role button
 
         # 4. CURRENT ROLE TOOLS
         if context.scene.current_role:
-            layout.label(text="Current Role:", icon='TOOL_SETTINGS')
+            role_tools_header = layout.row(align=True)
+            role_tools_header.label(text="Current Role:", icon='TOOL_SETTINGS')
+            
+            # Botões de versão secundários ao lado do título
+            role_tools_header.operator("project.open_version_list", text="", icon='COLLAPSEMENU')
+            role_tools_header.operator("project.open_latest_wip", text="", icon='FILE_TICK')
+            
             tools_box = layout.box()
             
-            # Version Control
+            # Version Control - reorganizado
             version_col = tools_box.column(align=True)
-            version_col.scale_y = 1.1
             
-            # WIP Row
-            wip_row = version_col.row(align=True)
-            wip_row.operator("project.new_wip_version", text="New WIP", icon='FILE_NEW')
-            wip_row.operator("project.open_latest_wip", text="Latest WIP", icon='FILE_TICK')
+            # Botões de publish e new WIP - destacados
+            publish_row = version_col.row(align=True)
+            publish_row.scale_y = 1.5  # Botões maiores
             
-            # Publish
-            version_col.operator("project.publish_version", text="Publish Version", icon='EXPORT')
+            # New WIP - com texto e ícone
+            new_wip_btn = publish_row.operator("project.new_wip_version", text="New WIP", icon='FILE_NEW')
             
-            # Asset Tools
-            asset_row = tools_box.row(align=True)
+            # Publish - maior, com texto e em destaque
+            publish_btn = publish_row.operator("project.publish_version", text="Publish", icon='EXPORT')
+
+        # 5. ASSETS - renomeado de Utilities
+        layout.label(text="Assets:", icon='ASSET_MANAGER')
+        assets_box = layout.box()
+        
+        # Asset Tools
+        if context.scene.current_project:
+            asset_row = assets_box.row(align=True)
             asset_row.scale_y = 1.1
             asset_row.operator("project.create_asset", icon='ADD', text="New Asset")
-            asset_row.operator("project.toggle_asset_browser", text="Asset Browser", icon='ASSET_MANAGER')
-
-        # 5. ASSEMBLY TOOLS
-        if context.scene.current_shot:
-            layout.label(text="Assembly:", icon='SCENE_DATA')
-            assembly_box = layout.box()
-            assembly_row = assembly_box.row(align=True)
-            assembly_row.scale_y = 1.1
-            is_assembly = bpy.data.is_saved and "_ASSEMBLY.blend" in os.path.basename(bpy.data.filepath)
-            
-            if is_assembly:
-                assembly_row.operator("project.rebuild_assembly", text="Rebuild", icon='FILE_REFRESH')
-                assembly_row.operator("project.prepare_assembly_render", text="Prepare Render", icon='RENDER_STILL')
-            else:
-                assembly_row.operator("project.open_assembly", text="Open Assembly", icon='SCENE_DATA')
-
-        # 6. UTILITIES
-        layout.label(text="Utilities:", icon='TOOL_SETTINGS')
-        utils_box = layout.box()
-        utils_row = utils_box.row(align=True)
-        utils_row.scale_y = 0.9
-        utils_row.operator("project.open_current_directory", text="Open Directory", icon='FILE_FOLDER')
-        if has_asset_browser:
-            utils_row.operator("project.reload_links", text="Reload Links", icon='FILE_REFRESH')
+            if has_asset_browser:
+                asset_row.operator("project.toggle_asset_browser", text="Asset Browser", icon='ASSET_MANAGER')
 
 def tag_redraw_all_areas():
     """Force all areas to redraw"""

@@ -4,12 +4,13 @@ import traceback
 from bpy.types import Operator
 from bpy.props import EnumProperty, StringProperty, BoolProperty
 from ..utils import save_current_file, get_project_info
+from ..utils.cache import DirectoryCache
 
 class ASSET_OT_reload_links(Operator):
     """Reload all linked assets and libraries"""
     bl_idname = "project.reload_links"
     bl_label = "Reload Assets"
-    bl_description = "Reload all linked assets and libraries"
+    bl_description = "Reload Asset Links: Refresh all linked assets and libraries in the current file"
 
     def execute(self, context):
         try:
@@ -84,7 +85,7 @@ class ASSET_OT_create_asset(Operator):
         return True
 
     def _is_shot_file(self, context):
-        """Verifica se estamos em um arquivo de shot"""
+        """Check if we're in a shot file"""
         if not bpy.data.is_saved:
             return False
             
@@ -95,7 +96,7 @@ class ASSET_OT_create_asset(Operator):
         return current_file.startswith(project_prefix + "_SHOT_")
 
     def get_asset_path(self, context):
-        """Retorna o caminho correto para o asset"""
+        """Return the correct path for the asset"""
         prefs = context.preferences.addons['blender_project_manager'].preferences
         project_path = context.scene.current_project
         _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
@@ -105,29 +106,29 @@ class ASSET_OT_create_asset(Operator):
         return asset_path
 
     def mark_as_asset(self, collection, generate_preview=True):
-        """Marca a collection como asset e define o catálogo"""
-        # Configurar catálogo antes de marcar como asset
+        """Mark the collection as asset and set the catalog"""
+        # Set catalog IDs
         catalog_ids = {
             'PROPS': "d1f81597-d27d-42fd-8386-3a3def6c9200",
             'CHR': "8bfeff41-7692-4f58-8238-a5c4d9dad2d0",
             'ENV': "b741e8a3-5da8-4f5a-8f4c-e05dd1e4766c"
         }
         
-        # Garantir que a collection está ativa
+        # Ensure the collection is active
         layer_collection = bpy.context.view_layer.layer_collection.children.get(collection.name)
         if layer_collection:
             bpy.context.view_layer.active_layer_collection = layer_collection
             
-        # Marcar como asset - isso já gera o preview automaticamente
+        # Mark as asset - this generates the preview automatically
         if not collection.asset_data:
             collection.asset_mark()
             
-            # Definir catálogo após marcar como asset
+            # Set catalog after marking as asset
             if self.asset_type in catalog_ids:
                 collection.asset_data.catalog_id = catalog_ids[self.asset_type]
 
     def _get_preview_path(self, context):
-        """Retorna o caminho onde o asset será salvo"""
+        """Return the path where the asset will be saved"""
         prefs = context.preferences.addons['blender_project_manager'].preferences
         project_path = context.scene.current_project
         _, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
@@ -136,55 +137,62 @@ class ASSET_OT_create_asset(Operator):
         return os.path.join(base_path, f"{project_prefix}_{self.asset_type}_{self.name}.blend")
 
     def _create_new_file(self, context, blend_path):
-        """Cria um novo arquivo para o asset"""
+        """Create a new file for the asset"""
         current_project = context.scene.current_project
         
-        # Criar novo arquivo
+        # Create new file
         bpy.ops.wm.read_homefile(use_empty=True)
         context.scene.current_project = current_project
         
-        # Criar collection principal
+        # Create main collection
         main_collection = bpy.data.collections.new(self.name)
         context.scene.collection.children.link(main_collection)
         self.mark_as_asset(main_collection)
         
-        # Configurar collection ativa
+        # Set active collection
         layer_collection = context.view_layer.layer_collection.children[self.name]
         context.view_layer.active_layer_collection = layer_collection
         
-        # Salvar arquivo
+        # Save file
         os.makedirs(os.path.dirname(blend_path), exist_ok=True)
         bpy.ops.wm.save_as_mainfile(filepath=blend_path)
 
     def execute(self, context):
         try:
+            # Clear cache before heavy operations
+            if hasattr(DirectoryCache, 'invalidate'):
+                DirectoryCache.invalidate()
+            
+            # Force cleanup of orphan data
+            bpy.ops.outliner.orphans_purge(do_recursive=True)
+            
             if not context.scene.current_project:
-                self.report({'ERROR'}, "Selecione um projeto primeiro")
+                self.report({'ERROR'}, "Select a project first")
                 return {'CANCELLED'}
 
-            # Guardar informações do arquivo atual
+            # Store current file info
             is_shot = self._is_shot_file(context)
             current_filepath = bpy.data.filepath
             
-            # Obter caminho do asset
+            # Get asset path
             blend_path = self._get_preview_path(context)
 
-            # Em caso de arquivo de shot
+            # For shot files
             if is_shot:
-                # Obter a collection ativa
+                # Get active collection
                 active_collection = context.view_layer.active_layer_collection.collection
                 if not active_collection:
-                    self.report({'ERROR'}, "Selecione uma collection para criar o asset")
+                    self.report({'ERROR'}, "Select a collection to create the asset")
                     return {'CANCELLED'}
 
-                # Guardar nome da collection
+                # Store collection name
                 collection_name = active_collection.name
 
-                # Criar conjunto para armazenar datablocks
+                # Create a set to store datablocks
                 datablocks = set()
 
                 def collect_dependencies(collection, seen=None):
-                    """Coleta todas as dependências da collection recursivamente"""
+                    """Collect all dependencies of the collection recursively"""
                     if seen is None:
                         seen = set()
                     if collection in seen:
@@ -207,105 +215,105 @@ class ASSET_OT_create_asset(Operator):
                     for child in collection.children:
                         collect_dependencies(child, seen)
 
-                # Coletar dependências
+                # Collect dependencies
                 collect_dependencies(active_collection)
 
-                # Criar uma cena temporária para exportação
+                # Create a temporary scene for export
                 temp_scene = bpy.data.scenes.new(name="TempScene")
                 temp_scene.collection.children.link(active_collection)
                 datablocks.add(temp_scene)
 
-                # Marcar como asset antes de salvar
+                # Mark as asset before saving
                 self.mark_as_asset(active_collection)
 
-                # Salvar os datablocks no arquivo de asset
+                # Save the datablocks to the asset file
                 os.makedirs(os.path.dirname(blend_path), exist_ok=True)
                 bpy.data.libraries.write(blend_path, datablocks, fake_user=True)
 
-                # Remover cena temporária
+                # Remove temporary scene
                 bpy.data.scenes.remove(temp_scene)
 
-                # Remover collection original da cena
+                # Remove original collection from scene
                 if collection_name in context.scene.collection.children:
                     old_collection = context.scene.collection.children[collection_name]
                     context.scene.collection.children.unlink(old_collection)
                 
-                # Limpar collection do blend data
+                # Clean collection from blend data
                 if collection_name in bpy.data.collections:
                     bpy.data.collections.remove(bpy.data.collections[collection_name])
 
-                # Linkar o asset de volta
+                # Link the asset back
                 with bpy.data.libraries.load(blend_path, link=True) as (data_from, data_to):
                     data_to.collections = [collection_name]
 
-                # Adicionar à cena
+                # Add to scene
                 for coll in data_to.collections:
                     if coll is not None:
                         context.scene.collection.children.link(coll)
 
-                self.report({'INFO'}, f"Asset criado e linkado ao shot: {collection_name}")
+                self.report({'INFO'}, f"Asset created and linked to shot: {collection_name}")
 
-            # Em caso de arquivo normal (não-shot)
+            # For normal files (non-shot)
             else:
                 active_collection = context.view_layer.active_layer_collection.collection
                 
                 if self.save_mode == 'NEW_FILE':
-                    # Criar novo arquivo do zero
+                    # Create new file from scratch
                     if bpy.data.is_saved:
                         bpy.ops.wm.save_mainfile()
                     self._create_new_file(context, blend_path)
-                    self.report({'INFO'}, f"Novo asset criado em: {blend_path}")
+                    self.report({'INFO'}, f"New asset created at: {blend_path}")
                     
                 elif self.save_mode == 'SAVE_AS':
-                    # Salvar arquivo atual como asset
+                    # Save current file as asset
                     if not active_collection:
-                        self.report({'ERROR'}, "Selecione uma collection para o asset")
+                        self.report({'ERROR'}, "Select a collection for the asset")
                         return {'CANCELLED'}
                     
-                    # Marcar como asset
+                    # Mark as asset
                     self.mark_as_asset(active_collection)
                     
-                    # Salvar como novo arquivo
+                    # Save as new file
                     os.makedirs(os.path.dirname(blend_path), exist_ok=True)
                     bpy.ops.wm.save_as_mainfile(filepath=blend_path)
-                    self.report({'INFO'}, f"Arquivo salvo como asset em: {blend_path}")
+                    self.report({'INFO'}, f"File saved as asset at: {blend_path}")
                     
                 else:  # MARK_ONLY
-                    # Apenas marcar collection existente como asset
+                    # Just mark existing collection as asset
                     if not active_collection:
-                        self.report({'ERROR'}, "Selecione uma collection para marcar como asset")
+                        self.report({'ERROR'}, "Select a collection to mark as asset")
                         return {'CANCELLED'}
                     
-                    # Marcar como asset
+                    # Mark as asset
                     self.mark_as_asset(active_collection)
                     
-                    # Salvar arquivo se já estiver salvo
+                    # Save file if already saved
                     if bpy.data.is_saved:
                         bpy.ops.wm.save_mainfile()
-                        self.report({'INFO'}, f"Collection '{active_collection.name}' marcada como asset")
+                        self.report({'INFO'}, f"Collection '{active_collection.name}' marked as asset")
                     else:
-                        self.report({'WARNING'}, "Collection marcada como asset, mas arquivo não está salvo")
+                        self.report({'WARNING'}, "Collection marked as asset, but file is not saved")
 
             return {'FINISHED'}
 
         except Exception as e:
-            self.report({'ERROR'}, f"Erro ao criar asset: {str(e)}")
+            self.report({'ERROR'}, f"Error creating asset: {str(e)}")
             return {'CANCELLED'}
 
     def invoke(self, context, event):
         if not context.scene.current_project:
-            self.report({'ERROR'}, "Selecione um projeto primeiro")
+            self.report({'ERROR'}, "Select a project first")
             return {'CANCELLED'}
             
-        # Configurar modo de salvamento padrão baseado no contexto
+        # Set default save mode based on context
         if self._is_shot_file(context):
-            self.save_mode = 'NEW_FILE'  # Em shots, sempre criar novo arquivo
+            self.save_mode = 'NEW_FILE'  # In shots, always create new file
         elif not bpy.data.is_saved:
-            self.save_mode = 'SAVE_AS'   # Se arquivo não está salvo, sugerir "Salvar Como"
+            self.save_mode = 'SAVE_AS'   # If file not saved, suggest "Save As"
         else:
-            self.save_mode = 'MARK_ONLY' # Caso contrário, apenas marcar
+            self.save_mode = 'MARK_ONLY' # Otherwise, just mark
         
-        # Preencher nome com a collection selecionada
+        # Fill name with selected collection
         if context.view_layer.active_layer_collection:
             active_collection = context.view_layer.active_layer_collection.collection
             if active_collection:
@@ -316,42 +324,42 @@ class ASSET_OT_create_asset(Operator):
     def draw(self, context):
         layout = self.layout
         
-        # Informações do Projeto
+        # Project Information
         box = layout.box()
-        box.label(text="Projeto:", icon='FILE_FOLDER')
+        box.label(text="Project:", icon='FILE_FOLDER')
         prefs = context.preferences.addons['blender_project_manager'].preferences
         project_path = context.scene.current_project
         project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
         box.label(text=project_name)
         
-        # Tipo e Nome do Asset
+        # Asset Type and Name
         layout.prop(self, "asset_type")
         layout.prop(self, "name")
         
-        # Opções de salvamento (exceto em shots)
+        # Save options (except in shots)
         if not self._is_shot_file(context):
             box = layout.box()
-            box.label(text="Modo de Salvamento:", icon='FILE_TICK')
+            box.label(text="Save Mode:", icon='FILE_TICK')
             box.prop(self, "save_mode", text="")
             
-            # Mostrar informação adicional baseado no modo
+            # Show additional info based on mode
             info_box = box.box()
             if self.save_mode == 'NEW_FILE':
-                info_box.label(text="• Salva arquivo atual")
-                info_box.label(text="• Cria novo arquivo para o asset")
+                info_box.label(text="• Saves current file")
+                info_box.label(text="• Creates new file for asset")
             elif self.save_mode == 'SAVE_AS':
-                info_box.label(text="• Salva arquivo atual como asset")
-                info_box.label(text="• Mantém conteúdo atual")
+                info_box.label(text="• Saves current file as asset")
+                info_box.label(text="• Keeps current content")
             else:  # MARK_ONLY
-                info_box.label(text="• Apenas marca como asset")
-                info_box.label(text="• Mantém no arquivo atual")
+                info_box.label(text="• Only marks as asset")
+                info_box.label(text="• Keeps in current file")
         else:
-            # Em shots, mostrar informação sobre o comportamento
+            # For shots, show info about behavior
             box = layout.box()
-            box.label(text="Modo Shot:", icon='SEQUENCE')
+            box.label(text="Shot Mode:", icon='SEQUENCE')
             info = box.box()
-            info.label(text="• Cria novo arquivo para o asset")
-            info.label(text="• Linka automaticamente ao shot")
+            info.label(text="• Creates new file for asset")
+            info.label(text="• Automatically links to shot")
 
 def register():
     bpy.utils.register_class(ASSET_OT_reload_links)

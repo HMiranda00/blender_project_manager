@@ -50,7 +50,7 @@ class ASSEMBLY_OT_rebuild(Operator):
     """Rebuild the assembly file by relinking all roles. Only use if links are broken or for initial setup."""
     bl_idname = "project.rebuild_assembly"
     bl_label = "Rebuild Assembly"
-    bl_description = "Relink all roles in the assembly. Only needed if links are broken."
+    bl_description = "Rebuild Assembly: Relink all roles in the assembly. Only needed if links are broken."
     
     def execute(self, context):
         try:
@@ -145,7 +145,7 @@ class ASSEMBLY_OT_prepare_render(Operator):
     """Prepare assembly for rendering"""
     bl_idname = "project.prepare_assembly_render"
     bl_label = "Prepare for Render"
-    bl_description = "Prepare a local copy of the assembly for rendering"
+    bl_description = "Prepare Assembly for Rendering: Create a local copy of the assembly for rendering"
     
     purge_data: BoolProperty(
         name="Clean Unused Data",
@@ -260,7 +260,7 @@ class ASSEMBLY_OT_open(Operator):
     """Open the assembly file"""
     bl_idname = "project.open_assembly"
     bl_label = "Open Assembly"
-    bl_description = "Open the assembly file for the current shot"
+    bl_description = "Open Assembly File: Open the assembly file for the current shot"
     
     def execute(self, context):
         try:
@@ -313,7 +313,7 @@ class ASSEMBLY_OT_open_directory(Operator):
     """Open current file directory"""
     bl_idname = "project.open_current_directory"
     bl_label = "Open File Directory"
-    bl_description = "Open the directory of the current file in system's file explorer"
+    bl_description = "Open Project Directory: Open the directory of the current file in system's file explorer"
     
     def execute(self, context):
         try:

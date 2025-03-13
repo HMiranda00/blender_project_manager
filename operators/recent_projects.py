@@ -1,7 +1,7 @@
 import bpy
 import os
 from bpy.types import Operator, UIList, PropertyGroup
-from bpy.props import StringProperty, IntProperty, CollectionProperty
+from bpy.props import StringProperty, IntProperty, CollectionProperty, BoolProperty
 
 class RecentProjectItem(PropertyGroup):
     name: StringProperty(name="Name")
@@ -17,6 +17,7 @@ class OpenRecentProjectOperator(Operator):
     bl_label = "Open Recent Project"
     
     project_path: bpy.props.StringProperty()
+    is_fixed_root: bpy.props.BoolProperty(default=False)
     
     def execute(self, context):
         if not self.project_path:
@@ -69,6 +70,7 @@ def add_recent_project(context, project_path, project_name):
 def register():
     bpy.utils.register_class(RecentProjectItem)
     bpy.utils.register_class(PROJECTMANAGER_UL_recent_projects)
+    bpy.utils.register_class(OpenRecentProjectOperator)
     bpy.utils.register_class(ClearRecentListOperator)
     
     # Adicionar propriedades para a UIList
@@ -80,5 +82,6 @@ def unregister():
     del bpy.types.Scene.recent_project_list_index
     
     bpy.utils.unregister_class(ClearRecentListOperator)
+    bpy.utils.unregister_class(OpenRecentProjectOperator)
     bpy.utils.unregister_class(PROJECTMANAGER_UL_recent_projects)
     bpy.utils.unregister_class(RecentProjectItem)
