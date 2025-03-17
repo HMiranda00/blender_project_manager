@@ -79,9 +79,11 @@ class ASSEMBLY_OT_rebuild(Operator):
             # Track which roles were successfully linked
             linked_roles = []
             required_roles = []
+            world_linked = False
             
             # Link each role's publish file if not already linked
             for role_mapping in prefs.role_mappings:
+                # Skip roles that should not be included in assembly
                 if role_mapping.skip_assembly:
                     continue
                     
@@ -110,14 +112,31 @@ class ASSEMBLY_OT_rebuild(Operator):
                 
                 # Only link if collection doesn't exist and file exists
                 if not collection_exists and os.path.exists(blend_path):
+                    # Link only collections and world (if needed), not objects
                     with bpy.data.libraries.load(blend_path, link=True) as (data_from, data_to):
+                        # Only link collections - the objects will be linked automatically
+                        # by Blender's native linking system
                         data_to.collections = [c for c in data_from.collections]
+                        
+                        # If this role owns the world, link it too
+                        if role_mapping.owns_world and not world_linked:
+                            data_to.worlds = [w for w in data_from.worlds]
                     
-                    # Add to scene
+                    # Add collections to scene
                     for coll in data_to.collections:
                         if coll is not None:
-                            context.scene.collection.children.link(coll)
+                            # Link the collection to the scene if not already linked
+                            if coll.name not in [c.name for c in context.scene.collection.children]:
+                                context.scene.collection.children.link(coll)
                             linked_roles.append(role_mapping.role_name)
+                    
+                    # Set world if this role owns it
+                    if role_mapping.owns_world and hasattr(data_to, 'worlds') and data_to.worlds:
+                        for world in data_to.worlds:
+                            if world is not None:
+                                context.scene.world = world
+                                world_linked = True
+                                break
             
             # Save the assembly file
             bpy.ops.wm.save_mainfile()

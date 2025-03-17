@@ -268,15 +268,51 @@ class DuplicateShotOperator(Operator):
                 self.report({'ERROR'}, f"Shot {self.new_shot_name} already exists")
                 return {'CANCELLED'}
             
-            # Store current file path before starting operations
+            # Store current file path and role before starting operations
             current_filepath = None
+            current_role = context.scene.current_role
+            is_assembly = False
+            
             if bpy.data.is_saved:
                 current_filepath = bpy.data.filepath
+                # Check if we're in an assembly file
+                if "ASSEMBLY" in current_filepath:
+                    is_assembly = True
             
-            # Copy entire shot folder
-            import shutil
-            self.report({'INFO'}, f"Copying shot folder structure...")
-            shutil.copytree(source_shot_path, target_shot_path)
+            # Instead of copying the entire shot folder, we'll copy it selectively
+            # excluding WIP folders
+            self.report({'INFO'}, f"Copying shot folder structure (excluding WIP folders)...")
+            
+            # Create target shot directory
+            os.makedirs(target_shot_path, exist_ok=True)
+            
+            # Copy directory structure and files, excluding WIP folders
+            for root, dirs, files in os.walk(source_shot_path):
+                # Skip WIP folders
+                if "WIP" in dirs:
+                    dirs.remove("WIP")
+                
+                # Create corresponding directories in target
+                for dir_name in dirs:
+                    source_dir = os.path.join(root, dir_name)
+                    # Get the relative path from source_shot_path
+                    rel_path = os.path.relpath(source_dir, source_shot_path)
+                    target_dir = os.path.join(target_shot_path, rel_path)
+                    os.makedirs(target_dir, exist_ok=True)
+                
+                # Copy files
+                for file_name in files:
+                    source_file = os.path.join(root, file_name)
+                    # Get the relative path from source_shot_path
+                    rel_path = os.path.relpath(os.path.join(root, file_name), source_shot_path)
+                    target_file = os.path.join(target_shot_path, rel_path)
+                    
+                    # Create parent directory if it doesn't exist
+                    os.makedirs(os.path.dirname(target_file), exist_ok=True)
+                    
+                    # Copy the file
+                    import shutil
+                    shutil.copy2(source_file, target_file)
             
             # Dictionary to track renamed files
             original_to_new_paths = {}
@@ -342,9 +378,6 @@ class DuplicateShotOperator(Operator):
                 except Exception as e:
                     print(f"Error processing file {blend_file}: {str(e)}")
             
-            # Return to original file if possible
-            success_message = ""
-            
             # Special handling for assembly file
             assembly_path = os.path.join(target_shot_path, "ASSEMBLY")
             assembly_file = f"{project_prefix}_{self.new_shot_name}_ASSEMBLY.blend"
@@ -360,6 +393,7 @@ class DuplicateShotOperator(Operator):
                     # Update context to new shot
                     context.scene.current_project = project_path
                     context.scene.current_shot = self.new_shot_name
+                    context.scene.current_role = "ASSEMBLY"
                     
                     # Fix links in assembly
                     fixed_links, num_libs = self.fix_library_links(self.source_shot, self.new_shot_name)
@@ -385,19 +419,49 @@ class DuplicateShotOperator(Operator):
                     success_message += ", scenes renamed"
                 success_message += f" but assembly file not found | Processed {files_processed} files, fixed links in {files_with_fixed_links} files"
             
-            # Return to original file if possible and if we opened an assembly
-            if current_filepath and os.path.exists(current_filepath):
-                try:
-                    bpy.ops.wm.open_mainfile(filepath=current_filepath)
-                    
-                    # Restore original project context
-                    context.scene.current_project = project_path
-                    if self.source_shot == context.scene.current_shot:
-                        context.scene.current_shot = self.source_shot
-                except Exception as e:
-                    print(f"Error returning to original file: {str(e)}")
+            # Now, instead of returning to the original file, open the duplicated shot with the same role
+            # Update context
+            context.scene.current_project = project_path
+            context.scene.current_shot = self.new_shot_name
             
-            self.report({'INFO'}, success_message)
+            # Determine which role to open based on what the user was working on
+            if is_assembly:
+                # If user was in assembly, open the assembly of the new shot
+                if has_assembly:
+                    # Assembly is already open from the processing step above
+                    self.report({'INFO'}, success_message + " | Assembly file opened for new shot")
+                else:
+                    # Need to create a new assembly file
+                    assembly_path = os.path.join(target_shot_path, "ASSEMBLY")
+                    os.makedirs(assembly_path, exist_ok=True)
+                    
+                    # Create new empty file for assembly
+                    bpy.ops.wm.read_homefile(use_empty=True)
+                    context.scene.name = self.new_shot_name
+                    
+                    # Set context
+                    context.scene.current_project = project_path
+                    context.scene.current_shot = self.new_shot_name
+                    context.scene.current_role = "ASSEMBLY"
+                    
+                    # Save as assembly file
+                    bpy.ops.wm.save_as_mainfile(filepath=assembly_filepath)
+                    
+                    self.report({'INFO'}, success_message + " | New assembly file created for new shot")
+                return {'FINISHED'}
+            else:
+                # Otherwise, open the appropriate role file using the open_latest_wip operator
+                try:
+                    # Set the role in context
+                    context.scene.current_role = current_role
+                    
+                    # Use the open_latest_wip operator to open or create the first WIP
+                    bpy.ops.project.open_latest_wip(role_name=current_role)
+                    
+                    self.report({'INFO'}, success_message + f" | Opened {current_role} for new shot")
+                except Exception as e:
+                    self.report({'WARNING'}, success_message + f" | Error opening role: {str(e)}")
+            
             return {'FINISHED'}
             
         except Exception as e:

@@ -8,16 +8,22 @@ from ..utils import get_project_info, get_publish_path, get_wip_path, save_curre
 from ..utils.cache import DirectoryCache
 
 def get_wip_path(context, role_name):
-    """Get the WIP path for the current role/shot"""
+    """Get the WIP path for a role"""
     try:
         if not (context.scene.current_project and context.scene.current_shot):
+            print("Error: No project or shot selected")
             return None
             
+        print(f"Getting WIP path for role: {role_name}")
+        print(f"Current context - Project: {context.scene.current_project}, Shot: {context.scene.current_shot}")
+            
+        # Get project info
         project_path = context.scene.current_project
         prefs = context.preferences.addons['blender_project_manager'].preferences
         project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
         
+        # Get role settings
         role_settings = None
         for role_mapping in prefs.role_mappings:
             if role_mapping.role_name == role_name:
@@ -25,12 +31,14 @@ def get_wip_path(context, role_name):
                 break
                 
         if not role_settings:
+            print(f"Error: Role settings not found for {role_name}")
             return None
             
-        # Get WIP path
+        # Create WIP path
         wip_path = os.path.join(workspace_path, "SHOTS", shot_name, role_name, "WIP")
         os.makedirs(wip_path, exist_ok=True)
         
+        print(f"WIP path created/verified: {wip_path}")
         return wip_path
         
     except Exception as e:
@@ -38,36 +46,56 @@ def get_wip_path(context, role_name):
         return None
 
 def get_latest_wip(context, role_name):
-    """Get the latest WIP version"""
+    """Get the latest WIP file for a role"""
     try:
-        wip_path = get_wip_path(context, role_name)
-        if not wip_path:
+        if not (context.scene.current_project and context.scene.current_shot):
+            print("Error: No project or shot selected")
             return None, 0
             
+        print(f"Getting latest WIP for role: {role_name}")
+        print(f"Current context - Project: {context.scene.current_project}, Shot: {context.scene.current_shot}")
+            
+        # Get WIP path
+        wip_path = get_wip_path(context, role_name)
+        if not wip_path or not os.path.exists(wip_path):
+            print(f"Error: WIP path not found for role {role_name}: {wip_path}")
+            return None, 0
+            
+        print(f"WIP path: {wip_path}")
+            
+        # Get project info
         project_path = context.scene.current_project
         prefs = context.preferences.addons['blender_project_manager'].preferences
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
         
-        # Find latest version
-        latest_version = 0
-        latest_file = None
+        # Get all WIP files
+        wip_files = []
+        file_prefix = f"{project_prefix}_{shot_name}_{role_name}_v"
+        
+        print(f"Looking for files with prefix: {file_prefix}")
         
         for file in os.listdir(wip_path):
-            if file.endswith(".blend"):
+            if file.endswith(".blend") and file.startswith(file_prefix):
                 try:
-                    # Extract version number from filename
-                    version = int(file.split("_v")[-1].split(".")[0])
-                    if version > latest_version:
-                        latest_version = version
-                        latest_file = file
-                except ValueError:
+                    # Extract version number
+                    version_str = file.split("_v")[-1].split(".")[0]
+                    version_num = int(version_str)
+                    filepath = os.path.join(wip_path, file)
+                    wip_files.append((version_num, filepath))
+                    print(f"Found WIP file: {file} (version {version_num})")
+                except (ValueError, IndexError):
                     continue
         
-        if latest_file:
-            return os.path.join(wip_path, latest_file), latest_version
+        if not wip_files:
+            print(f"No WIP files found for role {role_name}")
+            return None, 0
+            
+        # Get latest version
+        latest_version, latest_file = max(wip_files, key=lambda x: x[0])
+        print(f"Latest WIP: {latest_file} (version {latest_version})")
         
-        return None, 0
+        return latest_file, latest_version
         
     except Exception as e:
         print(f"Error getting latest WIP: {str(e)}")
@@ -77,12 +105,19 @@ def create_or_update_publish(context, role_name):
     """Create or update the publish file by copying the latest WIP"""
     try:
         if not (context.scene.current_project and context.scene.current_shot):
+            print("Error: No project or shot selected")
             return None
+            
+        print(f"Creating/updating publish for role: {role_name}")
+        print(f"Current context - Project: {context.scene.current_project}, Shot: {context.scene.current_shot}, Role: {context.scene.current_role}")
             
         # Get latest WIP
         latest_wip, version = get_latest_wip(context, role_name)
         if not latest_wip:
+            print(f"Error: No WIP file found for role {role_name}")
             return None
+            
+        print(f"Latest WIP found: {latest_wip} (version {version})")
             
         # Get publish path
         project_path = context.scene.current_project
@@ -97,6 +132,7 @@ def create_or_update_publish(context, role_name):
                 break
                 
         if not role_settings:
+            print(f"Error: Role settings not found for {role_name}")
             return None
             
         publish_path = get_publish_path(
@@ -113,10 +149,13 @@ def create_or_update_publish(context, role_name):
         os.makedirs(publish_path, exist_ok=True)
         publish_file = os.path.join(publish_path, f"{project_prefix}_{shot_name}_{role_name}.blend")
         
+        print(f"Publishing to: {publish_file}")
+        
         # Copy latest WIP to publish
         import shutil
         shutil.copy2(latest_wip, publish_file)
         
+        print(f"Publish successful: {publish_file}")
         return publish_file
         
     except Exception as e:
@@ -204,6 +243,10 @@ class VERSION_OT_open_latest_wip(Operator):
                 self.report({'ERROR'}, "No role selected")
                 return {'CANCELLED'}
             
+            # Store current context
+            current_project = context.scene.current_project
+            current_shot = context.scene.current_shot
+            
             # Definir o role atual
             context.scene.current_role = role_name
             
@@ -222,6 +265,11 @@ class VERSION_OT_open_latest_wip(Operator):
                 shot_name = context.scene.current_shot
                 
                 latest_wip = os.path.join(wip_path, f"{project_prefix}_{shot_name}_{role_name}_v001.blend")
+                
+                # Save current file before creating new one
+                save_current_file()
+                
+                # Create new file
                 bpy.ops.wm.save_as_mainfile(filepath=latest_wip)
                 
                 # Create initial publish
@@ -235,6 +283,16 @@ class VERSION_OT_open_latest_wip(Operator):
                 save_current_file()
                 bpy.ops.wm.open_mainfile(filepath=latest_wip)
                 self.report({'INFO'}, f"Opened WIP version {version}")
+            
+            # Restore and update context
+            context.scene.current_project = current_project
+            context.scene.current_shot = current_shot
+            context.scene.current_role = role_name
+            
+            # Force UI update
+            for window in context.window_manager.windows:
+                for area in window.screen.areas:
+                    area.tag_redraw()
             
             return {'FINISHED'}
             
@@ -253,7 +311,22 @@ class VERSION_OT_publish(Operator):
                 self.report({'ERROR'}, "No project, shot or role selected")
                 return {'CANCELLED'}
             
+            # Get current role from context
             role_name = context.scene.current_role
+            
+            # Verify if we're in the correct role file
+            project_path = context.scene.current_project
+            prefs = context.preferences.addons['blender_project_manager'].preferences
+            project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+            shot_name = context.scene.current_shot
+            
+            # Check if current file matches the expected role
+            if bpy.data.is_saved:
+                current_file = os.path.basename(bpy.data.filepath)
+                expected_prefix = f"{project_prefix}_{shot_name}_{role_name}"
+                
+                if not current_file.startswith(expected_prefix):
+                    self.report({'WARNING'}, f"Current file does not match role {role_name}. Publishing anyway.")
             
             # Save current file first
             save_current_file()
@@ -265,6 +338,12 @@ class VERSION_OT_publish(Operator):
                 return {'CANCELLED'}
             
             self.report({'INFO'}, f"Published file created: {os.path.basename(publish_file)}")
+            
+            # Force UI update
+            for window in context.window_manager.windows:
+                for area in window.screen.areas:
+                    area.tag_redraw()
+                    
             return {'FINISHED'}
             
         except Exception as e:
