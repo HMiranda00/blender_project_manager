@@ -2,7 +2,7 @@
 
 A comprehensive Blender addon for managing complex animation projects with multiple roles and assets.
 
-[![Download Latest Release](https://img.shields.io/github/v/release/HMiranda00/blender_project_manager?label=Download%20Latest%20Release&style=for-the-badge)](https://github.com/HMiranda00/blender_project_manager/releases/download/v1.6.1.0/blender_project_manager.v1.6.1.zip)
+[![Download Latest Release](https://img.shields.io/github/v/release/HMiranda00/blender_project_manager?label=Download%20Latest%20Release&style=for-the-badge)](https://github.com/HMiranda00/blender_project_manager/releases/download/v1.6.1.0/Blender.project.manager.1.6.1.zip)
 
 ![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)
 ![Blender](https://img.shields.io/badge/Blender-2.80+-orange.svg)
