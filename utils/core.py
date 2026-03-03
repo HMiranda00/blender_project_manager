@@ -1,6 +1,7 @@
 import os
 import bpy
 import re
+from .addon import get_addon_preferences
 from .pipeline_rules import resolve_publish_template
 
 def get_project_info(path, is_fixed_root=False):
@@ -38,7 +39,7 @@ def get_next_project_number(root_path):
 
 def get_publish_path(preset, role_settings, context, project_path, project_name, shot_name, asset_name):
     """Get the publish path based on settings"""
-    prefs = context.preferences.addons['blender_project_manager'].preferences
+    prefs = get_addon_preferences(context)
     _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
     
     placeholders = {
@@ -145,3 +146,4 @@ def force_ui_update():
     for window in bpy.context.window_manager.windows:
         for area in window.screen.areas:
             area.tag_redraw() 
+

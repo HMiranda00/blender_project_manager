@@ -4,6 +4,7 @@ import shutil
 
 import bpy
 
+from .addon import get_addon_preferences
 from .core import get_project_info, get_publish_path
 from .pipeline_rules import build_publish_filename, build_wip_filename, build_wip_prefix, select_latest_wip
 
@@ -17,7 +18,7 @@ def get_wip_path(context, role_name, create=False):
             return None
 
         project_path = context.scene.current_project
-        prefs = context.preferences.addons["blender_project_manager"].preferences
+        prefs = get_addon_preferences(context)
         _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
 
@@ -41,7 +42,7 @@ def get_latest_wip(context, role_name):
             return None, 0
 
         project_path = context.scene.current_project
-        prefs = context.preferences.addons["blender_project_manager"].preferences
+        prefs = get_addon_preferences(context)
         _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
 
@@ -64,7 +65,7 @@ def create_first_wip(context, role_name):
             return None
 
         project_path = context.scene.current_project
-        prefs = context.preferences.addons["blender_project_manager"].preferences
+        prefs = get_addon_preferences(context)
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
 
@@ -97,3 +98,4 @@ def create_first_wip(context, role_name):
     except Exception as exc:
         logger.error("Error creating first WIP for role %s: %s", role_name, exc)
         return None
+

@@ -1,7 +1,7 @@
 import bpy
 import os
 from bpy.types import Panel
-from ..utils import get_project_info, get_publish_path, save_current_file
+from ..utils import get_addon_preferences, get_project_info, get_publish_path, save_current_file
 from ..utils.cache import DirectoryCache
 
 class PROJECT_PT_Panel(Panel):
@@ -18,7 +18,7 @@ class PROJECT_PT_Panel(Panel):
                 return None
                 
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
             
@@ -65,7 +65,7 @@ class PROJECT_PT_Panel(Panel):
     
     def draw(self, context):
         layout = self.layout
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
 
         # Verifica se o asset browser está configurado
         has_asset_browser = False

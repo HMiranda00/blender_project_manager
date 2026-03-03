@@ -10,6 +10,29 @@ from datetime import datetime
 import addon_utils
 import bpy
 
+ADDON_ID = "blender_project_manager"
+
+
+def resolve_addon_module_name():
+    for module in addon_utils.modules():
+        module_name = module.__name__
+        if module_name == ADDON_ID or module_name.endswith(f".{ADDON_ID}"):
+            return module_name
+    return ADDON_ID
+
+
+def get_addon_entry(context=None):
+    if context is None:
+        context = bpy.context
+    addons = context.preferences.addons
+    if ADDON_ID in addons:
+        return addons[ADDON_ID]
+    suffix = f".{ADDON_ID}"
+    for key in addons.keys():
+        if key.endswith(suffix):
+            return addons[key]
+    return None
+
 
 def _status(ok):
     return "PASS" if ok else "FAIL"
@@ -33,14 +56,15 @@ class SmokeSuite:
 
 
 def ensure_addon_enabled():
+    module_name = resolve_addon_module_name()
     for _ in range(10):
-        addon = bpy.context.preferences.addons.get("blender_project_manager")
+        addon = get_addon_entry(bpy.context)
         if addon is not None:
             return addon.preferences
 
-        addon_utils.enable("blender_project_manager", default_set=False, persistent=False)
+        addon_utils.enable(module_name, default_set=False, persistent=False)
         try:
-            bpy.ops.preferences.addon_enable(module="blender_project_manager")
+            bpy.ops.preferences.addon_enable(module=module_name)
         except Exception:
             pass
         time.sleep(0.1)
@@ -98,9 +122,10 @@ def run_smoke_suite():
     ensure_roles(prefs)
 
     def case_register_cycle():
-        addon_utils.disable("blender_project_manager", default_set=False)
-        addon_utils.enable("blender_project_manager", default_set=False, persistent=False)
-        _, loaded = addon_utils.check("blender_project_manager")
+        module_name = resolve_addon_module_name()
+        addon_utils.disable(module_name, default_set=False)
+        addon_utils.enable(module_name, default_set=False, persistent=False)
+        _, loaded = addon_utils.check(module_name)
         if not loaded:
             raise RuntimeError("Add-on not loaded after disable/enable cycle")
 
@@ -205,6 +230,8 @@ def run_smoke_suite():
 
 def write_report(report_path, suite, created_paths):
     os.makedirs(os.path.dirname(report_path), exist_ok=True)
+    temp_root = created_paths.get("temp_root", "<not-created>")
+    project_path = created_paths.get("project_path", "<not-created>")
 
     lines = []
     lines.append(f"# Blender Smoke Report - {bpy.app.version_string}")
@@ -212,8 +239,8 @@ def write_report(report_path, suite, created_paths):
     lines.append(f"- Date: {datetime.now().isoformat(timespec='seconds')}")
     lines.append(f"- Blender: {bpy.app.version_string}")
     lines.append(f"- Build hash: {bpy.app.build_hash.decode() if isinstance(bpy.app.build_hash, bytes) else bpy.app.build_hash}")
-    lines.append(f"- Temp root: `{created_paths['temp_root']}`")
-    lines.append(f"- Project path: `{created_paths['project_path']}`")
+    lines.append(f"- Temp root: `{temp_root}`")
+    lines.append(f"- Project path: `{project_path}`")
     lines.append("")
     lines.append("## Results")
     lines.append("")
@@ -267,3 +294,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

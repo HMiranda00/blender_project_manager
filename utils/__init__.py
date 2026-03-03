@@ -1,3 +1,4 @@
+from .addon import get_addon_entry, get_addon_preferences
 from .cache import DirectoryCache
 from .core import (
     apply_role_compositor_from_publish,
@@ -29,4 +30,6 @@ __all__ = [
     "get_wip_path",
     "create_first_wip",
     "DirectoryCache",
+    "get_addon_entry",
+    "get_addon_preferences",
 ]

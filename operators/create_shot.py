@@ -3,7 +3,7 @@ import os
 import logging
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty, BoolProperty
-from ..utils import get_project_info, save_current_file
+from ..utils import get_addon_preferences, get_project_info, save_current_file
 from ..utils.pipeline_rules import build_assembly_filename
 from ..utils.version_control import create_first_wip
 
@@ -24,7 +24,7 @@ class CreateShotOperator(Operator):
         description="Role/department responsible for this file",
         items=lambda self, context: [
             (role.role_name, role.role_name, role.description)
-            for role in context.preferences.addons['blender_project_manager'].preferences.role_mappings
+            for role in get_addon_preferences(context).role_mappings
         ]
     )
     
@@ -43,7 +43,7 @@ class CreateShotOperator(Operator):
             
             # Get project info
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             
             # Create shot folder structure
@@ -264,7 +264,7 @@ class DuplicateShotOperator(Operator):
             
             # Get project info
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             
             # Check source shot path
@@ -509,7 +509,7 @@ class DuplicateShotOperator(Operator):
         # Info about current project
         box = layout.box()
         box.label(text="Current Project:", icon='FILE_FOLDER')
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         project_name, _, _ = get_project_info(context.scene.current_project, prefs.use_fixed_root)
         box.label(text=project_name)
 
@@ -520,3 +520,4 @@ def register():
 def unregister():
     bpy.utils.unregister_class(CreateShotOperator)
     bpy.utils.unregister_class(DuplicateShotOperator)
+

@@ -3,6 +3,7 @@ import os
 import json
 from bpy.types import AddonPreferences, PropertyGroup, Operator
 from bpy.props import StringProperty, CollectionProperty, EnumProperty, IntProperty, BoolProperty
+from .utils import get_addon_entry, get_addon_preferences, is_compositor_control_supported
 
 class RecentProject(PropertyGroup):
     path: StringProperty(name="Project Path")
@@ -122,7 +123,7 @@ class PROJECTMANAGER_OT_add_role_mapping(Operator):
     bl_label = "Add Role"
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         new_role = prefs.role_mappings.add()
         new_role.role_name = "NEW_ROLE"
         new_role.description = "New role description"
@@ -137,7 +138,7 @@ class PROJECTMANAGER_OT_remove_role_mapping(Operator):
     index: IntProperty()
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         prefs.role_mappings.remove(self.index)
         return {'FINISHED'}
 
@@ -161,7 +162,7 @@ class PROJECTMANAGER_OT_export_config(Operator):
         return {'RUNNING_MODAL'}
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         
         config = {
             'use_fixed_root': prefs.use_fixed_root,
@@ -227,7 +228,7 @@ class PROJECTMANAGER_OT_import_config(Operator):
             with open(self.filepath, 'r', encoding='utf-8') as f:
                 config = json.load(f)
             
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             
             prefs.use_fixed_root = config.get('use_fixed_root', True)
             prefs.fixed_root_path = config.get('fixed_root_path', '')
@@ -257,7 +258,9 @@ class PROJECTMANAGER_OT_import_config(Operator):
             return {'CANCELLED'}
 
 class ProjectPreferences(AddonPreferences):
-    bl_idname = 'blender_project_manager'
+    # Blender Extensions namespaces the module (e.g. bl_ext.user_default.<addon_id>).
+    # Using __package__ keeps preferences working in both classic add-on and extension installs.
+    bl_idname = __package__ or "blender_project_manager"
 
     use_fixed_root: BoolProperty(
         name="Use Fixed Root",
@@ -390,7 +393,7 @@ classes = (
 )
 
 def _ensure_default_roles():
-    addon = bpy.context.preferences.addons.get('blender_project_manager')
+    addon = get_addon_entry(bpy.context)
     if addon is None:
         # Add-on entry may not exist yet during early register in some contexts.
         return 0.1
@@ -456,3 +459,4 @@ def register():
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+

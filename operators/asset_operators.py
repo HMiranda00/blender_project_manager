@@ -4,7 +4,7 @@ import traceback
 import logging
 from bpy.types import Operator
 from bpy.props import EnumProperty, StringProperty, BoolProperty
-from ..utils import save_current_file, get_project_info
+from ..utils import get_addon_preferences, save_current_file, get_project_info
 from ..utils.cache import DirectoryCache
 
 logger = logging.getLogger(__name__)
@@ -93,14 +93,14 @@ class ASSET_OT_create_asset(Operator):
             return False
             
         current_file = os.path.basename(bpy.data.filepath)
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         project_path = context.scene.current_project
         _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         return current_file.startswith(project_prefix + "_SHOT_")
 
     def get_asset_path(self, context):
         """Return the correct path for the asset"""
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         project_path = context.scene.current_project
         _, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
         
@@ -132,7 +132,7 @@ class ASSET_OT_create_asset(Operator):
 
     def _get_preview_path(self, context):
         """Return the path where the asset will be saved"""
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         project_path = context.scene.current_project
         _, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         
@@ -330,7 +330,7 @@ class ASSET_OT_create_asset(Operator):
         # Project Information
         box = layout.box()
         box.label(text="Project:", icon='FILE_FOLDER')
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         project_path = context.scene.current_project
         project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
         box.label(text=project_name)
@@ -371,3 +371,4 @@ def register():
 def unregister():
     bpy.utils.unregister_class(ASSET_OT_create_asset)
     bpy.utils.unregister_class(ASSET_OT_reload_links)
+

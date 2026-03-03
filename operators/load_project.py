@@ -3,7 +3,7 @@ import os
 import re
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty, BoolProperty
-from ..utils import get_project_info, save_current_file
+from ..utils import get_addon_preferences, get_project_info, save_current_file
 
 class LoadProjectOperator(Operator):
     bl_idname = "project.load_project"
@@ -11,7 +11,7 @@ class LoadProjectOperator(Operator):
     
     def get_projects(self, context):
         items = []
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         
         if not prefs.use_fixed_root or not prefs.fixed_root_path:
             return [('CUSTOM', "Select folder...", "Manually select the project folder", 'FILE_FOLDER', 0)]
@@ -65,7 +65,7 @@ class LoadProjectOperator(Operator):
         try:
             save_current_file()
             
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             
             if prefs.use_fixed_root:
                 if self.selected_project == 'CUSTOM':
@@ -114,7 +114,7 @@ class LoadProjectOperator(Operator):
             return {'CANCELLED'}
 
     def invoke(self, context, event):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         
         # Sync recent projects from preferences to scene
         context.scene.recent_projects.clear()
@@ -132,7 +132,7 @@ class LoadProjectOperator(Operator):
 
     def draw(self, context):
         layout = self.layout
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         
         # Project selection
         if prefs.use_fixed_root:

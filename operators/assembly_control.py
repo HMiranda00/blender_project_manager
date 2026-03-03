@@ -4,6 +4,7 @@ from bpy.types import Operator
 from bpy.props import StringProperty, BoolProperty
 from ..utils import (
     apply_role_compositor_from_publish,
+    get_addon_preferences,
     get_project_info,
     get_publish_path,
     is_compositor_control_supported,
@@ -12,7 +13,7 @@ from ..utils import (
 
 def get_assembly_path(context, shot_name):
     """Get the assembly file path for a shot"""
-    prefs = context.preferences.addons['blender_project_manager'].preferences
+    prefs = get_addon_preferences(context)
     project_path = context.scene.current_project
     project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
     
@@ -25,7 +26,7 @@ def get_assembly_path(context, shot_name):
 
 def get_role_publish_file(context, role_name, shot_name):
     """Get the publish file path for a role"""
-    prefs = context.preferences.addons['blender_project_manager'].preferences
+    prefs = get_addon_preferences(context)
     project_path = context.scene.current_project
     project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
     
@@ -72,7 +73,7 @@ class ASSEMBLY_OT_rebuild(Operator):
             
             # Get project info
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
             
@@ -216,7 +217,7 @@ class ASSEMBLY_OT_prepare_render(Operator):
             
             # Get project info
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
             
@@ -303,7 +304,7 @@ class ASSEMBLY_OT_open(Operator):
             
             # Get project info
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
             
@@ -387,3 +388,4 @@ def unregister():
     # Remover previous_file apenas se existir
     if hasattr(bpy.types.Scene, 'previous_file'):
         del bpy.types.Scene.previous_file 
+

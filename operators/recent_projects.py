@@ -2,6 +2,7 @@ import bpy
 import os
 from bpy.types import Operator, UIList, PropertyGroup
 from bpy.props import StringProperty, IntProperty, CollectionProperty, BoolProperty
+from ..utils import get_addon_preferences
 
 class RecentProjectItem(PropertyGroup):
     name: StringProperty(name="Name")
@@ -32,14 +33,14 @@ class ClearRecentListOperator(Operator):
     bl_description = "Clear the recent projects list"
     
     def execute(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         prefs.recent_projects.clear()
         return {'FINISHED'}
 
 def add_recent_project(context, project_path, project_name):
     """Add a project to the recent projects list"""
     MAX_RECENT = 10
-    prefs = context.preferences.addons['blender_project_manager'].preferences
+    prefs = get_addon_preferences(context)
     
     # Remove trailing slashes
     project_path = project_path.rstrip("\\/")

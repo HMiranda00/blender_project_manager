@@ -3,7 +3,7 @@ import os
 import logging
 from bpy.types import Operator
 from bpy.props import EnumProperty
-from ..utils import get_project_info, save_current_file
+from ..utils import get_addon_preferences, get_project_info, save_current_file
 from ..utils.version_control import get_latest_wip, create_first_wip
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ class OpenShotOperator(Operator):
 
         try:
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             
             # Path to SHOTS folder
@@ -42,7 +42,7 @@ class OpenShotOperator(Operator):
         return items
 
     def get_roles(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         return [(rm.role_name, rm.role_name, rm.description, rm.icon, i)
                 for i, rm in enumerate(prefs.role_mappings)]
 
@@ -99,7 +99,7 @@ class OpenShotOperator(Operator):
             return {'CANCELLED'}
             
         # Check if there are any roles configured
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         if not prefs.role_mappings:
             self.report({'ERROR'}, "Configure at least one role in addon preferences")
             return {'CANCELLED'}
@@ -116,3 +116,4 @@ def register():
 
 def unregister():
     bpy.utils.unregister_class(OpenShotOperator)
+

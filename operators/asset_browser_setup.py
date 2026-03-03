@@ -12,7 +12,7 @@ from bpy.app.handlers import (
 )
 from bpy.types import Operator
 
-from ..utils import get_project_info
+from ..utils import get_addon_preferences, get_project_info
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def cleanup_project_libraries(scene=None):
 
         current_project_name = None
         if has_project_context:
-            prefs = ctx.preferences.addons["blender_project_manager"].preferences
+            prefs = get_addon_preferences(ctx)
             project_path = ctx.scene.current_project
             project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
             current_project_name = project_name
@@ -110,7 +110,7 @@ f5780a5c-74a4-4dd9-9e3d-c3654cf91f5c:MATERIALS:MATERIALS"""
         try:
             cleanup_project_libraries(context.scene)
 
-            prefs = context.preferences.addons["blender_project_manager"].preferences
+            prefs = get_addon_preferences(context)
             project_path = context.scene.current_project
             project_name, workspace_path, _ = get_project_info(project_path, prefs.use_fixed_root)
 
@@ -182,7 +182,7 @@ class ASSETBROWSER_OT_toggle(Operator):
                     new_area.type = "FILE_BROWSER"
                     new_area.ui_type = "ASSETS"
 
-                    prefs = context.preferences.addons["blender_project_manager"].preferences
+                    prefs = get_addon_preferences(context)
                     project_path = context.scene.current_project
                     project_name, _, _ = get_project_info(project_path, prefs.use_fixed_root)
 
@@ -254,3 +254,4 @@ def unregister():
         cleanup_project_libraries()
     except Exception as exc:
         logger.warning("Error cleaning up libraries on unregister: %s", exc)
+

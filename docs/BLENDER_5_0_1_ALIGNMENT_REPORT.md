@@ -1,4 +1,4 @@
-# Report de Alinhamento com Blender 5.0.1
+ï»¿# Report de Alinhamento com Blender 5.0.1
 
 Data do report: 2026-03-03
 
@@ -29,6 +29,10 @@ Este report foi atualizado apos implementacao das correcoes P0/P1, testes puros 
    - substituicao de `print` em modulos criticos tocados.
 4. Robustez de contexto:
    - ajustes em fluxos sensiveis com troca de arquivo (`open_mainfile`), com restauracao de contexto em operadores relevantes.
+5. Compatibilidade com Blender Extensions (5.0.1):
+   - resolvido lookup fixo de preferencias (`context.preferences.addons['blender_project_manager']`).
+   - introduzido helper central `utils/addon.py` para resolver addon classico e namespaced (`bl_ext.user_default.blender_project_manager`).
+   - `AddonPreferences.bl_idname` atualizado para valor dinamico (`__package__`) para funcionar em instalacao via Extensions.
 
 ## Melhorias de Testabilidade e Qualidade
 
@@ -73,14 +77,16 @@ Evidencias:
 
 - `validation_reports/blender_5_0_1_smoke.md`
 - `validation_reports/blender_4_4_3_smoke.md`
+- `docs/reports/smoke_5_0_1.md`
 
 ## Compatibilidade Atual
 
 ### Verde (validado)
 
-- API basica de operadores/paineis/preferencias compatível com Blender 4.4.3 e 5.0.1.
+- API basica de operadores/paineis/preferencias compativel com Blender 4.4.3 e 5.0.1.
 - Fluxos principais smoke testados em ambas versoes.
 - Setup/cleanup de Asset Browser estabilizado para cenarios de load/undo/redo.
+- Instalacao via Extensions no Blender 5 validada com modulo namespaced.
 
 ### Amarelo (proximos incrementos recomendados)
 
@@ -90,16 +96,17 @@ Evidencias:
 
 ## Estado de Instalacao do Add-on no Blender 5
 
-Checagem objetiva feita no Blender 5.0.1 (perfil padrao):
+Checagem objetiva feita no Blender 5.0.1 em 2026-03-03:
 
-- `FOUND_MODULE=False`
-- `CHECK_DEFAULT=False`
-- `CHECK_LOADED=False`
+- `FOUND_MODULE=True` (`bl_ext.user_default.blender_project_manager`)
+- `CHECK_ENABLED=True`
+- `CHECK_LOADED=True`
+- `PREFERENCES_OK=True`
 
 Interpretacao:
 
-- O add-on **nao esta instalado no perfil padrao do seu Blender 5** neste momento.
-- Nos smoke tests ele foi carregado via `BLENDER_USER_SCRIPTS` apontando para um diretório temporario.
+- O add-on esta instalado e carregando corretamente como Extension no Blender 5.
+- A UI continua no painel da ferramenta (`View3D > Sidebar > Project`), mesmo quando a gestao/instalacao aparece na aba de Extensions.
 
 ## Fontes oficiais usadas
 

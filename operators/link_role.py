@@ -4,6 +4,7 @@ from bpy.types import Operator
 from bpy.props import EnumProperty
 from ..utils import (
     apply_role_compositor_from_publish,
+    get_addon_preferences,
     get_project_info,
     get_publish_path,
     is_compositor_control_supported,
@@ -16,7 +17,7 @@ class LinkRoleOperator(Operator):
     bl_description = "Linkar ou anexar cargo ao arquivo atual"
 
     def get_roles(self, context):
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = get_addon_preferences(context)
         current_role = context.scene.current_role
         
         items = []
@@ -42,7 +43,7 @@ class LinkRoleOperator(Operator):
         try:
             save_current_file()
             
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             project_path = context.scene.current_project
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
@@ -124,7 +125,7 @@ class LinkRoleOperator(Operator):
         layout.prop(self, "role_to_link")
         
         if self.role_to_link:
-            prefs = context.preferences.addons['blender_project_manager'].preferences
+            prefs = get_addon_preferences(context)
             for role_mapping in prefs.role_mappings:
                 if role_mapping.role_name == self.role_to_link:
                     box = layout.box()
@@ -137,3 +138,4 @@ def register():
 
 def unregister():
     bpy.utils.unregister_class(LinkRoleOperator)
+

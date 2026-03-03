@@ -6,7 +6,7 @@ import bpy
 from bpy.props import BoolProperty, StringProperty
 from bpy.types import Operator
 
-from ..utils import get_project_info, get_publish_path, save_current_file
+from ..utils import get_addon_preferences, get_project_info, get_publish_path, save_current_file
 from ..utils.cache import DirectoryCache
 from ..utils.pipeline_rules import (
     build_publish_filename,
@@ -43,7 +43,7 @@ def create_or_update_publish(context, role_name):
             return None
 
         project_path = context.scene.current_project
-        prefs = context.preferences.addons["blender_project_manager"].preferences
+        prefs = get_addon_preferences(context)
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
 
@@ -99,7 +99,7 @@ class VERSION_OT_new_wip_version(Operator):
                 return {"CANCELLED"}
 
             project_path = context.scene.current_project
-            prefs = context.preferences.addons["blender_project_manager"].preferences
+            prefs = get_addon_preferences(context)
             _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
 
@@ -160,7 +160,7 @@ class VERSION_OT_open_latest_wip(Operator):
                     return {"CANCELLED"}
 
                 project_path = context.scene.current_project
-                prefs = context.preferences.addons["blender_project_manager"].preferences
+                prefs = get_addon_preferences(context)
                 _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
                 shot_name = context.scene.current_shot
 
@@ -210,7 +210,7 @@ class VERSION_OT_publish(Operator):
 
             role_name = context.scene.current_role
             project_path = context.scene.current_project
-            prefs = context.preferences.addons["blender_project_manager"].preferences
+            prefs = get_addon_preferences(context)
             _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
 
@@ -257,7 +257,7 @@ class VERSION_OT_open_version_list(Operator):
 
         role_name = context.scene.current_role
         project_path = context.scene.current_project
-        prefs = context.preferences.addons["blender_project_manager"].preferences
+        prefs = get_addon_preferences(context)
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
 
@@ -373,7 +373,7 @@ class VERSION_OT_open_published(Operator):
             project_path = context.scene.current_project
             shot_name = context.scene.current_shot
 
-            prefs = context.preferences.addons["blender_project_manager"].preferences
+            prefs = get_addon_preferences(context)
             project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
 
             for role_mapping in prefs.role_mappings:
@@ -441,3 +441,4 @@ def unregister():
             bpy.utils.unregister_class(cls)
         except Exception as exc:
             logger.debug("Skipping class unregistration for %s: %s", cls.__name__, exc)
+
