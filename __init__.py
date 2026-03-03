@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Blender Project Manager",
     "author": "Henrique Miranda",
-    "version": (1, 6, 2),
+    "version": (1, 6, 3),
     "blender": (4, 4, 0),
     "location": "N-Panel",
     "description": "Addon for project management and organization",
@@ -60,6 +60,7 @@ def unregister():
     panels.unregister()
     operators.unregister()
     preferences.unregister()
+
 
 
 

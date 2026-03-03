@@ -3,11 +3,11 @@
   "blocklist": [],
   "data": [
     {
-      "schema_version": "1.6.2",
+      "schema_version": "1.6.3",
       "id": "blender_project_manager",
       "name": "Blender Project Manager",
       "tagline": "Project, shot, role and asset pipeline manager",
-      "version": "1.6.2",
+      "version": "1.6.3",
       "type": "add-on",
       "maintainer": "Henrique Miranda",
       "license": [
@@ -23,9 +23,9 @@
         "3D View",
         "System"
       ],
-      "archive_url": "./blender_project_manager-1.6.2.zip",
-      "archive_size": 183228,
-      "archive_hash": "sha256:dbbdb57e802751d10c1b3b56d8984a15c1a7170f521f39e51a1468ac43733390"
+      "archive_url": "./blender_project_manager-1.6.3.zip",
+      "archive_size": 245975,
+      "archive_hash": "sha256:7d946e1c197fe0c2ea7dad01b1c067b260f6ab1b2666d51d8690051c330a7f06"
     }
   ]
 }

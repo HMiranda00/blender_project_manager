@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.6.3] - 2026-03-03
+
+### Added
+- Smoke evidence report for Blender 5.0.1 in `docs/reports/smoke_5_0_1.md`.
+
+### Changed
+- Alignment report updated with Extension install status and namespace compatibility notes.
+
+### Fixed
+- Blender 5 Extensions namespace compatibility for add-on preferences lookup.
+- `AddonPreferences` initialization in Extension mode (`bl_idname` derived from package).
+- Asset Browser cleanup lookup still referencing non-namespaced add-on key.
+
 ## [1.6.2] - 2026-03-03
 
 ### Added
@@ -28,3 +41,4 @@ All notable changes to this project will be documented in this file.
 - Unnecessary folder creation reduced (WIP/paths now created when truly needed).
 - Add-on initialization robustness in headless contexts (`preferences` default role setup timing).
 - Context restoration issues after file-open operations in critical version/shot flows.
+

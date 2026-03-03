@@ -1,10 +1,10 @@
-schema_version = "1.6.2"
+schema_version = "1.6.3"
 
 id = "blender_project_manager"
 type = "add-on"
 name = "Blender Project Manager"
 tagline = "Project, shot, role and asset pipeline manager"
-version = "1.6.2"
+version = "1.6.3"
 maintainer = "Henrique Miranda"
 website = "https://github.com/HMiranda00/blender_project_manager"
 
@@ -17,6 +17,7 @@ license = [
 
 [permissions]
 files = "Create and manage project files and folders"
+
 
 
 
