@@ -7,7 +7,6 @@ def register():
     from . import open_role_file
     from . import asset_operators
     from . import asset_browser_setup
-    from . import asset_browser_view
     from . import recent_projects
     from . import ui_operators
     from . import version_control
@@ -21,7 +20,6 @@ def register():
     open_role_file.register()
     asset_operators.register()
     asset_browser_setup.register()
-    asset_browser_view.register()
     recent_projects.register()
     ui_operators.register()
     version_control.register()
@@ -36,7 +34,6 @@ def unregister():
     from . import open_role_file
     from . import asset_operators
     from . import asset_browser_setup
-    from . import asset_browser_view
     from . import recent_projects
     from . import ui_operators
     from . import version_control
@@ -46,7 +43,6 @@ def unregister():
     version_control.unregister()
     ui_operators.unregister()
     recent_projects.unregister()
-    asset_browser_view.unregister()
     asset_browser_setup.unregister()
     asset_operators.unregister()
     open_role_file.unregister()

@@ -1,0 +1,22 @@
+schema_version = "1.6.2"
+
+id = "blender_project_manager"
+type = "add-on"
+name = "Blender Project Manager"
+tagline = "Project, shot, role and asset pipeline manager"
+version = "1.6.2"
+maintainer = "Henrique Miranda"
+website = "https://github.com/HMiranda00/blender_project_manager"
+
+tags = ["Pipeline", "3D View", "System"]
+blender_version_min = "4.4.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+[permissions]
+files = "Create and manage project files and folders"
+
+
+

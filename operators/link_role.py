@@ -2,7 +2,13 @@ import bpy
 import os
 from bpy.types import Operator
 from bpy.props import EnumProperty
-from ..utils import get_publish_path, save_current_file, get_project_info
+from ..utils import (
+    apply_role_compositor_from_publish,
+    get_project_info,
+    get_publish_path,
+    is_compositor_control_supported,
+    save_current_file,
+)
 
 class LinkRoleOperator(Operator):
     bl_idname = "project.link_role"
@@ -91,6 +97,12 @@ class LinkRoleOperator(Operator):
 
             if role_settings.owns_world and len(data_to.worlds) > 0:
                 context.scene.world = data_to.worlds[0]
+            
+            if role_settings.owns_compositor:
+                if not is_compositor_control_supported():
+                    self.report({'WARNING'}, "Compositor control only works in Blender 5.0+")
+                else:
+                    apply_role_compositor_from_publish(context.scene, blend_path, role_settings, link=is_link)
 
             self.report({'INFO'}, f"Cargo '{self.role_to_link}' {'linkado' if is_link else 'anexado'} com sucesso.")
             return {'FINISHED'}

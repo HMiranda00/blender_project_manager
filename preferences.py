@@ -84,6 +84,11 @@ class RoleMapping(PropertyGroup):
         description="Defines if this role is responsible for the scene's World",
         default=False
     )
+    owns_compositor: BoolProperty(
+        name="Controls Compositor",
+        description="Defines if this role is responsible for scene compositor (Blender 5.0+ only)",
+        default=False
+    )
     skip_assembly: BoolProperty(
         name="Skip Assembly",
         description="If checked, this role will not be included in the shot's assembly file",
@@ -174,6 +179,7 @@ class PROJECTMANAGER_OT_export_config(Operator):
                 'exclude_from_view_layer': role_mapping.exclude_from_view_layer,
                 'show_status': role_mapping.show_status,
                 'owns_world': role_mapping.owns_world,
+                'owns_compositor': role_mapping.owns_compositor,
                 'skip_assembly': role_mapping.skip_assembly,
                 'publish_path_preset': role_mapping.publish_path_preset,
                 'custom_publish_path': role_mapping.custom_publish_path,
@@ -238,6 +244,7 @@ class PROJECTMANAGER_OT_import_config(Operator):
                 role_mapping.exclude_from_view_layer = role_config.get('exclude_from_view_layer', False)
                 role_mapping.show_status = role_config.get('show_status', True)
                 role_mapping.owns_world = role_config.get('owns_world', False)
+                role_mapping.owns_compositor = role_config.get('owns_compositor', False)
                 role_mapping.skip_assembly = role_config.get('skip_assembly', False)
                 role_mapping.publish_path_preset = role_config.get('publish_path_preset', 'SHOTS')
                 role_mapping.custom_publish_path = role_config.get('custom_publish_path', '')
@@ -367,6 +374,8 @@ class ProjectPreferences(AddonPreferences):
                 special_settings.label(text="Special Settings:", icon='SETTINGS')
                 special_settings.prop(role_mapping, "show_status")
                 special_settings.prop(role_mapping, "owns_world")
+                special_settings.prop(role_mapping, "owns_compositor")
+                special_settings.label(text="Compositor control works only on Blender 5.0+", icon='INFO')
                 special_settings.prop(role_mapping, "skip_assembly")
 
 # Lista de classes para registro
@@ -380,59 +389,69 @@ classes = (
     ProjectPreferences,
 )
 
+def _ensure_default_roles():
+    addon = bpy.context.preferences.addons.get('blender_project_manager')
+    if addon is None:
+        # Add-on entry may not exist yet during early register in some contexts.
+        return 0.1
+
+    prefs = addon.preferences
+    if len(prefs.role_mappings) > 0:
+        return None
+
+    # Animation Role
+    role = prefs.role_mappings.add()
+    role.role_name = "ANIMATION"
+    role.description = "Animation and character performance"
+    role.icon = "OUTLINER_OB_ARMATURE"
+    role.collection_color = "COLOR_02"
+    role.hide_viewport_default = False
+    role.exclude_from_view_layer = False
+    role.show_status = True
+    role.owns_world = False
+    role.owns_compositor = False
+    role.skip_assembly = False
+    role.publish_path_preset = "SHOTS"
+    role.custom_publish_path = ""
+    role.link_type = "LINK"
+    
+    # Lookdev Role
+    role = prefs.role_mappings.add()
+    role.role_name = "LOOKDEV"
+    role.description = "Materials, lighting and rendering"
+    role.icon = "LIGHT"
+    role.collection_color = "COLOR_03"
+    role.hide_viewport_default = False
+    role.exclude_from_view_layer = False
+    role.show_status = True
+    role.owns_world = True
+    role.owns_compositor = True
+    role.skip_assembly = False
+    role.publish_path_preset = "SHOTS"
+    role.custom_publish_path = ""
+    role.link_type = "LINK"
+    
+    # Layout Role
+    role = prefs.role_mappings.add()
+    role.role_name = "LAYOUT"
+    role.description = "Scene layout and camera"
+    role.icon = "TOOL_SETTINGS"
+    role.collection_color = "NONE"
+    role.hide_viewport_default = False
+    role.exclude_from_view_layer = False
+    role.show_status = True
+    role.owns_world = False
+    role.owns_compositor = False
+    role.skip_assembly = True
+    role.publish_path_preset = "SHOTS"
+    role.custom_publish_path = ""
+    role.link_type = "APPEND"
+    return None
+
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    
-    # Add default roles
-    prefs = bpy.context.preferences.addons['blender_project_manager'].preferences
-    
-    # Only add if there are no roles yet
-    if len(prefs.role_mappings) == 0:
-        # Animation Role
-        role = prefs.role_mappings.add()
-        role.role_name = "ANIMATION"
-        role.description = "Animation and character performance"
-        role.icon = "OUTLINER_OB_ARMATURE"
-        role.collection_color = "COLOR_02"
-        role.hide_viewport_default = False
-        role.exclude_from_view_layer = False
-        role.show_status = True
-        role.owns_world = False
-        role.skip_assembly = False
-        role.publish_path_preset = "SHOTS"
-        role.custom_publish_path = ""
-        role.link_type = "LINK"
-        
-        # Lookdev Role
-        role = prefs.role_mappings.add()
-        role.role_name = "LOOKDEV"
-        role.description = "Materials, lighting and rendering"
-        role.icon = "LIGHT"
-        role.collection_color = "COLOR_03"
-        role.hide_viewport_default = False
-        role.exclude_from_view_layer = False
-        role.show_status = True
-        role.owns_world = True
-        role.skip_assembly = False
-        role.publish_path_preset = "SHOTS"
-        role.custom_publish_path = ""
-        role.link_type = "LINK"
-        
-        # Layout Role
-        role = prefs.role_mappings.add()
-        role.role_name = "LAYOUT"
-        role.description = "Scene layout and camera"
-        role.icon = "TOOL_SETTINGS"
-        role.collection_color = "NONE"
-        role.hide_viewport_default = False
-        role.exclude_from_view_layer = False
-        role.show_status = True
-        role.owns_world = False
-        role.skip_assembly = True
-        role.publish_path_preset = "SHOTS"
-        role.custom_publish_path = ""
-        role.link_type = "APPEND"
+    bpy.app.timers.register(_ensure_default_roles, first_interval=0.0)
 
 def unregister():
     for cls in reversed(classes):

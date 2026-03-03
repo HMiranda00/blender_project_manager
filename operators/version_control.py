@@ -1,140 +1,57 @@
-import bpy
+import logging
 import os
-import glob
-from bpy.types import Operator
-from bpy.props import StringProperty, BoolProperty
-from datetime import datetime
-from ..utils import get_project_info, get_publish_path, get_wip_path, save_current_file
-from ..utils.cache import DirectoryCache
+import shutil
 
-def get_wip_path(context, role_name):
-    """Get the WIP path for a role"""
-    try:
-        if not (context.scene.current_project and context.scene.current_shot):
-            print("Error: No project or shot selected")
-            return None
-            
-        print(f"Getting WIP path for role: {role_name}")
-        print(f"Current context - Project: {context.scene.current_project}, Shot: {context.scene.current_shot}")
-            
-        # Get project info
-        project_path = context.scene.current_project
-        prefs = context.preferences.addons['blender_project_manager'].preferences
-        project_name, workspace_path, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-        shot_name = context.scene.current_shot
-        
-        # Get role settings
-        role_settings = None
-        for role_mapping in prefs.role_mappings:
-            if role_mapping.role_name == role_name:
-                role_settings = role_mapping
-                break
-                
-        if not role_settings:
-            print(f"Error: Role settings not found for {role_name}")
-            return None
-            
-        # Create WIP path
-        wip_path = os.path.join(workspace_path, "SHOTS", shot_name, role_name, "WIP")
-        os.makedirs(wip_path, exist_ok=True)
-        
-        print(f"WIP path created/verified: {wip_path}")
-        return wip_path
-        
-    except Exception as e:
-        print(f"Error getting WIP path: {str(e)}")
-        return None
+import bpy
+from bpy.props import BoolProperty, StringProperty
+from bpy.types import Operator
+
+from ..utils import get_project_info, get_publish_path, save_current_file
+from ..utils.cache import DirectoryCache
+from ..utils.pipeline_rules import (
+    build_publish_filename,
+    build_wip_filename,
+    build_wip_prefix,
+    extract_wip_version,
+)
+from ..utils.version_control import get_latest_wip as util_get_latest_wip
+from ..utils.version_control import get_wip_path as util_get_wip_path
+
+logger = logging.getLogger(__name__)
+
+
+def get_wip_path(context, role_name, create=False):
+    """Compatibility wrapper: canonical implementation lives in utils.version_control."""
+    return util_get_wip_path(context, role_name, create=create)
+
 
 def get_latest_wip(context, role_name):
-    """Get the latest WIP file for a role"""
-    try:
-        if not (context.scene.current_project and context.scene.current_shot):
-            print("Error: No project or shot selected")
-            return None, 0
-            
-        print(f"Getting latest WIP for role: {role_name}")
-        print(f"Current context - Project: {context.scene.current_project}, Shot: {context.scene.current_shot}")
-            
-        # Get WIP path
-        wip_path = get_wip_path(context, role_name)
-        if not wip_path or not os.path.exists(wip_path):
-            print(f"Error: WIP path not found for role {role_name}: {wip_path}")
-            return None, 0
-            
-        print(f"WIP path: {wip_path}")
-            
-        # Get project info
-        project_path = context.scene.current_project
-        prefs = context.preferences.addons['blender_project_manager'].preferences
-        project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-        shot_name = context.scene.current_shot
-        
-        # Get all WIP files
-        wip_files = []
-        file_prefix = f"{project_prefix}_{shot_name}_{role_name}_v"
-        
-        print(f"Looking for files with prefix: {file_prefix}")
-        
-        for file in os.listdir(wip_path):
-            if file.endswith(".blend") and file.startswith(file_prefix):
-                try:
-                    # Extract version number
-                    version_str = file.split("_v")[-1].split(".")[0]
-                    version_num = int(version_str)
-                    filepath = os.path.join(wip_path, file)
-                    wip_files.append((version_num, filepath))
-                    print(f"Found WIP file: {file} (version {version_num})")
-                except (ValueError, IndexError):
-                    continue
-        
-        if not wip_files:
-            print(f"No WIP files found for role {role_name}")
-            return None, 0
-            
-        # Get latest version
-        latest_version, latest_file = max(wip_files, key=lambda x: x[0])
-        print(f"Latest WIP: {latest_file} (version {latest_version})")
-        
-        return latest_file, latest_version
-        
-    except Exception as e:
-        print(f"Error getting latest WIP: {str(e)}")
-        return None, 0
+    """Compatibility wrapper: canonical implementation lives in utils.version_control."""
+    return util_get_latest_wip(context, role_name)
+
 
 def create_or_update_publish(context, role_name):
-    """Create or update the publish file by copying the latest WIP"""
+    """Create or update publish by copying latest WIP."""
     try:
         if not (context.scene.current_project and context.scene.current_shot):
-            print("Error: No project or shot selected")
+            logger.warning("Cannot publish without current project and shot")
             return None
-            
-        print(f"Creating/updating publish for role: {role_name}")
-        print(f"Current context - Project: {context.scene.current_project}, Shot: {context.scene.current_shot}, Role: {context.scene.current_role}")
-            
-        # Get latest WIP
-        latest_wip, version = get_latest_wip(context, role_name)
+
+        latest_wip, _ = get_latest_wip(context, role_name)
         if not latest_wip:
-            print(f"Error: No WIP file found for role {role_name}")
+            logger.warning("No WIP file found for role %s", role_name)
             return None
-            
-        print(f"Latest WIP found: {latest_wip} (version {version})")
-            
-        # Get publish path
+
         project_path = context.scene.current_project
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = context.preferences.addons["blender_project_manager"].preferences
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
-        
-        role_settings = None
-        for role_mapping in prefs.role_mappings:
-            if role_mapping.role_name == role_name:
-                role_settings = role_mapping
-                break
-                
+
+        role_settings = next((rm for rm in prefs.role_mappings if rm.role_name == role_name), None)
         if not role_settings:
-            print(f"Error: Role settings not found for {role_name}")
+            logger.warning("Role settings not found for role %s", role_name)
             return None
-            
+
         publish_path = get_publish_path(
             role_settings.publish_path_preset,
             role_settings,
@@ -142,254 +59,327 @@ def create_or_update_publish(context, role_name):
             project_path,
             project_name,
             shot_name,
-            asset_name=role_name
+            asset_name=role_name,
         )
-        
-        # Create publish file
+
         os.makedirs(publish_path, exist_ok=True)
-        publish_file = os.path.join(publish_path, f"{project_prefix}_{shot_name}_{role_name}.blend")
-        
-        print(f"Publishing to: {publish_file}")
-        
-        # Copy latest WIP to publish
-        import shutil
+        publish_file = os.path.join(publish_path, build_publish_filename(project_prefix, shot_name, role_name))
         shutil.copy2(latest_wip, publish_file)
-        
-        print(f"Publish successful: {publish_file}")
         return publish_file
-        
-    except Exception as e:
-        print(f"Error creating/updating publish: {str(e)}")
+
+    except Exception as exc:
+        logger.error("Error creating/updating publish for role %s: %s", role_name, exc)
         return None
 
+
 class VERSION_OT_new_wip_version(Operator):
-    """Create a new WIP version"""
+    """Create a new WIP version."""
+
     bl_idname = "project.new_wip_version"
     bl_label = "New WIP Version"
     bl_description = "Create a new WIP version of the current file"
-    
+
     role_name: StringProperty()
     update_publish: BoolProperty(
         name="Update Publish",
         description="Update the publish file with this version",
-        default=True
+        default=True,
     )
-    
+
     def execute(self, context):
         try:
             if not (context.scene.current_project and context.scene.current_shot and context.scene.current_role):
-                self.report({'ERROR'}, "No project, shot or role selected")
-                return {'CANCELLED'}
-            
+                self.report({"ERROR"}, "No project, shot or role selected")
+                return {"CANCELLED"}
+
             role_name = context.scene.current_role
-            
-            # Get WIP path
-            wip_path = get_wip_path(context, role_name)
+            wip_path = get_wip_path(context, role_name, create=True)
             if not wip_path:
-                self.report({'ERROR'}, "Could not get WIP path")
-                return {'CANCELLED'}
-            
-            # Get project info
+                self.report({"ERROR"}, "Could not get WIP path")
+                return {"CANCELLED"}
+
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
-            project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+            prefs = context.preferences.addons["blender_project_manager"].preferences
+            _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
-            
-            # Get latest version
+
             _, latest_version = get_latest_wip(context, role_name)
-            
-            # Create new version
             new_version = latest_version + 1
-            new_file = os.path.join(wip_path, f"{project_prefix}_{shot_name}_{role_name}_v{new_version:03d}.blend")
-            
-            # Save as new version
+            new_file = os.path.join(
+                wip_path,
+                build_wip_filename(project_prefix, shot_name, role_name, new_version),
+            )
+
             bpy.ops.wm.save_as_mainfile(filepath=new_file)
-            
-            # Update publish
+
             publish_file = create_or_update_publish(context, role_name)
-            if not publish_file:
-                self.report({'WARNING'}, "Could not update publish file")
-            
-            self.report({'INFO'}, f"Created WIP version {new_version}")
-            return {'FINISHED'}
-            
-        except Exception as e:
-            self.report({'ERROR'}, f"Error creating new version: {str(e)}")
-            return {'CANCELLED'}
+            if self.update_publish and not publish_file:
+                self.report({"WARNING"}, "Could not update publish file")
+
+            self.report({"INFO"}, f"Created WIP version {new_version}")
+            return {"FINISHED"}
+
+        except Exception as exc:
+            self.report({"ERROR"}, f"Error creating new version: {exc}")
+            return {"CANCELLED"}
+
 
 class VERSION_OT_open_latest_wip(Operator):
-    """Open the latest WIP version"""
+    """Open the latest WIP version."""
+
     bl_idname = "project.open_latest_wip"
     bl_label = "Open Latest WIP"
     bl_description = "Open the latest WIP version of the current role"
-    
-    # Manter role_name mas torná-lo interno (não exibido na interface)
+
     role_name: StringProperty(
         name="Role Name",
         description="Name of the role to open latest WIP for (internal use only)",
-        options={'HIDDEN'}  # Oculta da interface do usuário
+        options={"HIDDEN"},
     )
-    
+
     def execute(self, context):
         try:
             if not (context.scene.current_project and context.scene.current_shot):
-                self.report({'ERROR'}, "No project or shot selected")
-                return {'CANCELLED'}
-            
-            # Usar o role_name fornecido ou o current_role da cena
+                self.report({"ERROR"}, "No project or shot selected")
+                return {"CANCELLED"}
+
             role_name = self.role_name if self.role_name else context.scene.current_role
-            
             if not role_name:
-                self.report({'ERROR'}, "No role selected")
-                return {'CANCELLED'}
-            
-            # Store current context
+                self.report({"ERROR"}, "No role selected")
+                return {"CANCELLED"}
+
             current_project = context.scene.current_project
             current_shot = context.scene.current_shot
-            
-            # Definir o role atual
             context.scene.current_role = role_name
-            
-            # Get latest WIP
+
             latest_wip, version = get_latest_wip(context, role_name)
             if not latest_wip:
-                # Create first version if none exists
-                wip_path = get_wip_path(context, role_name)
+                wip_path = get_wip_path(context, role_name, create=True)
                 if not wip_path:
-                    self.report({'ERROR'}, "Could not get WIP path")
-                    return {'CANCELLED'}
-                
+                    self.report({"ERROR"}, "Could not get WIP path")
+                    return {"CANCELLED"}
+
                 project_path = context.scene.current_project
-                prefs = context.preferences.addons['blender_project_manager'].preferences
-                project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+                prefs = context.preferences.addons["blender_project_manager"].preferences
+                _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
                 shot_name = context.scene.current_shot
-                
-                latest_wip = os.path.join(wip_path, f"{project_prefix}_{shot_name}_{role_name}_v001.blend")
-                
-                # Save current file before creating new one
+
+                latest_wip = os.path.join(
+                    wip_path,
+                    build_wip_filename(project_prefix, shot_name, role_name, 1),
+                )
+
                 save_current_file()
-                
-                # Create new file
                 bpy.ops.wm.save_as_mainfile(filepath=latest_wip)
-                
-                # Create initial publish
+
                 publish_file = create_or_update_publish(context, role_name)
                 if not publish_file:
-                    self.report({'WARNING'}, "Could not create publish file")
-                
-                self.report({'INFO'}, "Created first WIP version")
+                    self.report({"WARNING"}, "Could not create publish file")
+
+                self.report({"INFO"}, "Created first WIP version")
             else:
-                # Open latest version
                 save_current_file()
                 bpy.ops.wm.open_mainfile(filepath=latest_wip)
-                self.report({'INFO'}, f"Opened WIP version {version}")
-            
-            # Restore and update context
+                self.report({"INFO"}, f"Opened WIP version {version}")
+
             context.scene.current_project = current_project
             context.scene.current_shot = current_shot
             context.scene.current_role = role_name
-            
-            # Force UI update
+
             for window in context.window_manager.windows:
                 for area in window.screen.areas:
                     area.tag_redraw()
-            
-            return {'FINISHED'}
-            
-        except Exception as e:
-            self.report({'ERROR'}, f"Error opening latest WIP: {str(e)}")
-            return {'CANCELLED'}
+
+            return {"FINISHED"}
+
+        except Exception as exc:
+            self.report({"ERROR"}, f"Error opening latest WIP: {exc}")
+            return {"CANCELLED"}
+
 
 class VERSION_OT_publish(Operator):
     bl_idname = "project.publish_version"
     bl_label = "Publish Version"
     bl_description = "Create a publish version from the current WIP"
-    
+
     def execute(self, context):
         try:
             if not (context.scene.current_project and context.scene.current_shot and context.scene.current_role):
-                self.report({'ERROR'}, "No project, shot or role selected")
-                return {'CANCELLED'}
-            
-            # Get current role from context
+                self.report({"ERROR"}, "No project, shot or role selected")
+                return {"CANCELLED"}
+
             role_name = context.scene.current_role
-            
-            # Verify if we're in the correct role file
             project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
-            project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+            prefs = context.preferences.addons["blender_project_manager"].preferences
+            _, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
             shot_name = context.scene.current_shot
-            
-            # Check if current file matches the expected role
+
             if bpy.data.is_saved:
                 current_file = os.path.basename(bpy.data.filepath)
                 expected_prefix = f"{project_prefix}_{shot_name}_{role_name}"
-                
                 if not current_file.startswith(expected_prefix):
-                    self.report({'WARNING'}, f"Current file does not match role {role_name}. Publishing anyway.")
-            
-            # Save current file first
+                    self.report({"WARNING"}, f"Current file does not match role {role_name}. Publishing anyway.")
+
             save_current_file()
-            
-            # Create publish
             publish_file = create_or_update_publish(context, role_name)
             if not publish_file:
-                self.report({'ERROR'}, "Could not create publish file")
-                return {'CANCELLED'}
-            
-            self.report({'INFO'}, f"Published file created: {os.path.basename(publish_file)}")
-            
-            # Force UI update
+                self.report({"ERROR"}, "Could not create publish file")
+                return {"CANCELLED"}
+
+            self.report({"INFO"}, f"Published file created: {os.path.basename(publish_file)}")
             for window in context.window_manager.windows:
                 for area in window.screen.areas:
                     area.tag_redraw()
-                    
-            return {'FINISHED'}
-            
-        except Exception as e:
-            self.report({'ERROR'}, f"Error publishing version: {str(e)}")
-            return {'CANCELLED'}
+
+            return {"FINISHED"}
+
+        except Exception as exc:
+            self.report({"ERROR"}, f"Error publishing version: {exc}")
+            return {"CANCELLED"}
+
 
 class VERSION_OT_open_version_list(Operator):
-    """Select and open a version from list"""
+    """Select and open a version from list."""
+
     bl_idname = "project.open_version_list"
     bl_label = "Select Version"
     bl_description = "Open a specific version from the list"
     bl_property = "version_enum"
-    
-    # Dicionário de caminhos como atributo de CLASSE (estático)
-    file_paths = dict()
-    
+
+    file_paths = {}
+
     def get_version_list(self, context):
-        """Retorna itens para o menu de versões"""
-        # Limpar paths armazenados anteriormente
         VERSION_OT_open_version_list.file_paths.clear()
-        
-        # Lista para armazenar os itens do menu
         items = []
-        
-        # Verificar requisitos
+
         if not (context.scene.current_project and context.scene.current_shot and context.scene.current_role):
-            return [('NONE', "No versions available", "")]
-            
-        # Obter informações básicas
+            return [("NONE", "No versions available", "")]
+
         role_name = context.scene.current_role
         project_path = context.scene.current_project
-        prefs = context.preferences.addons['blender_project_manager'].preferences
+        prefs = context.preferences.addons["blender_project_manager"].preferences
         project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
         shot_name = context.scene.current_shot
-        
-        # Obter caminho da pasta WIP
-        wip_path = get_wip_path(context, role_name)
+
+        wip_path = get_wip_path(context, role_name, create=False)
         if not wip_path or not os.path.exists(wip_path):
-            return [('NONE', "No versions available", "")]
-        
-        # Item para Latest WIP
-        items.append(('LATEST', "Latest WIP", "Open the latest WIP version"))
-        
-        # Arquivo publicado
-        for role_mapping in prefs.role_mappings:
-            if role_mapping.role_name == role_name:
+            return [("NONE", "No versions available", "")]
+
+        items.append(("LATEST", "Latest WIP", "Open the latest WIP version"))
+
+        role_mapping = next((rm for rm in prefs.role_mappings if rm.role_name == role_name), None)
+        if role_mapping:
+            publish_path = get_publish_path(
+                role_mapping.publish_path_preset,
+                role_mapping,
+                context,
+                project_path,
+                project_name,
+                shot_name,
+                asset_name=role_name,
+            )
+            publish_file = os.path.join(publish_path, build_publish_filename(project_prefix, shot_name, role_name))
+            if os.path.exists(publish_file):
+                VERSION_OT_open_version_list.file_paths["PUBLISHED"] = publish_file
+                items.append(("PUBLISHED", "Published Version", "Open the published version"))
+
+        try:
+            wip_prefix = build_wip_prefix(project_prefix, shot_name, role_name)
+            wip_files = []
+            for filename in os.listdir(wip_path):
+                version_num = extract_wip_version(filename, wip_prefix)
+                if version_num is None:
+                    continue
+                filepath = os.path.join(wip_path, filename)
+                wip_files.append((version_num, filepath, filename))
+
+            wip_files.sort(reverse=True)
+            for version_num, filepath, filename in wip_files:
+                item_id = f"V{version_num:03d}"
+                VERSION_OT_open_version_list.file_paths[item_id] = filepath
+                items.append((item_id, f"Version {version_num:03d}", f"Open {filename}"))
+
+        except Exception as exc:
+            logger.error("Error listing WIP files: %s", exc)
+
+        if len(items) <= 1:
+            return [("NONE", "No versions available", "")]
+
+        return items
+
+    version_enum: bpy.props.EnumProperty(
+        name="Version",
+        description="Select a version to open",
+        items=get_version_list,
+    )
+
+    def invoke(self, context, event):
+        if not (context.scene.current_project and context.scene.current_shot and context.scene.current_role):
+            self.report({"ERROR"}, "No project, shot or role selected")
+            return {"CANCELLED"}
+
+        self.get_version_list(context)
+        context.window_manager.invoke_search_popup(self)
+        return {"RUNNING_MODAL"}
+
+    def execute(self, context):
+        if self.version_enum == "NONE":
+            self.report({"INFO"}, "No versions available")
+            return {"CANCELLED"}
+
+        if self.version_enum == "LATEST":
+            bpy.ops.project.open_latest_wip()
+            return {"FINISHED"}
+
+        if self.version_enum == "PUBLISHED":
+            bpy.ops.project.open_published()
+            return {"FINISHED"}
+
+        filepath = VERSION_OT_open_version_list.file_paths.get(self.version_enum)
+        if not filepath or not os.path.exists(filepath):
+            self.report({"ERROR"}, f"File not found: {self.version_enum}")
+            return {"CANCELLED"}
+
+        project_path = context.scene.current_project
+        shot_name = context.scene.current_shot
+        role_name = context.scene.current_role
+
+        save_current_file()
+        bpy.ops.wm.open_mainfile(filepath=filepath)
+
+        context.scene.current_project = project_path
+        context.scene.current_shot = shot_name
+        context.scene.current_role = role_name
+
+        self.report({"INFO"}, f"Opened: {os.path.basename(filepath)}")
+        DirectoryCache.invalidate(os.path.dirname(project_path))
+        return {"FINISHED"}
+
+
+class VERSION_OT_open_published(Operator):
+    """Open the published version for the current role."""
+
+    bl_idname = "project.open_published"
+    bl_label = "Open Published Version"
+    bl_description = "Open the published version of the current role"
+
+    def execute(self, context):
+        try:
+            if not (context.scene.current_project and context.scene.current_shot and context.scene.current_role):
+                self.report({"ERROR"}, "No project, shot or role selected")
+                return {"CANCELLED"}
+
+            role_name = context.scene.current_role
+            project_path = context.scene.current_project
+            shot_name = context.scene.current_shot
+
+            prefs = context.preferences.addons["blender_project_manager"].preferences
+            project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
+
+            for role_mapping in prefs.role_mappings:
+                if role_mapping.role_name != role_name:
+                    continue
+
                 publish_path = get_publish_path(
                     role_mapping.publish_path_preset,
                     role_mapping,
@@ -397,173 +387,37 @@ class VERSION_OT_open_version_list(Operator):
                     project_path,
                     project_name,
                     shot_name,
-                    asset_name=role_name
+                    asset_name=role_name,
                 )
-                
-                if publish_path:
-                    publish_file = os.path.join(publish_path, f"{project_prefix}_{shot_name}_{role_name}.blend")
-                    if os.path.exists(publish_file):
-                        VERSION_OT_open_version_list.file_paths['PUBLISHED'] = publish_file
-                        items.append(('PUBLISHED', "Published Version", "Open the published version"))
-                break
-        
-        # Buscar todas as versões WIP
-        try:
-            # Padrão para o nome do arquivo WIP
-            file_prefix = f"{project_prefix}_{shot_name}_{role_name}_v"
-            
-            # Lista para armazenar arquivos WIP encontrados
-            wip_files = []
-            
-            # Listar todos os arquivos .blend na pasta WIP
-            for file in os.listdir(wip_path):
-                if file.endswith(".blend") and file.startswith(file_prefix):
-                    try:
-                        # Extrair número da versão
-                        version_str = file.split("_v")[-1].split(".")[0]
-                        version_num = int(version_str)
-                        filepath = os.path.join(wip_path, file)
-                        wip_files.append((version_num, filepath, file))
-                    except (ValueError, IndexError):
-                        continue
-            
-            # Ordenar por número de versão (mais recente primeiro)
-            wip_files.sort(reverse=True)
-            
-            # Adicionar versões ao menu
-            for version_num, filepath, filename in wip_files:
-                item_id = f"V{version_num:03d}"
-                VERSION_OT_open_version_list.file_paths[item_id] = filepath
-                items.append((item_id, f"Version {version_num:03d}", f"Open {filename}"))
-                
-        except Exception as e:
-            print(f"Error listing WIP files: {str(e)}")
-        
-        # Se não encontrou nenhuma versão (além do Latest WIP)
-        if len(items) <= 1:
-            return [('NONE', "No versions available", "")]
-            
-        return items
-    
-    # Propriedade para o menu enum
-    version_enum: bpy.props.EnumProperty(
-        name="Version",
-        description="Select a version to open",
-        items=get_version_list
-    )
-    
-    def invoke(self, context, event):
-        # Verificar requisitos
-        if not (context.scene.current_project and context.scene.current_shot and context.scene.current_role):
-            self.report({'ERROR'}, "No project, shot or role selected")
-            return {'CANCELLED'}
-        
-        # Forçar a execução do get_version_list antes de mostrar o menu
-        self.get_version_list(context)
-        
-        # Mostrar menu popup
-        wm = context.window_manager
-        wm.invoke_search_popup(self)
-        return {'RUNNING_MODAL'}
-    
-    def execute(self, context):
-        # Verificar seleção
-        if self.version_enum == 'NONE':
-            self.report({'INFO'}, "No versions available")
-            return {'CANCELLED'}
-        
-        # Processar Latest WIP
-        if self.version_enum == 'LATEST':
-            bpy.ops.project.open_latest_wip()
-            return {'FINISHED'}
-        
-        # Processar Published Version
-        if self.version_enum == 'PUBLISHED':
-            bpy.ops.project.open_published()
-            return {'FINISHED'}
-        
-        # Processar versão específica
-        filepath = VERSION_OT_open_version_list.file_paths.get(self.version_enum)
-        if not filepath or not os.path.exists(filepath):
-            self.report({'ERROR'}, f"File not found: {self.version_enum}")
-            return {'CANCELLED'}
-        
-        # Salvar arquivo atual
-        save_current_file()
-        
-        # Abrir arquivo selecionado
-        bpy.ops.wm.open_mainfile(filepath=filepath)
-        self.report({'INFO'}, f"Opened: {os.path.basename(filepath)}")
-        
-        # Invalidar cache
-        project_dir = os.path.dirname(context.scene.current_project)
-        DirectoryCache.invalidate(project_dir)
-        
-        return {'FINISHED'}
 
-# Novo operador para abrir a versão mais recente
-class VERSION_OT_open_published(Operator):
-    """Open the published version for the current role"""
-    bl_idname = "project.open_published"
-    bl_label = "Open Published Version"
-    bl_description = "Open the published version of the current role"
-    
-    def execute(self, context):
-        try:
-            if not (context.scene.current_project and context.scene.current_shot and context.scene.current_role):
-                self.report({'ERROR'}, "No project, shot or role selected")
-                return {'CANCELLED'}
-            
-            # Obter informações do projeto
-            role_name = context.scene.current_role
-            project_path = context.scene.current_project
-            prefs = context.preferences.addons['blender_project_manager'].preferences
-            project_name, _, project_prefix = get_project_info(project_path, prefs.use_fixed_root)
-            shot_name = context.scene.current_shot
-            
-            # Encontrar o arquivo publicado
-            for role_mapping in prefs.role_mappings:
-                if role_mapping.role_name == role_name:
-                    publish_path = get_publish_path(
-                        role_mapping.publish_path_preset,
-                        role_mapping,
-                        context,
-                        project_path,
-                        project_name,
-                        shot_name,
-                        asset_name=role_name
-                    )
-                    
-                    if not publish_path:
-                        self.report({'ERROR'}, "Could not determine publish path")
-                        return {'CANCELLED'}
-                    
-                    # Verificar arquivo publicado
-                    publish_file = os.path.join(publish_path, f"{project_prefix}_{shot_name}_{role_name}.blend")
-                    if not os.path.exists(publish_file):
-                        self.report({'ERROR'}, "Published file does not exist")
-                        return {'CANCELLED'}
-                    
-                    # Salvar arquivo atual
-                    save_current_file()
-                    
-                    # Abrir arquivo publicado
-                    bpy.ops.wm.open_mainfile(filepath=publish_file)
-                    self.report({'INFO'}, f"Opened published file: {os.path.basename(publish_file)}")
-                    
-                    # Invalidar cache
-                    DirectoryCache.invalidate(os.path.dirname(project_path))
-                    
-                    return {'FINISHED'}
-            
-            self.report({'ERROR'}, f"Role '{role_name}' not found in settings")
-            return {'CANCELLED'}
-            
-        except Exception as e:
-            self.report({'ERROR'}, f"Error opening published version: {str(e)}")
-            return {'CANCELLED'}
+                if not publish_path:
+                    self.report({"ERROR"}, "Could not determine publish path")
+                    return {"CANCELLED"}
 
-# Registration
+                publish_file = os.path.join(publish_path, build_publish_filename(project_prefix, shot_name, role_name))
+                if not os.path.exists(publish_file):
+                    self.report({"ERROR"}, "Published file does not exist")
+                    return {"CANCELLED"}
+
+                save_current_file()
+                bpy.ops.wm.open_mainfile(filepath=publish_file)
+
+                context.scene.current_project = project_path
+                context.scene.current_shot = shot_name
+                context.scene.current_role = role_name
+
+                self.report({"INFO"}, f"Opened published file: {os.path.basename(publish_file)}")
+                DirectoryCache.invalidate(os.path.dirname(project_path))
+                return {"FINISHED"}
+
+            self.report({"ERROR"}, f"Role '{role_name}' not found in settings")
+            return {"CANCELLED"}
+
+        except Exception as exc:
+            self.report({"ERROR"}, f"Error opening published version: {exc}")
+            return {"CANCELLED"}
+
+
 classes = (
     VERSION_OT_new_wip_version,
     VERSION_OT_open_latest_wip,
@@ -572,16 +426,18 @@ classes = (
     VERSION_OT_open_published,
 )
 
+
 def register():
     for cls in classes:
         try:
             bpy.utils.register_class(cls)
-        except Exception as e:
-            print(f"Erro ao registrar {cls.__name__}: {str(e)}")
+        except Exception as exc:
+            logger.debug("Skipping class registration for %s: %s", cls.__name__, exc)
+
 
 def unregister():
     for cls in reversed(classes):
         try:
             bpy.utils.unregister_class(cls)
-        except Exception as e:
-            print(f"Erro ao desregistrar {cls.__name__}: {str(e)}") 
+        except Exception as exc:
+            logger.debug("Skipping class unregistration for %s: %s", cls.__name__, exc)

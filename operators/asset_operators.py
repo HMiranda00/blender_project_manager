@@ -1,10 +1,13 @@
 import bpy
 import os
 import traceback
+import logging
 from bpy.types import Operator
 from bpy.props import EnumProperty, StringProperty, BoolProperty
 from ..utils import save_current_file, get_project_info
 from ..utils.cache import DirectoryCache
+
+logger = logging.getLogger(__name__)
 
 class ASSET_OT_reload_links(Operator):
     """Reload all linked assets and libraries"""
@@ -24,7 +27,7 @@ class ASSET_OT_reload_links(Operator):
                     lib.reload()
                     reloaded += 1
                 except Exception as e:
-                    print(f"Error reloading library {lib.filepath}: {str(e)}")
+                    logger.warning("Error reloading library %s: %s", lib.filepath, e)
             
             # Force UI update
             for window in context.window_manager.windows:

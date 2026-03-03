@@ -4,8 +4,8 @@ A comprehensive Blender addon for managing complex animation projects with multi
 
 [![Download Latest Release](https://img.shields.io/github/v/release/HMiranda00/blender_project_manager?label=Download%20Latest%20Release&style=for-the-badge)](https://github.com/HMiranda00/blender_project_manager/releases/download/v1.6.1.0/Blender.Project.Manager.v1.6.1.zip)
 
-![Version](https://img.shields.io/badge/version-1.6.1-blue.svg)
-![Blender](https://img.shields.io/badge/Blender-2.80+-orange.svg)
+![Version](https://img.shields.io/badge/version-1.6.2-blue.svg)
+![Blender](https://img.shields.io/badge/Blender-4.4%20LTS%20%2B%205.0.1-orange.svg)
 ![License](https://img.shields.io/badge/license-GPL%20v3-green.svg)
 
 
@@ -191,9 +191,54 @@ The addon automatically configures the Asset Browser for each project:
    - Verify role publish files
    - Check role settings in preferences
 
+## Support Matrix
+
+- Supported baseline:
+  - Blender 4.4 LTS
+  - Blender 5.0.1
+- Minimum declared compatibility in add-on metadata:
+  - Blender 4.4.0
+
+## Known Limitations
+
+- Validation in this repository is split between:
+  - pure unit tests (without Blender runtime)
+  - manual smoke tests in Blender
+- Heavy file/context switching operators (`open_mainfile`, `read_homefile`) still require cross-version manual validation.
+
 ## Support
 
 For bug reports and feature requests, please use the GitHub Issues page.
+
+## Documentation & Architecture
+
+Project technical documentation is now organized in `docs/`:
+
+- [Architecture](docs/ARCHITECTURE.md)
+- [Blender 5.0.1 Alignment Report](docs/BLENDER_5_0_1_ALIGNMENT_REPORT.md)
+- [Blender Validation Checklist](docs/BLENDER_VALIDATION_CHECKLIST.md)
+- [Release Process](docs/RELEASE_PROCESS.md)
+- [Publish New Version](docs/PUBLISH_NEW_VERSION.md)
+- [Release Chat Prompt](docs/RELEASE_CHAT_PROMPT.md)
+- [After Effects Expansion Plan](docs/AFTER_EFFECTS_EXPANSION.md)
+
+## Contribution Workflow
+
+1. Implement small scoped changes.
+2. Run pure unit tests:
+   - `powershell -ExecutionPolicy Bypass -File scripts/run_unit_tests.ps1`
+3. Run manual checklist in both supported Blender versions:
+   - `docs/BLENDER_VALIDATION_CHECKLIST.md`
+4. Submit PR with:
+   - behavior summary
+   - test evidence
+   - known limitations (if any)
+
+## Versioning Policy
+
+- `PATCH`: bugfixes.
+- `MINOR`: backward-compatible feature additions.
+- `MAJOR`: breaking changes in naming/folder contracts.
 
 ## License
 
@@ -206,3 +251,6 @@ For more information, see the [GNU General Public License v3.0](https://www.gnu.
 Created by:
 - Henrique Miranda
 - Higor Pereira 
+
+
+

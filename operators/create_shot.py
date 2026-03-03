@@ -1,9 +1,13 @@
 import bpy
 import os
+import logging
 from bpy.types import Operator
 from bpy.props import StringProperty, EnumProperty, BoolProperty
 from ..utils import get_project_info, save_current_file
+from ..utils.pipeline_rules import build_assembly_filename
 from ..utils.version_control import create_first_wip
+
+logger = logging.getLogger(__name__)
 
 class CreateShotOperator(Operator):
     bl_idname = "project.create_shot"
@@ -84,9 +88,10 @@ class CreateShotOperator(Operator):
                     break
             
             if role_settings:
-                from ..utils import setup_collection_settings, setup_role_world
+                from ..utils import setup_collection_settings, setup_role_world, setup_role_compositor
                 setup_collection_settings(main_collection, role_settings)
                 setup_role_world(role_settings)
+                setup_role_compositor(role_settings)
             
             # Create first WIP version and PUBLISH
             wip_file = create_first_wip(context, self.role_name)
@@ -98,7 +103,7 @@ class CreateShotOperator(Operator):
             # Get assembly path
             assembly_path = os.path.join(workspace_path, "SHOTS", self.shot_name, "ASSEMBLY")
             os.makedirs(assembly_path, exist_ok=True)
-            assembly_file = f"{project_prefix}_{self.shot_name}_ASSEMBLY.blend"
+            assembly_file = build_assembly_filename(project_prefix, self.shot_name)
             assembly_filepath = os.path.join(assembly_path, assembly_file)
             
             # Store current file path to return later
@@ -141,12 +146,18 @@ class CreateShotOperator(Operator):
                 # Setup world if needed
                 if role_settings.owns_world and len(data_to.worlds) > 0:
                     context.scene.world = data_to.worlds[0]
+                
+                from ..utils import apply_role_compositor_from_publish
+                apply_role_compositor_from_publish(context.scene, publish_filepath, role_settings, link=True)
             
             # Save assembly
             bpy.ops.wm.save_as_mainfile(filepath=assembly_filepath)
             
             # Return to WIP file
             bpy.ops.wm.open_mainfile(filepath=current_filepath)
+            context.scene.current_project = project_path
+            context.scene.current_shot = self.shot_name
+            context.scene.current_role = self.role_name
             
             self.report({'INFO'}, f"Shot created and file saved at: {wip_file}")
             return {'FINISHED'}
@@ -334,7 +345,7 @@ class DuplicateShotOperator(Operator):
                             try:
                                 os.rename(old_path, new_path)
                             except Exception as e:
-                                print(f"Error renaming {old_path} to {new_path}: {str(e)}")
+                                logger.warning("Error renaming %s to %s: %s", old_path, new_path, e)
             
             # Process .blend files to update scene names and relink assets
             self.report({'INFO'}, f"Processing .blend files and updating links...")
@@ -376,7 +387,7 @@ class DuplicateShotOperator(Operator):
                     files_processed += 1
                     
                 except Exception as e:
-                    print(f"Error processing file {blend_file}: {str(e)}")
+                    logger.warning("Error processing file %s: %s", blend_file, e)
             
             # Special handling for assembly file
             assembly_path = os.path.join(target_shot_path, "ASSEMBLY")
@@ -411,7 +422,7 @@ class DuplicateShotOperator(Operator):
                     # Add stats about processed files
                     success_message += f" | Processed {files_processed} files, fixed links in {files_with_fixed_links} files"
                 except Exception as e:
-                    print(f"Error updating assembly file: {str(e)}")
+                    logger.warning("Error updating assembly file: %s", e)
                     success_message = f"Shot duplicated but error updating assembly: {str(e)}"
             else:
                 success_message = f"Shot duplicated as {self.new_shot_name}"

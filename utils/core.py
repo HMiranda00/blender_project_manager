@@ -1,6 +1,7 @@
 import os
 import bpy
 import re
+from .pipeline_rules import resolve_publish_template
 
 def get_project_info(path, is_fixed_root=False):
     """Extract project info from a path"""
@@ -19,8 +20,6 @@ def get_project_info(path, is_fixed_root=False):
         prefix_match = re.match(r'^([A-Z]+\d+)', project_folder)
         project_prefix = prefix_match.group(1) if prefix_match else ""
         workspace_path = os.path.join(path, "3D")
-        if not os.path.exists(workspace_path):
-            os.makedirs(workspace_path)
     
     return project_folder, workspace_path, project_prefix
 
@@ -50,18 +49,11 @@ def get_publish_path(preset, role_settings, context, project_path, project_name,
         'assetName': asset_name
     }
     
-    if preset == 'SHOTS':
-        path_template = "{root}/SHOTS/{shot}/{role}/PUBLISH"
-    elif preset == 'CHARACTERS':
-        path_template = "{root}/ASSETS 3D/CHR/{assetName}/PUBLISH"
-    elif preset == 'PROPS':
-        path_template = "{root}/ASSETS 3D/PROPS/{assetName}/PUBLISH"
-    elif preset == 'CUSTOM':
-        path_template = role_settings.custom_publish_path
-    else:
-        path_template = "{root}/SHOTS/{shot}/{role}/PUBLISH"
-        
-    return path_template.format(**placeholders)
+    return resolve_publish_template(
+        preset,
+        role_settings.custom_publish_path,
+        placeholders
+    )
 
 def save_current_file():
     """Save current file if it exists"""
@@ -95,6 +87,58 @@ def setup_role_world(role_settings):
         for scene in bpy.data.scenes:
             if not scene.world:
                 scene.world = bpy.data.worlds.new(name=f"{role_settings.role_name}_World")
+
+def is_compositor_control_supported():
+    """Compositor role ownership is supported from Blender 5.0+."""
+    return bpy.app.version >= (5, 0, 0) and hasattr(bpy.types.Scene, "compositing_node_group")
+
+def setup_role_compositor(role_settings):
+    """Create/assign role compositor group for current scene when supported."""
+    if not role_settings.owns_compositor or not is_compositor_control_supported():
+        return None
+
+    scene = bpy.context.scene
+    group_name = f"{role_settings.role_name}_COMPOSITOR"
+    node_group = bpy.data.node_groups.get(group_name)
+    if node_group is None or node_group.bl_idname != "CompositorNodeTree":
+        node_group = bpy.data.node_groups.new(group_name, "CompositorNodeTree")
+
+    scene.compositing_node_group = node_group
+    # Backward-compat flag still present in 5.x.
+    if hasattr(scene, "use_nodes"):
+        scene.use_nodes = True
+
+    return node_group
+
+def apply_role_compositor_from_publish(scene, blend_path, role_settings, link=True):
+    """Load and assign compositor node group from a role publish file."""
+    if not role_settings.owns_compositor or not is_compositor_control_supported():
+        return False
+
+    if not os.path.exists(blend_path):
+        return False
+
+    target_group_name = f"{role_settings.role_name}_COMPOSITOR"
+    loaded_groups = []
+    with bpy.data.libraries.load(blend_path, link=link) as (data_from, data_to):
+        candidate = None
+        if target_group_name in data_from.node_groups:
+            candidate = target_group_name
+        elif data_from.node_groups:
+            # Fallback for legacy files that have unnamed/default compositor group.
+            candidate = data_from.node_groups[0]
+
+        if candidate:
+            data_to.node_groups = [candidate]
+            loaded_groups = data_to.node_groups
+
+    if not loaded_groups or loaded_groups[0] is None:
+        return False
+
+    scene.compositing_node_group = loaded_groups[0]
+    if hasattr(scene, "use_nodes"):
+        scene.use_nodes = True
+    return True
 
 def force_ui_update():
     """Force UI update in all areas"""

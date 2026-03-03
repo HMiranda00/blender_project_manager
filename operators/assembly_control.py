@@ -2,7 +2,13 @@ import bpy
 import os
 from bpy.types import Operator
 from bpy.props import StringProperty, BoolProperty
-from ..utils import get_project_info, get_publish_path, save_current_file
+from ..utils import (
+    apply_role_compositor_from_publish,
+    get_project_info,
+    get_publish_path,
+    is_compositor_control_supported,
+    save_current_file,
+)
 
 def get_assembly_path(context, shot_name):
     """Get the assembly file path for a shot"""
@@ -80,6 +86,7 @@ class ASSEMBLY_OT_rebuild(Operator):
             linked_roles = []
             required_roles = []
             world_linked = False
+            compositor_linked = False
             
             # Link each role's publish file if not already linked
             for role_mapping in prefs.role_mappings:
@@ -137,6 +144,13 @@ class ASSEMBLY_OT_rebuild(Operator):
                                 context.scene.world = world
                                 world_linked = True
                                 break
+
+                    if role_mapping.owns_compositor and not compositor_linked:
+                        if not is_compositor_control_supported():
+                            self.report({'WARNING'}, "Compositor control only works in Blender 5.0+")
+                        else:
+                            if apply_role_compositor_from_publish(context.scene, blend_path, role_mapping, link=True):
+                                compositor_linked = True
             
             # Save the assembly file
             bpy.ops.wm.save_mainfile()

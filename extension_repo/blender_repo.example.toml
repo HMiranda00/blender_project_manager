@@ -1,0 +1,12 @@
+schema_version = "1.0.0"
+
+# Optional repository metadata example.
+# If you use this file, rename it to `blender_repo.toml`
+# and ensure your Blender version accepts all fields.
+
+name = "Blender Project Manager Extensions"
+maintainer = "Henrique Miranda"
+website = "https://github.com/HMiranda00/blender_project_manager"
+
+# Keep an explicit empty blocklist if your Blender expects it.
+blocklist = []
