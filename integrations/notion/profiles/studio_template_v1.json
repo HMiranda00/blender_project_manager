@@ -1,0 +1,83 @@
+{
+  "profile_name": "studio_template_v1",
+  "schema_version": 1,
+  "notion": {
+    "databases": {
+      "Project": "<projects_db_id>",
+      "Shot": "<shots_db_id>",
+      "Role": "<roles_db_id>",
+      "Version": "<versions_db_id>",
+      "Asset": "<assets_db_id>",
+      "Assembly": "<assembly_db_id>",
+      "PublishEvent": "<publish_events_db_id>"
+    }
+  },
+  "identity": {
+    "Project": [
+      "project_code"
+    ],
+    "Shot": [
+      "project_code",
+      "shot_name"
+    ],
+    "Role": [
+      "project_code",
+      "shot_name",
+      "role_name"
+    ],
+    "Version": [
+      "project_code",
+      "shot_name",
+      "role_name",
+      "version_number"
+    ],
+    "Asset": [
+      "project_code",
+      "asset_name"
+    ],
+    "Assembly": [
+      "project_code",
+      "shot_name"
+    ],
+    "PublishEvent": [
+      "project_code",
+      "shot_name",
+      "role_name",
+      "version_number"
+    ]
+  },
+  "mapping": {
+    "Project.project_code": "Code",
+    "Project.status": "Status",
+    "Project.updated_at": "Updated At",
+    "Shot.project_code": "Project Code",
+    "Shot.shot_name": "Shot",
+    "Shot.status": "Status",
+    "Role.project_code": "Project Code",
+    "Role.shot_name": "Shot",
+    "Role.role_name": "Role",
+    "Role.status": "Status",
+    "Version.project_code": "Project Code",
+    "Version.shot_name": "Shot",
+    "Version.role_name": "Role",
+    "Version.version_number": "Version",
+    "Version.wip_path": "WIP Path",
+    "Version.publish_path": "Publish Path",
+    "Version.status": "Status",
+    "Asset.project_code": "Project Code",
+    "Asset.asset_name": "Asset",
+    "Asset.asset_type": "Asset Type",
+    "Asset.status": "Status",
+    "Assembly.project_code": "Project Code",
+    "Assembly.shot_name": "Shot",
+    "Assembly.assembly_path": "Assembly Path",
+    "Assembly.status": "Status",
+    "PublishEvent.project_code": "Project Code",
+    "PublishEvent.shot_name": "Shot",
+    "PublishEvent.role_name": "Role",
+    "PublishEvent.version_number": "Version",
+    "PublishEvent.publish_path": "Publish Path",
+    "PublishEvent.published_at": "Published At",
+    "PublishEvent.published_by": "Published By"
+  }
+}

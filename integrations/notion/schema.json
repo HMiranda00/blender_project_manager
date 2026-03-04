@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "entities": {
+    "Project": [
+      "id",
+      "project_code",
+      "status",
+      "updated_at",
+      "blender_version"
+    ],
+    "Shot": [
+      "id",
+      "project_code",
+      "shot_name",
+      "status",
+      "updated_at"
+    ],
+    "Role": [
+      "id",
+      "project_code",
+      "shot_name",
+      "role_name",
+      "status",
+      "updated_at"
+    ],
+    "Version": [
+      "id",
+      "project_code",
+      "shot_name",
+      "role_name",
+      "version_number",
+      "wip_path",
+      "publish_path",
+      "status",
+      "updated_at"
+    ],
+    "Asset": [
+      "id",
+      "project_code",
+      "asset_name",
+      "asset_type",
+      "status",
+      "updated_at"
+    ],
+    "Assembly": [
+      "id",
+      "project_code",
+      "shot_name",
+      "assembly_path",
+      "status",
+      "updated_at"
+    ],
+    "PublishEvent": [
+      "id",
+      "project_code",
+      "shot_name",
+      "role_name",
+      "version_number",
+      "publish_path",
+      "published_at",
+      "published_by"
+    ]
+  }
+}
