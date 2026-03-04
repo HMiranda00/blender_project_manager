@@ -220,6 +220,7 @@ Project technical documentation is now organized in `docs/`:
 - [Release Process](docs/RELEASE_PROCESS.md)
 - [Publish New Version](docs/PUBLISH_NEW_VERSION.md)
 - [Release Chat Prompt](docs/RELEASE_CHAT_PROMPT.md)
+- [Notion Integration Map](docs/NOTION_INTEGRATION_MAP.md)
 - [After Effects Expansion Plan](docs/AFTER_EFFECTS_EXPANSION.md)
 
 ## Contribution Workflow
