@@ -1,10 +1,10 @@
 # Publish New Version (One Flow)
 
-This project is configured to publish Blender Extensions artifacts from this same repository.
+This project is configured to publish Blender Extensions artifacts from the source in `master` via GitHub Actions.
 
 ## What this flow does
 
-Running `scripts/release_new_version.ps1`:
+Running `scripts/release_new_version.ps1` locally still:
 
 1. Updates version in:
    - `__init__.py` (`bl_info["version"]`)
@@ -15,7 +15,7 @@ Running `scripts/release_new_version.ps1`:
 4. Validates extension manifest.
 5. Builds extension zip.
 6. Generates `extension_repo/index.json`.
-7. Leaves artifacts ready for sync to your external publication repository.
+7. Leaves artifacts ready for manual fallback sync to your external publication repository.
 
 ## Command
 
@@ -38,21 +38,30 @@ Generated in `extension_repo/`:
 
 These are the files needed for Blender remote repository updates.
 
-## Sync to external publication repo
+## Production flow
 
-If Blender consumes another repository as the remote extension source, sync the generated artifacts with:
+The recommended production flow is now:
 
-```powershell
-git add extension_repo __init__.py blender_manifest.toml README.md CHANGELOG.md
-git commit -m "Release X.Y.Z"
-git push origin master
-```
+1. Merge the release into `master`
+2. Let the `Release Extension` GitHub Actions workflow build the extension with Blender CLI
+3. Let the workflow publish the generated `index.json` and zip to `https://github.com/HMiranda00/h_blender_addons.git`
 
 Full guide:
 
 - `docs/DEPLOY_EXTENSION_REPO.md`
 
-After the push, the `Publish Extension Repo` GitHub Actions workflow syncs the artifacts to `https://github.com/HMiranda00/h_blender_addons.git`.
+## Manual fallback
+
+If you need to publish manually, keep using:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/release_new_version.ps1 -Version X.Y.Z
+powershell -ExecutionPolicy Bypass -File scripts/deploy_extension_repo.ps1 `
+  -TargetRepoUrl "https://github.com/HMiranda00/h_blender_addons.git" `
+  -Branch "main" `
+  -Commit `
+  -Push
+```
 
 ## Register local extension repository in Blender (optional)
 

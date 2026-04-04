@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - `get_project_info()` now resolves workspace paths defensively for fixed-root, flexible-root, legacy, and manually selected workspace folders.
 - Architecture and troubleshooting docs updated to describe the centralized project/workspace path contract.
 - Extension release docs now cover sync to an external publication repository.
+- Production publishing is now driven from `master` via GitHub Actions release automation instead of requiring committed `extension_repo/` updates.
 
 ### Fixed
 - Intermittent `UnboundLocalError` on `workspace_path` when the current project path did not match the fixed-root naming pattern.
@@ -16,7 +17,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - `scripts/deploy_extension_repo.ps1` to sync `index.json` and extension zip artifacts to an external publication repository, with optional commit and push.
 - `docs/DEPLOY_EXTENSION_REPO.md` documenting the external publication repo workflow.
-- GitHub Actions workflow `.github/workflows/publish-extension-repo.yml` to auto-publish committed extension artifacts to `HMiranda00/h_blender_addons`.
+- GitHub Actions workflow [ci.yml](/Users/henrique/github/blender_project_manager/.github/workflows/ci.yml) for branch and PR validation.
+- GitHub Actions workflow [release-extension.yml](/Users/henrique/github/blender_project_manager/.github/workflows/release-extension.yml) to build and publish production artifacts from `master`.
 
 ## [1.6.3] - 2026-03-03
 

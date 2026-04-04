@@ -8,20 +8,24 @@
 
 ## Release Checklist
 
-1. Run pure unit tests:
-   - `powershell -ExecutionPolicy Bypass -File scripts/run_unit_tests.ps1`
-2. Run automated version bump + extension packaging:
+1. Work in feature branches and validate with CI.
+2. Before release, bump version metadata if needed:
    - `powershell -ExecutionPolicy Bypass -File scripts/release_new_version.ps1 -Version X.Y.Z`
-3. Sync generated extension artifacts to the external publication repo when applicable:
-   - push this repo with updated `extension_repo/` so GitHub Actions publishes to `https://github.com/HMiranda00/h_blender_addons.git`
-4. Execute Blender validation checklist in:
+3. Merge to `master` only what should go to production.
+4. Let the `Release Extension` workflow:
+   - run unit tests
+   - validate extension manifest
+   - build extension zip
+   - generate repository `index.json`
+   - publish to `https://github.com/HMiranda00/h_blender_addons.git`
+5. Execute Blender validation checklist in:
    - Blender 4.4 LTS
    - Blender 5.0.1
-5. Update changelog using behavior-focused entries:
+6. Update changelog using behavior-focused entries:
    - fixed
    - changed
    - added
-6. Package add-on zip and verify installation in clean Blender profile.
+7. Verify the published extension in a clean Blender profile when needed.
 
 ## Changelog Template
 

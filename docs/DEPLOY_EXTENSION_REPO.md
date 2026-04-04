@@ -1,13 +1,13 @@
 # Deploy para o repo de publicacao da extension
 
-Este projeto ja gera os artefatos da Blender Extension localmente em `extension_repo/`.
+Este projeto pode gerar os artefatos da Blender Extension localmente em `extension_repo/`, mas o fluxo principal de producao agora e via GitHub Actions.
 
 O passo que faltava era sincronizar esses artefatos para o repositório externo que o Blender consome como fonte remota. O fluxo suportado agora e:
 
-1. Gerar artefatos locais com `scripts/release_new_version.ps1`
-2. Fazer push do commit com `extension_repo/` atualizado neste repo
-3. O GitHub Actions publica automaticamente em `h_blender_addons`
-4. Opcionalmente, usar `scripts/deploy_extension_repo.ps1` para publicar manualmente
+1. Trabalhar em branch e validar via CI
+2. Fazer merge para `master` apenas do que vai para producao
+3. O workflow `Release Extension` baixa Blender, valida o manifest, builda a extension e publica no `h_blender_addons`
+4. Opcionalmente, usar `scripts/release_new_version.ps1` e `scripts/deploy_extension_repo.ps1` como fallback manual
 
 ## Pre-requisitos
 
@@ -25,13 +25,17 @@ URL atual informada para publicacao automatica da extension:
 
 ## Automacao via GitHub Actions
 
-Workflow:
+Workflow de release:
 
-- [.github/workflows/publish-extension-repo.yml](/Users/henrique/github/blender_project_manager/.github/workflows/publish-extension-repo.yml)
+- [release-extension.yml](/Users/henrique/github/blender_project_manager/.github/workflows/release-extension.yml)
+
+Workflow de CI para branch e PR:
+
+- [ci.yml](/Users/henrique/github/blender_project_manager/.github/workflows/ci.yml)
 
 Trigger:
 
-- `push` na branch `master` quando houver mudanca em `extension_repo/**`
+- `push` na branch `master`
 - `workflow_dispatch` para disparo manual
 
 Secret necessario no repo `blender_project_manager`:
@@ -48,15 +52,11 @@ O workflow sincroniza:
 
 ## Fluxo recomendado
 
-1. Rodar o build local da extensao:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/release_new_version.ps1 -Version 1.6.4
-```
-
-2. Commitar e dar push neste repo, incluindo `extension_repo/`
-
-3. Deixar o workflow publicar automaticamente no `h_blender_addons`
+1. Trabalhar normalmente em branch
+2. Abrir PR
+3. O workflow `CI` roda os testes puros
+4. Quando estiver pronto para producao, fazer merge em `master`
+5. O workflow `Release Extension` publica automaticamente no `h_blender_addons`
 
 ## Comando basico
 

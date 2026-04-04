@@ -1,33 +1,65 @@
-name: Publish Extension Repo
+name: Release Extension
 
 on:
   workflow_dispatch:
+    inputs:
+      blender_version:
+        description: Blender version used for validate/build
+        required: true
+        default: "5.0.1"
   push:
     branches:
       - master
-    paths:
-      - "extension_repo/**"
-      - ".github/workflows/publish-extension-repo.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: publish-extension-repo
+  group: release-extension
   cancel-in-progress: true
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      BLENDER_VERSION: ${{ inputs.blender_version || '5.0.1' }}
 
     steps:
       - name: Checkout source repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Validate extension artifacts exist
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Download Blender
         run: |
-          test -f extension_repo/index.json
-          ls -1 extension_repo/blender_project_manager-*.zip
+          major_minor="${BLENDER_VERSION%.*}"
+          blender_url="https://download.blender.org/release/Blender${major_minor}/blender-${BLENDER_VERSION}-linux-x64.tar.xz"
+          curl -fsSL "$blender_url" -o blender.tar.xz
+          mkdir -p "$RUNNER_TEMP/blender"
+          tar -xf blender.tar.xz -C "$RUNNER_TEMP/blender" --strip-components=1
+          echo "$RUNNER_TEMP/blender" >> "$GITHUB_PATH"
+
+      - name: Validate manifest and build extension artifacts
+        run: |
+          mkdir -p build_extension_repo
+          blender --factory-startup --command extension validate "$GITHUB_WORKSPACE"
+          blender --factory-startup --command extension build --source-dir "$GITHUB_WORKSPACE" --output-dir "$GITHUB_WORKSPACE/build_extension_repo"
+          blender --factory-startup --command extension server-generate --repo-dir "$GITHUB_WORKSPACE/build_extension_repo"
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: blender-extension-repo
+          path: build_extension_repo/*
 
       - name: Clone publication repository
         env:
@@ -40,13 +72,13 @@ jobs:
 
           git clone "https://x-access-token:${H_BLENDER_ADDONS_TOKEN}@github.com/HMiranda00/h_blender_addons.git" publish-repo
 
-      - name: Sync extension artifacts
+      - name: Sync generated artifacts to publication repository
         run: |
           zip_name="$(basename "$(python3 - <<'PY'
           import json
           from pathlib import Path
 
-          index = json.loads(Path("extension_repo/index.json").read_text())
+          index = json.loads(Path("build_extension_repo/index.json").read_text())
           entry = next((item for item in index["data"] if item["id"] == "blender_project_manager"), index["data"][0])
           print(entry["archive_url"])
           PY
@@ -54,8 +86,8 @@ jobs:
 
           find publish-repo -maxdepth 1 -type f -name 'blender_project_manager-*.zip' ! -name "$zip_name" -delete
 
-          cp "extension_repo/index.json" "publish-repo/index.json"
-          cp "extension_repo/${zip_name}" "publish-repo/${zip_name}"
+          cp "build_extension_repo/index.json" "publish-repo/index.json"
+          cp "build_extension_repo/${zip_name}" "publish-repo/${zip_name}"
 
           if [ -f "extension_repo/README.md" ]; then
             cp "extension_repo/README.md" "publish-repo/README.md"
@@ -68,24 +100,19 @@ jobs:
       - name: Commit and push publication repo
         working-directory: publish-repo
         run: |
-          if git diff --quiet && git diff --cached --quiet; then
-            echo "No publication changes to push."
-            exit 0
-          fi
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.json README.md blender_repo.example.toml blender_project_manager-*.zip
 
           if git diff --cached --quiet; then
-            echo "No staged publication changes to push."
+            echo "No publication changes to push."
             exit 0
           fi
 
           version="$(python3 - <<'PY'
           import json
           from pathlib import Path
-          index = json.loads(Path("../extension_repo/index.json").read_text())
+          index = json.loads(Path("../build_extension_repo/index.json").read_text())
           entry = next((item for item in index["data"] if item["id"] == "blender_project_manager"), index["data"][0])
           print(entry["version"])
           PY
