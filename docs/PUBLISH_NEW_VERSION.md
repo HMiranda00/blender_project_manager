@@ -15,6 +15,7 @@ Running `scripts/release_new_version.ps1`:
 4. Validates extension manifest.
 5. Builds extension zip.
 6. Generates `extension_repo/index.json`.
+7. Leaves artifacts ready for sync to your external publication repository.
 
 ## Command
 
@@ -36,6 +37,22 @@ Generated in `extension_repo/`:
 - `index.json`
 
 These are the files needed for Blender remote repository updates.
+
+## Sync to external publication repo
+
+If Blender consumes another repository as the remote extension source, sync the generated artifacts with:
+
+```powershell
+git add extension_repo __init__.py blender_manifest.toml README.md CHANGELOG.md
+git commit -m "Release X.Y.Z"
+git push origin master
+```
+
+Full guide:
+
+- `docs/DEPLOY_EXTENSION_REPO.md`
+
+After the push, the `Publish Extension Repo` GitHub Actions workflow syncs the artifacts to `https://github.com/HMiranda00/h_blender_addons.git`.
 
 ## Register local extension repository in Blender (optional)
 

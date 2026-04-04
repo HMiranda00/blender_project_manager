@@ -1,0 +1,95 @@
+name: Publish Extension Repo
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - "extension_repo/**"
+      - ".github/workflows/publish-extension-repo.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-extension-repo
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+
+      - name: Validate extension artifacts exist
+        run: |
+          test -f extension_repo/index.json
+          ls -1 extension_repo/blender_project_manager-*.zip
+
+      - name: Clone publication repository
+        env:
+          H_BLENDER_ADDONS_TOKEN: ${{ secrets.H_BLENDER_ADDONS_TOKEN }}
+        run: |
+          if [ -z "$H_BLENDER_ADDONS_TOKEN" ]; then
+            echo "Missing secret H_BLENDER_ADDONS_TOKEN" >&2
+            exit 1
+          fi
+
+          git clone "https://x-access-token:${H_BLENDER_ADDONS_TOKEN}@github.com/HMiranda00/h_blender_addons.git" publish-repo
+
+      - name: Sync extension artifacts
+        run: |
+          zip_name="$(basename "$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          index = json.loads(Path("extension_repo/index.json").read_text())
+          entry = next((item for item in index["data"] if item["id"] == "blender_project_manager"), index["data"][0])
+          print(entry["archive_url"])
+          PY
+          )")"
+
+          find publish-repo -maxdepth 1 -type f -name 'blender_project_manager-*.zip' ! -name "$zip_name" -delete
+
+          cp "extension_repo/index.json" "publish-repo/index.json"
+          cp "extension_repo/${zip_name}" "publish-repo/${zip_name}"
+
+          if [ -f "extension_repo/README.md" ]; then
+            cp "extension_repo/README.md" "publish-repo/README.md"
+          fi
+
+          if [ -f "extension_repo/blender_repo.example.toml" ]; then
+            cp "extension_repo/blender_repo.example.toml" "publish-repo/blender_repo.example.toml"
+          fi
+
+      - name: Commit and push publication repo
+        working-directory: publish-repo
+        run: |
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No publication changes to push."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.json README.md blender_repo.example.toml blender_project_manager-*.zip
+
+          if git diff --cached --quiet; then
+            echo "No staged publication changes to push."
+            exit 0
+          fi
+
+          version="$(python3 - <<'PY'
+          import json
+          from pathlib import Path
+          index = json.loads(Path("../extension_repo/index.json").read_text())
+          entry = next((item for item in index["data"] if item["id"] == "blender_project_manager"), index["data"][0])
+          print(entry["version"])
+          PY
+          )"
+
+          git commit -m "Publish Blender Project Manager extension v${version}"
+          git push origin HEAD:main

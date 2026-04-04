@@ -191,6 +191,11 @@ The addon automatically configures the Asset Browser for each project:
    - Verify role publish files
    - Check role settings in preferences
 
+4. **Occasional project path errors in the panel**
+   - The add-on now resolves `workspace_path` defensively from either the project root or the workspace folder itself.
+   - In Fixed Root mode, legacy/manual selections that contain `3D` instead of `03 - 3D` are still accepted.
+   - If a project was loaded manually, prefer selecting the project root folder; selecting the workspace folder is now tolerated as a fallback.
+
 ## Support Matrix
 
 - Supported baseline:
@@ -252,7 +257,6 @@ For more information, see the [GNU General Public License v3.0](https://www.gnu.
 Created by:
 - Henrique Miranda
 - Higor Pereira 
-
 
 
 

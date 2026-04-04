@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- `get_project_info()` now resolves workspace paths defensively for fixed-root, flexible-root, legacy, and manually selected workspace folders.
+- Architecture and troubleshooting docs updated to describe the centralized project/workspace path contract.
+- Extension release docs now cover sync to an external publication repository.
+
+### Fixed
+- Intermittent `UnboundLocalError` on `workspace_path` when the current project path did not match the fixed-root naming pattern.
+- Added regression coverage for project/workspace path resolution outside Blender runtime.
+
+### Added
+- `scripts/deploy_extension_repo.ps1` to sync `index.json` and extension zip artifacts to an external publication repository, with optional commit and push.
+- `docs/DEPLOY_EXTENSION_REPO.md` documenting the external publication repo workflow.
+- GitHub Actions workflow `.github/workflows/publish-extension-repo.yml` to auto-publish committed extension artifacts to `HMiranda00/h_blender_addons`.
+
 ## [1.6.3] - 2026-03-03
 
 ### Added
@@ -41,4 +55,3 @@ All notable changes to this project will be documented in this file.
 - Unnecessary folder creation reduced (WIP/paths now created when truly needed).
 - Add-on initialization robustness in headless contexts (`preferences` default role setup timing).
 - Context restoration issues after file-open operations in critical version/shot flows.
-

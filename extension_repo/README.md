@@ -12,3 +12,13 @@ powershell -ExecutionPolicy Bypass -File scripts/release_new_version.ps1 -Versio
 ```
 
 The script will populate this directory automatically.
+
+To sync these artifacts to an external publication repository consumed by Blender, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/deploy_extension_repo.ps1 `
+  -TargetRepoUrl "https://github.com/HMiranda00/h_blender_addons.git" `
+  -Branch "main" `
+  -Commit `
+  -Push
+```

@@ -12,14 +12,16 @@
    - `powershell -ExecutionPolicy Bypass -File scripts/run_unit_tests.ps1`
 2. Run automated version bump + extension packaging:
    - `powershell -ExecutionPolicy Bypass -File scripts/release_new_version.ps1 -Version X.Y.Z`
-3. Execute Blender validation checklist in:
+3. Sync generated extension artifacts to the external publication repo when applicable:
+   - push this repo with updated `extension_repo/` so GitHub Actions publishes to `https://github.com/HMiranda00/h_blender_addons.git`
+4. Execute Blender validation checklist in:
    - Blender 4.4 LTS
    - Blender 5.0.1
-4. Update changelog using behavior-focused entries:
+5. Update changelog using behavior-focused entries:
    - fixed
    - changed
    - added
-5. Package add-on zip and verify installation in clean Blender profile.
+6. Package add-on zip and verify installation in clean Blender profile.
 
 ## Changelog Template
 
@@ -38,4 +40,5 @@
 ## Operational Docs
 
 - `docs/PUBLISH_NEW_VERSION.md`
+- `docs/DEPLOY_EXTENSION_REPO.md`
 - `docs/RELEASE_CHAT_PROMPT.md`

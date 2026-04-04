@@ -41,6 +41,10 @@ Arquivo: `preferences.py`.
 1. `project.create_project` cria pasta base + workspace (`3D` ou `03 - 3D`).
 2. `utils.create_project_structure()` cria `SHOTS`, `ASSETS 3D/PROPS|CHR|ENV`.
 3. `project.setup_asset_browser` cria biblioteca de assets e catalogs.
+4. `utils.get_project_info()` centraliza a resolucao de `workspace_path`:
+   - aceita raiz de projeto ou a pasta de workspace como entrada;
+   - em `fixed root`, prefere `03 - 3D`, mas reaproveita `3D` quando estiver lidando com projeto legado ou selecao manual;
+   - nunca retorna `workspace_path` indefinido, mesmo que o nome da pasta nao siga o padrao `NNN - Nome`.
 
 ### Fluxo Shot/Role
 
@@ -96,6 +100,7 @@ Arquivo: `preferences.py`.
 - Consolidar funcoes duplicadas em `utils/core.py` e `utils/version_control.py`.
 - Ter apenas um operador `project.toggle_asset_browser`.
 - Introduzir `services/` para regras de negocio sem `bpy.ops` quando possivel.
+- Validar selecao manual de projeto na carga (`project.load_project`) para distinguir raiz de projeto vs workspace e normalizar `scene.current_project`.
 
 ### Medio prazo
 

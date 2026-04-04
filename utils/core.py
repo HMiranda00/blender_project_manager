@@ -4,9 +4,40 @@ import re
 from .addon import get_addon_preferences
 from .pipeline_rules import resolve_publish_template
 
+FIXED_ROOT_WORKSPACE = "03 - 3D"
+FLEXIBLE_WORKSPACE = "3D"
+WORKSPACE_FOLDERS = {FIXED_ROOT_WORKSPACE, FLEXIBLE_WORKSPACE}
+
+
+def _resolve_workspace_path(path, is_fixed_root=False):
+    """Resolve workspace path from either project root or workspace folder."""
+    normalized_path = path.rstrip(os.path.sep)
+    current_folder = os.path.basename(normalized_path)
+
+    if current_folder in WORKSPACE_FOLDERS:
+        return normalized_path
+
+    candidates = [FIXED_ROOT_WORKSPACE, FLEXIBLE_WORKSPACE]
+    if not is_fixed_root:
+        candidates.reverse()
+
+    for folder_name in candidates:
+        candidate = os.path.join(normalized_path, folder_name)
+        if os.path.isdir(candidate):
+            return candidate
+
+    preferred_folder = FIXED_ROOT_WORKSPACE if is_fixed_root else FLEXIBLE_WORKSPACE
+    return os.path.join(normalized_path, preferred_folder)
+
+
 def get_project_info(path, is_fixed_root=False):
     """Extract project info from a path"""
-    project_folder = os.path.basename(path.rstrip(os.path.sep))
+    normalized_path = path.rstrip(os.path.sep)
+    project_folder = os.path.basename(normalized_path)
+    workspace_path = _resolve_workspace_path(normalized_path, is_fixed_root)
+
+    if project_folder in WORKSPACE_FOLDERS:
+        project_folder = os.path.basename(os.path.dirname(normalized_path))
     
     # Extrair o número do projeto (ex: 001, 002, etc)
     project_prefix = ""
@@ -14,13 +45,9 @@ def get_project_info(path, is_fixed_root=False):
         prefix_match = re.match(r'^(\d+)\s*-\s*', project_folder)
         if prefix_match:
             project_prefix = prefix_match.group(1)
-            # No modo raiz fixa, sempre usar "03 - 3D"
-            workspace_folder = "03 - 3D"
-            workspace_path = os.path.join(path, workspace_folder)
     else:
         prefix_match = re.match(r'^([A-Z]+\d+)', project_folder)
         project_prefix = prefix_match.group(1) if prefix_match else ""
-        workspace_path = os.path.join(path, "3D")
     
     return project_folder, workspace_path, project_prefix
 
@@ -146,4 +173,3 @@ def force_ui_update():
     for window in bpy.context.window_manager.windows:
         for area in window.screen.areas:
             area.tag_redraw() 
-
