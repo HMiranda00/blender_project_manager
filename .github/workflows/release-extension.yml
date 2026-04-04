@@ -43,23 +43,23 @@ jobs:
         run: |
           major_minor="${BLENDER_VERSION%.*}"
           blender_url="https://download.blender.org/release/Blender${major_minor}/blender-${BLENDER_VERSION}-linux-x64.tar.xz"
-          curl -fsSL "$blender_url" -o blender.tar.xz
+          curl -fsSL "$blender_url" -o "$RUNNER_TEMP/blender.tar.xz"
           mkdir -p "$RUNNER_TEMP/blender"
-          tar -xf blender.tar.xz -C "$RUNNER_TEMP/blender" --strip-components=1
+          tar -xf "$RUNNER_TEMP/blender.tar.xz" -C "$RUNNER_TEMP/blender" --strip-components=1
           echo "$RUNNER_TEMP/blender" >> "$GITHUB_PATH"
 
       - name: Validate manifest and build extension artifacts
         run: |
-          mkdir -p build_extension_repo
+          mkdir -p "$RUNNER_TEMP/build_extension_repo"
           blender --factory-startup --command extension validate "$GITHUB_WORKSPACE"
-          blender --factory-startup --command extension build --source-dir "$GITHUB_WORKSPACE" --output-dir "$GITHUB_WORKSPACE/build_extension_repo"
-          blender --factory-startup --command extension server-generate --repo-dir "$GITHUB_WORKSPACE/build_extension_repo"
+          blender --factory-startup --command extension build --source-dir "$GITHUB_WORKSPACE" --output-dir "$RUNNER_TEMP/build_extension_repo"
+          blender --factory-startup --command extension server-generate --repo-dir "$RUNNER_TEMP/build_extension_repo"
 
       - name: Upload generated artifacts
         uses: actions/upload-artifact@v4
         with:
           name: blender-extension-repo
-          path: build_extension_repo/*
+          path: ${{ runner.temp }}/build_extension_repo/*
 
       - name: Clone publication repository
         env:
@@ -78,7 +78,7 @@ jobs:
           import json
           from pathlib import Path
 
-          index = json.loads(Path("build_extension_repo/index.json").read_text())
+          index = json.loads(Path("${{ runner.temp }}/build_extension_repo/index.json").read_text())
           entry = next((item for item in index["data"] if item["id"] == "blender_project_manager"), index["data"][0])
           print(entry["archive_url"])
           PY
@@ -86,8 +86,8 @@ jobs:
 
           find publish-repo -maxdepth 1 -type f -name 'blender_project_manager-*.zip' ! -name "$zip_name" -delete
 
-          cp "build_extension_repo/index.json" "publish-repo/index.json"
-          cp "build_extension_repo/${zip_name}" "publish-repo/${zip_name}"
+          cp "${{ runner.temp }}/build_extension_repo/index.json" "publish-repo/index.json"
+          cp "${{ runner.temp }}/build_extension_repo/${zip_name}" "publish-repo/${zip_name}"
 
           if [ -f "extension_repo/README.md" ]; then
             cp "extension_repo/README.md" "publish-repo/README.md"
@@ -112,7 +112,7 @@ jobs:
           version="$(python3 - <<'PY'
           import json
           from pathlib import Path
-          index = json.loads(Path("../build_extension_repo/index.json").read_text())
+          index = json.loads(Path("${{ runner.temp }}/build_extension_repo/index.json").read_text())
           entry = next((item for item in index["data"] if item["id"] == "blender_project_manager"), index["data"][0])
           print(entry["version"])
           PY
